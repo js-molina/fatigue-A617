@@ -63,9 +63,6 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
     all_y_true = []
     all_y_pred = []
     
-    print('------------------------------------------------------------------------')
-    print(f'Training for fold {fold_no} ...')
-    
     for train, test in fold.split(Xv, y):
         
         Xv_train = Xv[train]
@@ -110,13 +107,13 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
     
         model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=n_epochs, batch_size=n_batch)
         
-        scores = model.evaluate(Xv_test, y_test, verbose=0)
+        scores = model.evaluate((Xv_test, Xv_test), y_test, verbose=0)
         
         acc_per_fold.append(scores[1] * 100)
         loss_per_fold.append(scores[0])
         
         y_true = np.expm1(y_test.reshape(-1))
-        y_pred = np.expm1(model.predict(Xv_test).reshape(-1))
+        y_pred = np.expm1(model.predict((Xv_test, Xv_test)).reshape(-1))
         
         all_y_true += y_true.tolist()
         all_y_pred += y_pred.tolist()
@@ -170,3 +167,6 @@ if __name__ == "__main__":
     print(f'> Accuracy: {np.mean(acc_per_fold)} (+- {np.std(acc_per_fold)})')
     print(f'> Loss: {np.mean(loss_per_fold)}')
     print('------------------------------------------------------------------------')
+    
+    end = time.time()
+    print("Total time: {}".format(end - start))
