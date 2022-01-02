@@ -86,7 +86,7 @@ Xv_test = pad_sequences(Xv_test, maxlen = max_len, padding='post', value = -999,
 
 model = load_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
 
-model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=1, batch_size=1)
+model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=30, batch_size=5)
 
 scores = model.evaluate((Xv_test, Xc_test), y_test, verbose=0)
 
@@ -103,3 +103,5 @@ print("{}: {:.2f}".format(model.metrics_names[1], rmse))
 
 end = time.time()
 print("Total time: {}".format(end - start))
+
+model.save('models/test_model')
