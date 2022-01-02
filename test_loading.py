@@ -71,8 +71,8 @@ Xv_test = pad_sequences(Xv_test, maxlen = max_len, padding='post', value = -999,
 
 model = load_model('models/test_model2.h5')
 
-y_true = scaler_y.inverse_transform(y_test.reshape(-1, 1))
-y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test)).reshape(-1, 1))
+y_true = scaler_y.inverse_transform(y_test.reshape(-1, 1)).reshape(-1)
+y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test)).reshape(-1, 1)).reshape(-1)
 
 y_true, y_pred = map(np.expm1, [y_true, y_pred])
 
