@@ -1,3 +1,4 @@
+#%%
 from keras.models import Model, load_model
 import pandas as pd
 import numpy as np
@@ -51,15 +52,29 @@ scaler_con.fit(Xc_train)
 Xc_train = scaler_con.transform(Xc_train)
 Xc_test = scaler_con.transform(Xc_test)
 
+y_train = y_train.reshape(-1, 1)
+y_test = y_test.reshape(-1, 1)
+
+# Normalising output data.
+scaler_y = StandardScaler()
+scaler_y.fit(y_train)
+
+y_train = scaler_y.transform(y_train)
+y_test = scaler_y.transform(y_test)
+
+# Padding input sequences
+
 max_len = max(map(len, Xv))
 
 Xv_train = pad_sequences(Xv_train, maxlen = max_len, padding='post', value = -999, dtype='float64')
 Xv_test = pad_sequences(Xv_test, maxlen = max_len, padding='post', value = -999, dtype='float64')
 
-model = load_model('models/test_model')
+model = load_model('models/test_model2.h5')
 
-y_true = np.expm1(y.reshape(-1))
-y_pred = np.expm1(model.predict((Xv_test, Xc_test)).reshape(-1))
+y_true = scaler_y.inverse_transform(y_test.reshape(-1, 1))
+y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test)).reshape(-1, 1))
+
+y_true, y_pred = map(np.expm1, [y_true, y_pred])
 
 rmse = mean_squared_error(y_true, y_pred)
 
@@ -68,3 +83,7 @@ print("{}: {:.2f}".format(model.metrics_names[1], rmse))
 end = time.time()
 print("Total time: {}".format(end - start))
 
+
+print(abs(y_true-y_pred)/y_true*100)
+
+# %%

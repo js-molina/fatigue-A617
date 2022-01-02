@@ -60,7 +60,7 @@ rmse_scores = []
 all_y_true = []
 all_y_pred = []
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y)
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=69)
     
 
 tempX = pd.concat(Xv_train).reset_index(drop=True)
@@ -79,6 +79,15 @@ scaler_con.fit(Xc_train)
 Xc_train = scaler_con.transform(Xc_train)
 Xc_test = scaler_con.transform(Xc_test)
 
+y_train = y_train.reshape(-1, 1)
+y_test = y_test.reshape(-1, 1)
+
+# Normalising output data.
+scaler_y = StandardScaler()
+scaler_y.fit(y_train)
+
+y_train = scaler_y.transform(y_train)
+
 max_len = max(map(len, Xv))
 
 Xv_train = pad_sequences(Xv_train, maxlen = max_len, padding='post', value = -999, dtype='float64')
@@ -86,16 +95,14 @@ Xv_test = pad_sequences(Xv_test, maxlen = max_len, padding='post', value = -999,
 
 model = load_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
 
-model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=30, batch_size=5)
+model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=40, batch_size=5)
+model.save('models/test_model2.h5')
 
 scores = model.evaluate((Xv_test, Xc_test), y_test, verbose=0)
 
-y_true = np.expm1(y_test.reshape(-1))
-y_pred = np.expm1(model.predict((Xv_test, Xc_test)).reshape(-1))
-
-all_y_true += y_true.tolist()
-all_y_pred += y_pred.tolist()
-
+#%%
+y_true = np.expm1(scaler_y.inverse_transform(y_test.reshape(-1, 1)))
+y_pred = np.expm1(scaler_y.inverse_transform(model.predict((Xv_test, Xc_test)).reshape(-1, 1)))
 rmse = mean_squared_error(y_true, y_pred)
 
 rmse_scores.append(rmse)
@@ -104,4 +111,8 @@ print("{}: {:.2f}".format(model.metrics_names[1], rmse))
 end = time.time()
 print("Total time: {}".format(end - start))
 
-model.save('models/test_model')
+print(abs(y_true-y_pred)/y_true*100)
+
+
+
+# %%
