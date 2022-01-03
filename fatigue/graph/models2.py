@@ -113,8 +113,11 @@ def graph_nn_prediction(data):
         else:
             c9.append(get_nf(test))
     
-    i8 = np.array([np.where(np.abs(y_obs - c) < 0.01) for c in c8]).flatten()
-    i9 = np.array([np.where(np.abs(y_obs - c) < 0.01) for c in c9]).flatten()
+    t8 = np.setdiff1d(np.rint(y_obs).astype('int') , np.array(c9))
+    t9 = np.setdiff1d(np.rint(y_obs).astype('int') , np.array(c8))
+    
+    i8 = np.array([np.where(np.rint(y_obs) == t) for t in t8]).flatten()
+    i9 = np.array([np.where(np.rint(y_obs) == t) for t in t9]).flatten()
     
     colors = ['b', 'r']
     markers = ['x', 'o']

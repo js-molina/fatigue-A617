@@ -89,6 +89,8 @@ print(abs(y_true-y_pred)/y_true*100)
 
 # %%
 
+np.savez('ydata2', y_obs = y_true, y_pred = y_pred)
+
 ax = plt.gca()
 
 ax.set_xlabel('Predicted $N_f$')

@@ -140,7 +140,7 @@ if __name__ == "__main__":
     # Training setup
     #################################
 
-    FOLDS = 10              # Number of folds for cross validation
+    FOLDS = 2              # Number of folds for cross validation
     EPOCHS = 30             # Epoch size of 20-40 appears to work
     BATCH = 5               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     PADDING = True          # True (recommended) for post-padding; False for trunacting to shortest vector

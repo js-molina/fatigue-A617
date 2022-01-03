@@ -51,6 +51,8 @@ print("Starting timer...")
 
 Xv, Xc, y = vectorise_data()
 
+#%%
+
 target_scaling = True
 
 if target_scaling:
@@ -60,7 +62,7 @@ rmse_scores = []
 all_y_true = []
 all_y_pred = []
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=69)
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=25)
     
 
 tempX = pd.concat(Xv_train).reset_index(drop=True)
@@ -97,7 +99,7 @@ Xv_test = pad_sequences(Xv_test, maxlen = max_len, padding='post', value = -999,
 
 model = load_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
 
-model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=1, batch_size=1)
+model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=20, batch_size=5)
 
 # model.save('models/test_model2.h5')
 
@@ -118,5 +120,6 @@ print("Total time: {}".format(end - start))
 
 print(abs(y_true-y_pred)/y_true*100)
 
+np.savez('ydata3', y_obs=y_true, y_pred=y_pred)
 
 # %%

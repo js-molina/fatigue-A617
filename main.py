@@ -15,21 +15,21 @@ from fatigue.networks import vectorise_data
 # print('Naive')
 # test_morrow(fatigue_data)6
 # print('Normalised')
-test_morrow2(fatigue_data)
+# test_morrow2(fatigue_data)
 # test_strain_vals(fatigue_data)
 
-# test = fatigue_data.data[6]
+# test = fatigue_data.get_data(950)[0]
 
-# test = random.choice(fatigue_data.data)
-# test, = fatigue_data.get_test_from_sample('J3')
+test = random.choice(fatigue_data.data)
+# test, = fatigue_data.get_test_from_sample('435')
 
-# # test_plastic_strain(test)
+# test_plastic_strain(test)
 
 # test_strain_from_cycles(test)
 # print()
 # test_strain_from_peaks(test, [1, 2, 5, 10, 20, 50, 99, 199, 349])
 
-# test_scuffed_energy(test, [1, 2, 5, 10, 20, 50, 99, 199, 349])
+# test_scuffed_energy(test, [1, 2, 5, 10])
 
 # gr.graph_peaks_from_test(test)
 
@@ -38,7 +38,7 @@ test_morrow2(fatigue_data)
 # for test in fatigue_data.data:
 #     gr.graph_peaks_from_test(test)
 
-# r = test_some_data(test)
+r = test_some_data(test)
 
 # X, y = vectorise_data(fatigue_data.data)
 
@@ -49,6 +49,6 @@ test_morrow2(fatigue_data)
 
 #%% 
 
-gr.models2.graph_nn_prediction('ydata.npz')
+gr.models2.graph_nn_prediction('ydata2.npz')
 
 
