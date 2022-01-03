@@ -3,6 +3,8 @@ import numpy as np
 
 from .helper import chi_ratio
 from ..models import TEMPS
+from ..finder import fatigue_data
+from ..models2 import get_nf
 
 def graph_model(model):
         
@@ -92,6 +94,57 @@ def graph_prediction(model):
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
     ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
 
+    ax.legend(framealpha = 1, edgecolor = 'None')
+    
+    ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
+    
+    plt.show()
+    
+def graph_nn_prediction(data):
+    d = np.load(data)
+    y_obs, y_pred = d['y_obs'], d['y_pred']
+    
+    c8 = []
+    c9 = []
+    
+    for test in fatigue_data.data:
+        if test.Temp == 850:
+            c8.append(get_nf(test))
+        else:
+            c9.append(get_nf(test))
+    
+    i8 = np.array([np.where(np.abs(y_obs - c) < 0.01) for c in c8]).flatten()
+    i9 = np.array([np.where(np.abs(y_obs - c) < 0.01) for c in c9]).flatten()
+    
+    colors = ['b', 'r']
+    markers = ['x', 'o']
+    labels = []
+    
+    x_pred = [y_pred[i8], y_pred[i9]]
+    x_obs = [y_obs[i8], y_obs[i9]]
+    
+    for i in range(len(TEMPS)):
+        s1 = '\SI{%d}{\celsius}'%TEMPS[i]
+        s2 = '%.3f'%chi_ratio(x_pred[i], x_obs[i])
+        labels.append(' -- $\chi^2 =\ $'.join([s1, s2]))
+    
+    ax = plt.gca()
+    
+    ax.set_xlabel('Predicted $N_f$')
+    ax.set_ylabel('Measured $N_f$')
+    
+    ax.set_ylim(100, 20000)
+    ax.set_xlim(100, 20000)
+    
+    ax.set_aspect('equal')
+    
+    for i in range(2):
+        ax.loglog(x_pred[i], x_obs[i], marker = markers[i], markersize = 5, ls = 'None', \
+        markeredgecolor = colors[i], markerfacecolor = 'None', markeredgewidth = 1, label = labels[i])
+    
+    ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
+    ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
+    
     ax.legend(framealpha = 1, edgecolor = 'None')
     
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)

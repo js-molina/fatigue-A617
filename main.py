@@ -18,7 +18,7 @@ from fatigue.networks import vectorise_data
 test_morrow2(fatigue_data)
 # test_strain_vals(fatigue_data)
 
-test = fatigue_data.data[6]
+# test = fatigue_data.data[6]
 
 # test = random.choice(fatigue_data.data)
 # test, = fatigue_data.get_test_from_sample('J3')
@@ -38,17 +38,17 @@ test = fatigue_data.data[6]
 # for test in fatigue_data.data:
 #     gr.graph_peaks_from_test(test)
 
-r = test_some_data(test)
+# r = test_some_data(test)
 
 # X, y = vectorise_data(fatigue_data.data)
 
 
-X = test_features(fatigue_data.data)
+# X = test_features(fatigue_data.data)
+# 
+
 
 #%% 
 
-# total_len = sum([len(x) for x in X])
-# feat_len = X[0].shape[1]
+gr.models2.graph_nn_prediction('ydata.npz')
 
-# tempX = np.empty(shape = (total_len, feat_len))
 
