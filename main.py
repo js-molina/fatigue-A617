@@ -15,7 +15,7 @@ from fatigue.networks import vectorise_data
 # print('Naive')
 # test_morrow(fatigue_data)6
 # print('Normalised')
-# test_morrow2(fatigue_data)
+test_morrow2(fatigue_data)
 # test_strain_vals(fatigue_data)
 
 test = fatigue_data.data[6]

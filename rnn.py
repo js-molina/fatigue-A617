@@ -53,26 +53,25 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
     
     fold = KFold(n_splits=n_folds, shuffle=True, random_state=77)
     
-    fold_no = 1
-    
-    # Define per-fold score containers
-    acc_per_fold = []
-    loss_per_fold = []
-    
     rmse_scores = []
     all_y_true = []
     all_y_pred = []
+    
+    n_fold = 1
     
     for train, test in fold.split(Xv, y):
         
         Xv_train = Xv[train]
         y_train = y[train]
         
+        Xc_train = Xc[train]
+        Xc_test = Xc[test]
+        
         Xv_test = Xv[test]
         y_test = y[test]
         
         tempX = pd.concat(Xv_train).reset_index(drop=True)
-    
+        
         scaler_var = PowerTransformer()
         scaler_var.fit(tempX)
         
@@ -81,14 +80,22 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
         Xv_train = np.array([scaler_var.transform(x) for x in Xv_train], dtype='object')
         Xv_test = np.array([scaler_var.transform(x) for x in Xv_test], dtype= 'object')
         
-        Xc_train = Xc[train]
-        Xc_test = Xc[test]
-        
         scaler_con = StandardScaler()
         scaler_con.fit(Xc_train)
         
         Xc_train = scaler_con.transform(Xc_train)
         Xc_test = scaler_con.transform(Xc_test)
+        
+        # Normalising output data.
+        
+        y_train = y_train.reshape(-1, 1)
+        y_test = y_test.reshape(-1, 1)
+        
+        scaler_y = StandardScaler()
+        scaler_y.fit(y_train)
+        
+        y_train = scaler_y.transform(y_train)
+        y_test = scaler_y.transform(y_test)
         
         max_len = max(map(len, Xv))
         
@@ -103,17 +110,14 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
             model = load_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
     
         print('------------------------------------------------------------------------')
-        print(f'Training for fold {fold_no} ...')
+        print(f'Training for fold {n_fold} ...')
     
         model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=n_epochs, batch_size=n_batch)
         
-        scores = model.evaluate((Xv_test, Xv_test), y_test, verbose=0)
+        y_true = scaler_y.inverse_transform(y_test).reshape(-1)
+        y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
         
-        acc_per_fold.append(scores[1] * 100)
-        loss_per_fold.append(scores[0])
-        
-        y_true = np.expm1(y_test.reshape(-1))
-        y_pred = np.expm1(model.predict((Xv_test, Xv_test)).reshape(-1))
+        y_true, y_pred = map(np.expm1, [y_true, y_pred])
         
         all_y_true += y_true.tolist()
         all_y_pred += y_pred.tolist()
@@ -123,9 +127,9 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
         rmse_scores.append(rmse)
         print("{}: {:.2f}".format(model.metrics_names[1], rmse))
         
-        fold_no += 1
+        n_fold += 1
         
-    return rmse_scores, all_y_true, all_y_pred, acc_per_fold, loss_per_fold
+    return rmse_scores, all_y_true, all_y_pred
 
 if __name__ == "__main__":
     
@@ -137,8 +141,8 @@ if __name__ == "__main__":
     #################################
 
     FOLDS = 10              # Number of folds for cross validation
-    EPOCHS = 20             # Epoch size of 20-40 appears to work
-    BATCH = 3               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
+    EPOCHS = 30             # Epoch size of 20-40 appears to work
+    BATCH = 5               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     PADDING = True          # True (recommended) for post-padding; False for trunacting to shortest vector
     INPUT_SCALING = True    # True (recommended) for scaling input data; False for raw data
     TARGET_SCALING = True   # True (recommended) for scaling target with ln(x+1); False for unscaled target
@@ -148,25 +152,13 @@ if __name__ == "__main__":
     DATA_CYC = [1,10]       # Cycles to use as input
     DATA_TEMP = [850]       # Temperature of experiments to model
     
-    
     Xv, Xc, y = vectorise_data()
 
     target_scaling = True
     
-    rmse_scores, y_true, y_pred, \
-    acc_per_fold, loss_per_fold = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS, n_batch=BATCH, gpu_list=GPUS)
+    rmse_scores, y_true, y_pred = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS, n_batch=BATCH, gpu_list=GPUS, n_folds = FOLDS)
     
-    
-    print('------------------------------------------------------------------------')
-    print('Score per fold')
-    for i in range(0, len(acc_per_fold)):
-        print('------------------------------------------------------------------------')
-        print(f'> Fold {i+1} - Loss: {loss_per_fold[i]} - Accuracy: {acc_per_fold[i]}%')
-    print('------------------------------------------------------------------------')
-    print('Average scores for all folds:')
-    print(f'> Accuracy: {np.mean(acc_per_fold)} (+- {np.std(acc_per_fold)})')
-    print(f'> Loss: {np.mean(loss_per_fold)}')
-    print('------------------------------------------------------------------------')
+    np.savez('ydata', y_obs=y_true, y_pred=y_pred)
     
     end = time.time()
     print("Total time: {}".format(end - start))
