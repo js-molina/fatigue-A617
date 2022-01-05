@@ -114,7 +114,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
     
         model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=n_epochs, batch_size=n_batch)
         
-        model.save('models/folds/m%d.h5')
+        model.save('models/folds2/m%d.h5'%n_fold)
         
         y_true = scaler_y.inverse_transform(y_test).reshape(-1)
         y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
@@ -144,14 +144,14 @@ if __name__ == "__main__":
 #     Training Setup
 # =============================================================================
 
-    FOLDS = 2              # Number of folds for cross validation
-    EPOCHS = 30             # Epoch size of 20-40 appears to work
-    BATCH = 5               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
+    FOLDS = 5              # Number of folds for cross validation
+    EPOCHS = 40             # Epoch size of 20-40 appears to work
+    BATCH = 6               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     PADDING = True          # True (recommended) for post-padding; False for trunacting to shortest vector
     INPUT_SCALING = True    # True (recommended) for scaling input data; False for raw data
     TARGET_SCALING = True   # True (recommended) for scaling target with ln(x+1); False for unscaled target
     SMOOTHING = True        # True (recommended) for noise reduction; False for raw data
-    MULTI_GPU = True       # False for single GPU usage; True to use data parallelisation across GPUs;
+    MULTI_GPU = False       # False for single GPU usage; True to use data parallelisation across GPUs;
     GPUS = tf.config.list_logical_devices('GPU')    # List of GPUs
     DATA_CYC = [1,10]       # Cycles to use as input
     DATA_TEMP = [850]       # Temperature of experiments to model
@@ -160,9 +160,9 @@ if __name__ == "__main__":
 
     target_scaling = True
     
-    rmse_scores, y_true, y_pred = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS, n_batch=BATCH, gpu_list=GPUS, n_folds = FOLDS)
+    rmse_scores, y_true, y_pred = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS, n_batch=BATCH, gpu_list=GPUS, n_folds = FOLDS, gpu_multi=MULTI_GPU)
     
-    np.savez('mdata/ydata3', y_obs=y_true, y_pred=y_pred)
+    np.savez('mdata/ydata5', y_obs=y_true, y_pred=y_pred)
     
     end = time.time()
     print("Total time: {}".format(end - start))
