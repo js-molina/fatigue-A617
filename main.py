@@ -18,9 +18,9 @@ from fatigue.networks import vectorise_data
 # test_morrow2(fatigue_data)
 # test_strain_vals(fatigue_data)
 
-# test = fatigue_data.get_data(950)[0]
+test = fatigue_data.get_data(950)[0]
 
-test = random.choice(fatigue_data.data)
+# test = random.choice(fatigue_data.data)
 # test, = fatigue_data.get_test_from_sample('435')
 
 # test_plastic_strain(test)
@@ -43,12 +43,12 @@ r = test_some_data(test)
 # X, y = vectorise_data(fatigue_data.data)
 
 
-# X = test_features(fatigue_data.data)
+X = test_features(fatigue_data.data)
 # 
 
 
 #%% 
 
-gr.models2.graph_nn_prediction('ydata2.npz')
+gr.models2.graph_nn_prediction('mdata/ydata3.npz')
 
 

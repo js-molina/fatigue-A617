@@ -1,4 +1,5 @@
 from ..graph import get_peak_data_from_test
+import numpy as np
 # from ..models2 import get_nf
 
 def stress(test):
@@ -14,6 +15,18 @@ def app_elastic_e(x, E):
 def app_plastic_e(x, e):
     x = x.assign(plastic = e - x.elastic)
     return x
+
+def app_diff(x):
+    x = x.assign(max_diff = np.insert(np.diff(x.max_s), values = 0, obj = 0))
+    x = x.assign(min_diff = np.insert(np.diff(x.min_s), values = 0, obj = 0))
+    x = x.assign(s_ratio_diff = np.insert(np.diff(x.s_ratio), values = 0, obj = 0))
+    return x
+
+def app_int(x):
+    x = x.assign(max_int = x.max_s.expanding(1).sum())
+    x = x.assign(min_int = x.min_s.expanding(1).sum())
+    x = x.assign(s_ratio_int = x.s_ratio.expanding(1).sum())
+    return x
            
 def app_bavg(x):
     
@@ -25,7 +38,8 @@ def app_bavg(x):
     
     for n, s in zip(vals, strs):
         tmp = x.rolling(n, min_periods=1).mean()
-        kwargs = {'max_s_' + s : tmp.max_s, 'min_s_' + s : tmp.min_s}
+        kwargs = {'max_s_' + s : tmp.max_s, 'min_s_' + s : tmp.min_s,
+                  'max_diff_' + s : tmp.max_diff, 'min_diff_' + s : tmp.min_diff}
         x = x.assign(**kwargs)
     
     vals = [30, 20, 10]
@@ -65,8 +79,8 @@ def app_const(x, test):
     x['temp'] = test.Temp
     x['strain'] = test.Strain
     x['rate'] = test.Rate
-
-def features(test):
+    
+def features(test, cycles = False):
     
     x = stress(test)
     
@@ -74,6 +88,8 @@ def features(test):
         E = 153e3
     else:
         E = 144e3 
+    
+    x = app_diff(x)
     
     x = app_elastic_e(x, E)
     x = app_plastic_e(x, test.Strain)
@@ -83,8 +99,7 @@ def features(test):
     
     app_const(x, test)
     
-    x = x.drop('cycle', axis = 1)
+    if not cycles:
+        x = x.drop('cycle', axis = 1)
     
     return x.iloc[10:]
-
-

@@ -99,7 +99,7 @@ Xv_test = pad_sequences(Xv_test, maxlen = max_len, padding='post', value = -999,
 
 model = load_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
 
-model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=20, batch_size=5)
+model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=1, batch_size=3)
 
 # model.save('models/test_model2.h5')
 
@@ -120,6 +120,6 @@ print("Total time: {}".format(end - start))
 
 print(abs(y_true-y_pred)/y_true*100)
 
-np.savez('ydata3', y_obs=y_true, y_pred=y_pred)
+np.savez('mdata/ydata3', y_obs=y_true, y_pred=y_pred)
 
 # %%

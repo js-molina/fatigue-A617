@@ -58,23 +58,6 @@ def test_scuffed_energy(trial, l_cycle):
         
         print('%.3f\t%.2f'%(es3, abs(es3-es0)/es0*100))
 
-
-def test_some_peak_data(test):
-    x = stress(test)
-    
-    if test.Temp == 850:
-        E = 153e3
-    else:
-        E = 144e3 
-    
-    x = app_elastic_e(x, E)
-    x = app_plastic_e(x, test.Strain)
-    
-    x = app_bavg(x)
-    x = app_favg(x)
-    
-    return x
-
 def test_features(data):
     x = []
     for test in data:
@@ -85,9 +68,10 @@ def test_some_data(test):
     
     lw_ = 1
     
-    x = test_some_peak_data(test)
+    x = features(test, True)
     
     l = x.cycle.iloc[-1]
+    # l = len(x)
     
     print(test.Sample, 'l = %d'%l, sep = '\t')
     
@@ -95,8 +79,8 @@ def test_some_data(test):
     
     ax.set_xlim([10, l*1.1])
     
-    ax.plot(x.cycle, x.min_s, 'r-', lw = lw_, alpha = 0.3)
-    ax.plot(x.cycle, x.max_s, 'b-', lw = lw_, alpha = 0.3)
+    # ax.plot(x.cycle, x.min_s, 'r-', lw = lw_, alpha = 0.3)
+    # ax.plot(x.cycle, x.max_s, 'b-', lw = lw_, alpha = 0.3)
     
     # ax.plot(x.cycle, x.min_s_b100, 'r--', lw = lw_)
     # ax.plot(x.cycle, x.max_s_b100, 'b--', lw = lw_)
@@ -116,8 +100,8 @@ def test_some_data(test):
     # ax.plot(x.cycle, x.min_s_f10p, 'r:', lw = lw_)
     # ax.plot(x.cycle, x.max_s_f10p, 'b:', lw = lw_)
     
-    ax.plot(x.cycle, x.min_s_f10, 'r:', lw = lw_)
-    ax.plot(x.cycle, x.max_s_f10, 'b:', lw = lw_)
+    ax.plot(x.cycle, x.max_diff_b50, 'r:', lw = lw_)
+    ax.plot(x.cycle, x.min_diff_b50, 'b:', lw = lw_)
     
     # ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     plt.show()    

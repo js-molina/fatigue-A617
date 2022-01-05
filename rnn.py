@@ -114,10 +114,14 @@ def cross_val_eval(Xv, Xc, y, n_epochs=20, n_batch=3, target_scaling=True, n_fol
     
         model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=n_epochs, batch_size=n_batch)
         
+        model.save('models/folds/m%d.h5')
+        
         y_true = scaler_y.inverse_transform(y_test).reshape(-1)
         y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
         
         y_true, y_pred = map(np.expm1, [y_true, y_pred])
+        
+        print(abs(y_true-y_pred)/y_true*100)
         
         all_y_true += y_true.tolist()
         all_y_pred += y_pred.tolist()
@@ -136,9 +140,9 @@ if __name__ == "__main__":
     start = time.time()
     print("Starting timer...")
     
-    #################################
-    # Training setup
-    #################################
+# =============================================================================
+#     Training Setup
+# =============================================================================
 
     FOLDS = 2              # Number of folds for cross validation
     EPOCHS = 30             # Epoch size of 20-40 appears to work
@@ -147,7 +151,7 @@ if __name__ == "__main__":
     INPUT_SCALING = True    # True (recommended) for scaling input data; False for raw data
     TARGET_SCALING = True   # True (recommended) for scaling target with ln(x+1); False for unscaled target
     SMOOTHING = True        # True (recommended) for noise reduction; False for raw data
-    MULTI_GPU = False       # False for single GPU usage; True to use data parallelisation across GPUs;
+    MULTI_GPU = True       # False for single GPU usage; True to use data parallelisation across GPUs;
     GPUS = tf.config.list_logical_devices('GPU')    # List of GPUs
     DATA_CYC = [1,10]       # Cycles to use as input
     DATA_TEMP = [850]       # Temperature of experiments to model
@@ -158,7 +162,7 @@ if __name__ == "__main__":
     
     rmse_scores, y_true, y_pred = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS, n_batch=BATCH, gpu_list=GPUS, n_folds = FOLDS)
     
-    np.savez('ydata', y_obs=y_true, y_pred=y_pred)
+    np.savez('mdata/ydata3', y_obs=y_true, y_pred=y_pred)
     
     end = time.time()
     print("Total time: {}".format(end - start))

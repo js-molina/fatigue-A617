@@ -5,7 +5,7 @@ import numpy as np
 
 const_data = ['temp', 'strain', 'rate']
 
-def vectorise_data(data = fatigue_data.data):
+def vectorise_data(data = fatigue_data.data, cycles = False):
     X_vary = []
     X_const = []
     y = []
