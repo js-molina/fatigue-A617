@@ -97,6 +97,21 @@ def run_test_loading(ydata_name = None, model_path = None, rand_st = 31):
     
     if ydata_name:
         graph_nn_prediction(f'mdata/{ydata_name}.npz')
+    else:
+        ax = plt.gca()
+        
+        ax.set_xlabel('Predicted $N_f$')
+        ax.set_ylabel('Measured $N_f$')
+        
+        ax.set_ylim(100, 20000)
+        ax.set_xlim(100, 20000)
+        
+        ax.set_aspect('equal')
+        
+        ax.loglog(y_pred, y_true, 'rx')
+        
+        ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
+        ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
         
     print(chi_ratio(y_pred, y_true))
     
