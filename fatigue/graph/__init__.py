@@ -4,10 +4,10 @@ import pandas as pd
 import numpy as np
 import matplotlib, os
 
-matplotlib.rcParams['text.usetex'] = True
-matplotlib.rcParams['font.serif'] = 'Computer Modern'
-matplotlib.rcParams['font.family'] = 'serif'
-matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx}'
+# matplotlib.rcParams['text.usetex'] = True
+# matplotlib.rcParams['font.serif'] = 'Computer Modern'
+# matplotlib.rcParams['font.family'] = 'serif'
+# matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx}'
 
 from .funcs import *
 from .helper import *

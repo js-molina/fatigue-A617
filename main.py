@@ -1,8 +1,7 @@
-
+#%%
 # =============================================================================
 # Importing Modules
 # =============================================================================
-
 
 import random
 from fatigue.finder import fatigue_data
@@ -16,7 +15,7 @@ import fatigue.graph as gr
 import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import vectorise_data
-
+from fatigue.neural.test import run_test_model, run_test_loading
 
 #%%
 
@@ -25,10 +24,10 @@ from fatigue.networks import vectorise_data
 # =============================================================================
 
 
-print('Naive')
-test_morrow(fatigue_data)
-print('Normalised')
-test_morrow2(fatigue_data)
+# print('Naive')
+# test_morrow(fatigue_data)
+# print('Normalised')
+# test_morrow2(fatigue_data)
 
 # test_strain_vals(fatigue_data)
 
@@ -63,9 +62,8 @@ test_morrow2(fatigue_data)
 # X = test_features(fatigue_data.data)
 # 
 
+#%%
 
-#%% 
+run_test_model(save_path='ydata-06-01-22',model_name='test_model', rand_st=31)
 
-gr.models2.graph_nn_prediction('mdata/ydata5.npz')
-
-
+# %%

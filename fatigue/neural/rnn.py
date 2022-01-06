@@ -14,8 +14,8 @@ from sklearn.model_selection import KFold, train_test_split
 from sklearn.metrics import mean_squared_error
 import time
 
-from ..fatigue.networks import vectorise_data
-from helper import load_known_lstm_model, preprocess_input
+from ..networks import vectorise_data
+from .helper import load_known_lstm_model, preprocess_input
 
 
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, n_folds, gpu_multi = False, gpu_list = None):

@@ -17,10 +17,10 @@ import time
 import datetime
 from keras.wrappers.scikit_learn import KerasRegressor
 
-from ..fatigue.networks import vectorise_data, ragged_numpy_arr
-from helper import load_known_lstm_model, preprocess_input
-from ..fatigue.graph import chi_ratio
-from ..fatigue.graph.models2 import graph_nn_prediction
+from ..networks import vectorise_data, ragged_numpy_arr
+from .helper import load_known_lstm_model, preprocess_input
+from ..graph import chi_ratio
+from ..graph.models2 import graph_nn_prediction
 
 def run_test_model(save_path = None, model_name = None, rand_st = 31):
 
@@ -40,10 +40,10 @@ def run_test_model(save_path = None, model_name = None, rand_st = 31):
     
     model = load_known_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
     
-    model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=1, batch_size=3)
+    model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=40, batch_size=5)
         
     if model_name:
-        model.save('../models/' + model_name + '.h5')
+        model.save('models/' + model_name)
     
     # Inverse normalise target data
     
@@ -63,7 +63,7 @@ def run_test_model(save_path = None, model_name = None, rand_st = 31):
     print(abs(y_true-y_pred)/y_true*100)
     
     if save_path:
-        np.savez('../mdata/' + save_path , y_obs=y_true, y_pred=y_pred)
+        np.savez('mdata/' + save_path , y_obs=y_true, y_pred=y_pred)
 
 def run_test_loading(ydata_name = None, model_path = None, rand_st = 31):
 
@@ -79,7 +79,7 @@ def run_test_loading(ydata_name = None, model_path = None, rand_st = 31):
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
     preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv))) 
     
-    model = load_model(f'../models/{model_path}')
+    model = load_model(f'models/{model_path}')
     
     y_true = scaler_y.inverse_transform(y_test.reshape(-1, 1)).reshape(-1)
     y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test)).reshape(-1, 1)).reshape(-1)
@@ -96,7 +96,7 @@ def run_test_loading(ydata_name = None, model_path = None, rand_st = 31):
     print(abs(y_true-y_pred)/y_true*100)
     
     if ydata_name:
-        graph_nn_prediction(f'../mdata/{ydata_name}.npz')
+        graph_nn_prediction(f'mdata/{ydata_name}.npz')
         
     print(chi_ratio(y_pred, y_true))
     

@@ -17,7 +17,6 @@ import time
 import datetime
 from keras.wrappers.scikit_learn import KerasRegressor
 
-
 def load_known_lstm_model(time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
