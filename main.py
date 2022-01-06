@@ -64,6 +64,11 @@ from fatigue.neural.test import run_test_model, run_test_loading
 
 #%%
 
-run_test_model(save_path='ydata-06-01-22',model_name='test_model', rand_st=31)
+# run_test_model(save_path='ydata-06-01-22', model_name='test_model', rand_st=31)
+
+# %%
+
+run_test_loading(None, model_path='test_model', rand_st=31)
+
 
 # %%
