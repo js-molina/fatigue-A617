@@ -75,4 +75,4 @@ def preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_
     Xv_train = pad_sequences(Xv_train, maxlen = seq_max_len, padding='post', value = -999, dtype='float64')
     Xv_test = pad_sequences(Xv_test, maxlen = seq_max_len, padding='post', value = -999, dtype='float64')
     
-    return map(tf.convert_to_tensor, [Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test]), scaler_y
+    return Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y
