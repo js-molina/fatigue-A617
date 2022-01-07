@@ -57,12 +57,12 @@ from fatigue.neural.test import run_test_model, run_test_loading
 # # X, y = vectorise_data(fatigue_data.data)
 
 
-X = test_features(fatigue_data.data)
+# X = test_features(fatigue_data.data)
 
 
 #%%
 
-# run_test_model(save_path='ydata-06-01-22', model_name='test_model.h5', rand_st=31)
+run_test_model(None, None, 1917)
 
 # %%
 
