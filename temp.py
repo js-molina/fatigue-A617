@@ -39,12 +39,6 @@ preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(
 
 print('Creating Datasets...')
 
-GPU = tf.config.list_logical_devices('GPU')
-
-strategy = tf.distribute.MirroredStrategy(GPU)
-
-# options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
-
 def tr_generator():
     for s1, s2, l in zip(Xv_train, Xc_train, y_train):
         yield {"time_input": s1, "const_input": s2}, l
@@ -65,8 +59,10 @@ test_data = test_data.shuffle(10000).batch(6)
 
 print('Initialising Model...')
 
-with strategy.scope():
-    model = load_known_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
+# with strategy.scope():
+#     model = load_known_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
+
+model = load_known_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
 
 print('Fitting Model...')
 
@@ -91,7 +87,7 @@ print("{}: {:.2f}".format(model.metrics_names[1], rmse))
 err = abs(y_true-y_pred)/y_true*100
 
 end = time.time()
-print("Total time: {}".format((end - start)/60))
+print("Total time: {}".format(end - start))
 
 print(err.astype(np.float64))
 
