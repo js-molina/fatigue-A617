@@ -43,9 +43,7 @@ from fatigue.neural.test import run_test_model, run_test_loading
 
 # test_strain_from_cycles(test)
 # print()
-# test_strain_from_peaks(test, [1, 2, 5, 10, 20, 50, 99, 199, 349])
 
-# test_scuffed_energy(test, [1, 2, 5, 10])
 
 # gr.graph_peaks_from_test(test)
 
@@ -59,8 +57,8 @@ from fatigue.neural.test import run_test_model, run_test_loading
 # # X, y = vectorise_data(fatigue_data.data)
 
 
-# X = test_features(fatigue_data.data)
-# 
+X = test_features(fatigue_data.data)
+
 
 #%%
 
@@ -72,4 +70,4 @@ from fatigue.neural.test import run_test_model, run_test_loading
 
 # %%
 
-gr.models2.graph_nn_prediction('mdata/ydata-06-01-22.npz')
+# gr.models2.graph_nn_prediction('mdata/ydata-06-01-22.npz')
