@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 from keras.models import Model, load_model
 import pandas as pd
 import numpy as np
