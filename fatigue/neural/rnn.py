@@ -1,3 +1,4 @@
+from json import load
 from keras.models import Model
 import pandas as pd
 import numpy as np
@@ -15,17 +16,17 @@ from sklearn.metrics import mean_squared_error
 import time
 
 from ..networks import vectorise_data
-from .helper import load_known_lstm_model, preprocess_input
+from .helper import load_known_lstm_model, hyperx1_lstm_model, preprocess_input
 
 
-def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, n_folds, gpu_multi = False, gpu_list = None):
+def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, n_folds, gpu_multi = False, gpu_list = None, load_func = load_known_lstm_model):
     
     # Target Scaling
     y = np.log1p(y)
     
     # Fold and score init
     
-    fold = KFold(n_splits=n_folds, shuffle=True, random_state=77)
+    fold = KFold(n_splits=n_folds, shuffle=True)
     
     rmse_scores = []
     all_y_true = []
@@ -50,16 +51,16 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, n_folds, gpu_multi = False, gpu
         if gpu_multi:
             strategy = tf.distribute.MirroredStrategy(gpu_list)
             with strategy.scope():
-                model = load_known_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
+                model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
         else:
-            model = load_known_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
+            model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
         print('------------------------------------------------------------------------')
         print(f'Training for fold {n_fold} ...')
     
         model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=n_epochs, batch_size=n_batch)
         
-        model.save('../models/folds2/m%d.h5'%n_fold)
+        # model.save('../models/folds2/m%d.h5'%n_fold)
         
         y_true = scaler_y.inverse_transform(y_test).reshape(-1)
         y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
@@ -80,7 +81,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, n_folds, gpu_multi = False, gpu
         
     return rmse_scores, all_y_true, all_y_pred
 
-def run_xval_model(save_path = None):
+def run_xval_model(save_path = None, load_func = load_known_lstm_model):
     
     start = time.time()
     print("Starting timer...")
@@ -98,10 +99,10 @@ def run_xval_model(save_path = None):
     Xv, Xc, y = vectorise_data()
 
     rmse_scores, y_true, y_pred = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS,
-            n_batch=BATCH, gpu_list=GPUS, n_folds = FOLDS, gpu_multi=MULTI_GPU)
+            n_batch=BATCH, gpu_list=GPUS, n_folds = FOLDS, gpu_multi=MULTI_GPU, load_func = load_func)
     
     if save_path:
-        np.savez('../mdata/' + save_path , y_obs=y_true, y_pred=y_pred)
+        np.savez('mdata/' + save_path , y_obs=y_true, y_pred=y_pred)
     
     end = time.time()
     print("Total time: {}".format(end - start))

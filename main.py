@@ -15,7 +15,9 @@ import fatigue.graph as gr
 import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import vectorise_data
+from fatigue.neural.rnn import run_xval_model
 from fatigue.neural.test import run_test_model, run_test_loading
+from fatigue.neural.helper import hyperx1_lstm_model
 
 #%%
 
@@ -62,8 +64,10 @@ from fatigue.neural.test import run_test_model, run_test_loading
 
 #%%
 
-run_test_model(None, None, 1917)
+# run_test_model('ydata-11-01-22', None, hyperx1_lstm_model, 30, 2022)
 
+
+run_xval_model('ydata-11-01-22-2', hyperx1_lstm_model)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)

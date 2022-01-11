@@ -22,7 +22,7 @@ from .helper import load_known_lstm_model, preprocess_input
 from ..graph import chi_ratio
 from ..graph.models2 import graph_nn_prediction
 
-def run_test_model(save_path = None, model_name = None, rand_st = 31):
+def run_test_model(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, rand_st = 31):
 
     start = time.time()
     print("Starting timer...")
@@ -38,9 +38,9 @@ def run_test_model(save_path = None, model_name = None, rand_st = 31):
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
     preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv))) 
     
-    model = load_known_lstm_model(Xv_train.shape[1:], Xc_train.shape[1:])
+    model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
-    model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=40, batch_size=5)
+    model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=epochs, batch_size=5)
         
     if model_name:
         model.save('models/' + model_name)

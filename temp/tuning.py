@@ -1,6 +1,7 @@
-import sys
+import os, sys
 
-sys.path.append('..')
+p = os.path.abspath('.')
+sys.path.insert(1, p)
 
 from keras.models import Model, load_model
 import pandas as pd
@@ -9,6 +10,7 @@ import seaborn as sb
 import os
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import keras
 from keras.callbacks import ModelCheckpoint
 from keras import layers, Input, optimizers, losses, metrics, Sequential
 from keras.preprocessing.sequence import pad_sequences
@@ -52,7 +54,7 @@ def hmodel(hp, time_input_shape, const_input_shape):
     opt = tf.keras.optimizers.Adam(learning_rate=hp_learning_rate)
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=['root_mean_squared_error'])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=[keras.metrics.RootMeanSquaredError()])
 
     return model
 
@@ -70,7 +72,7 @@ preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(
 
 tuner = kt.Hyperband(lambda x: hmodel(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                      objective=kt.Objective("val_root_mean_squared_error", direction="min"),
-                     max_epochs=30,
+                     max_epochs=10,
                      factor=3,
                      directory='tuner',
                      project_name='kt_lstm_10')
