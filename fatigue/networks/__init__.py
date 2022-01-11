@@ -14,7 +14,7 @@ def vectorise_data(data = fatigue_data.data, cycles = False):
         X_vary.append(tempX.drop(const_data, axis = 1))
         X_const.append(tempX[const_data].iloc[0]) 
         y.append(get_nf(test))
-    return np.array(X_vary, dtype='object'), np.array(X_const), y
+    return np.array(X_vary, dtype = object), np.array(X_const), y
     
 def ragged_numpy_arr(rlist):
     return np.array([np.array(el) for el in rlist], dtype= 'object')

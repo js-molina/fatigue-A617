@@ -90,7 +90,7 @@ def run_xval_model(save_path = None, load_func = load_known_lstm_model, ep = 40)
 #     Training Setup
 # =============================================================================
 
-    FOLDS = 5              # Number of folds for cross validation
+    FOLDS = 10              # Number of folds for cross validation
     EPOCHS = ep             # Epoch size of 20-40 appears to work
     BATCH = 6               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     MULTI_GPU = False       # False for single GPU usage; True to use data parallelisation across GPUs;
