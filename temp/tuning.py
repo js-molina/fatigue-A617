@@ -103,3 +103,14 @@ hypermodel.fit({"time_input": Xv_train, "const_input": Xc_train},
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test.reshape(-1))
 print("[test loss, test rms]:", eval_result)
+
+y_true = scaler_y.inverse_transform(y_test.reshape(-1, 1)).reshape(-1)
+y_pred = scaler_y.inverse_transform(hypermodel.predict((Xv_test, Xc_test)).reshape(-1, 1)).reshape(-1)
+
+y_true, y_pred = map(np.expm1, [y_true, y_pred])
+
+rmse = mean_squared_error(y_true, y_pred)
+
+print("{}: {:.2f}".format(model.metrics_names[1], rmse))
+
+print(abs(y_true-y_pred)/y_true*100)
