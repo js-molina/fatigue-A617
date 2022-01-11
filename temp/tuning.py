@@ -114,3 +114,4 @@ rmse = mean_squared_error(y_true, y_pred)
 print("{}: {:.2f}".format(model.metrics_names[1], rmse))
 
 print(abs(y_true-y_pred)/y_true*100)
+np.savez('mdata/' + 'ydata_11-01-22' , y_obs=y_true, y_pred=y_pred)
