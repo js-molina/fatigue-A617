@@ -81,7 +81,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, n_folds, gpu_multi = False, gpu
         
     return rmse_scores, all_y_true, all_y_pred
 
-def run_xval_model(save_path = None, load_func = load_known_lstm_model):
+def run_xval_model(save_path = None, load_func = load_known_lstm_model, ep = 40):
     
     start = time.time()
     print("Starting timer...")
@@ -91,7 +91,7 @@ def run_xval_model(save_path = None, load_func = load_known_lstm_model):
 # =============================================================================
 
     FOLDS = 5              # Number of folds for cross validation
-    EPOCHS = 40             # Epoch size of 20-40 appears to work
+    EPOCHS = ep             # Epoch size of 20-40 appears to work
     BATCH = 6               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     MULTI_GPU = False       # False for single GPU usage; True to use data parallelisation across GPUs;
     GPUS = tf.config.list_logical_devices('GPU')    # List of GPUs
