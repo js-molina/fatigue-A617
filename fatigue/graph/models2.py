@@ -136,13 +136,13 @@ def graph_nn_prediction(data):
     ax.set_xlabel('Predicted $N_f$')
     ax.set_ylabel('Measured $N_f$')
     
-    ax.set_ylim(100, 20000)
-    ax.set_xlim(100, 20000)
+    ax.set_ylim(100, 12000)
+    ax.set_xlim(100, 12000)
     
     ax.set_aspect('equal')
     
     for i in range(2):
-        ax.loglog(x_pred[i], x_obs[i], marker = markers[i], markersize = 5, ls = 'None', \
+        ax.plot(x_pred[i], x_obs[i], marker = markers[i], markersize = 5, ls = 'None', \
         markeredgecolor = colors[i], markerfacecolor = 'None', markeredgewidth = 1, label = labels[i])
     
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
