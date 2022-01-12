@@ -17,7 +17,7 @@ from fatigue.filter import test_filter
 from fatigue.networks import vectorise_data
 from fatigue.neural.rnn import run_xval_model
 from fatigue.neural.test import run_test_model, run_test_loading
-from fatigue.neural.helper import hyperx1_lstm_model
+from fatigue.neural.helper import hyperx1_lstm_model, hyperx2_lstm_model
 
 #%%
 
@@ -64,17 +64,17 @@ from fatigue.neural.helper import hyperx1_lstm_model
 
 #%%
 
-# run_test_model('ydata2-11-01-22', None, hyperx1_lstm_model, 30, 1111)
+# run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
 
 
-# run_xval_model('ydata2-11-01-22-3', hyperx1_lstm_model, ep = 20)
+run_xval_model('ydata-12-01-22-2', hyperx2_lstm_model, ep = 20)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
 
 # %%
 
-gr.models2.graph_nn_prediction('mdata/ydata-11-01-22-2.npz')
-gr.models2.graph_nn_prediction('mdata/ydata-11-01-22-3.npz')
-gr.models2.graph_nn_prediction('mdata/ydata2-11-01-22-2.npz')
-gr.models2.graph_nn_prediction('mdata/ydata2-11-01-22-3.npz')
+# gr.models2.graph_nn_prediction('mdata/ydata-11-01-22-2.npz')
+# gr.models2.graph_nn_prediction('mdata/ydata-11-01-22-3.npz')
+# gr.models2.graph_nn_prediction('mdata/ydata2-11-01-22-2.npz')
+# gr.models2.graph_nn_prediction('mdata/ydata2-11-01-22-3.npz')
