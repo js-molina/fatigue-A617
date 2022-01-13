@@ -81,14 +81,14 @@ def hyperx2_lstm_model(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(12, return_sequences=False)(time_mask)
+    time_feats = layers.LSTM(356, return_sequences=False)(time_mask)
 
     # Concatenate the LSTM output with the constant input
     concat_vector = layers.concatenate([time_feats, const_input])
 
     # Feed through Dense layers
-    hidden_lay = layers.Dense(28, activation='relu')(concat_vector)
-    dnn = layers.Dense(32, activation='relu')(hidden_lay)
+    hidden_lay = layers.Dense(420, activation='relu')(concat_vector)
+    dnn = layers.Dense(388, activation='relu')(hidden_lay)
     life_pred = layers.Dense(1)(dnn)
 
     # Instantiate model

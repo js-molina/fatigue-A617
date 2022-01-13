@@ -65,7 +65,7 @@ def hmodel2(hp, time_input_shape, const_input_shape):
     const_input = Input(shape=const_input_shape, name='const_input')
 
     # Feed time_input through Masking and LSTM layers
-    hp_units1 = hp.Int('units1', min_value = 4, max_value = 32, step = 4)
+    hp_units1 = hp.Int('units1', min_value = 4, max_value = 512, step = 32)
     time_mask = layers.Masking(mask_value=-999)(time_input)
     time_feats = layers.LSTM(hp_units1, return_sequences=False)(time_mask)
 
@@ -73,10 +73,10 @@ def hmodel2(hp, time_input_shape, const_input_shape):
     concat_vector = layers.concatenate([time_feats, const_input])
 
     # Feed through Dense layers
-    hp_units2 = hp.Int('units2', min_value = 4, max_value = 32, step = 4)
+    hp_units2 = hp.Int('units2', min_value = 4, max_value = 512, step = 32)
     last_hidden = layers.Dense(hp_units2, activation = 'relu')(concat_vector)
     
-    hp_units3 = hp.Int('units3', min_value = 4, max_value = 32, step = 4)
+    hp_units3 = hp.Int('units3', min_value = 4, max_value = 512, step = 32)
     dnn = layers.Dense(hp_units3, activation='relu')(last_hidden)
     
     life_pred = layers.Dense(1)(dnn)

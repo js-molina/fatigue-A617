@@ -67,7 +67,7 @@ from fatigue.neural.helper import hyperx1_lstm_model, hyperx2_lstm_model
 # run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
 
 
-run_xval_model('ydata-12-01-22-2', hyperx2_lstm_model, ep = 20)
+run_xval_model('ydata-13-01-22-1', hyperx2_lstm_model, ep = 40)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
