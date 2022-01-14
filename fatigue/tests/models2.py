@@ -16,3 +16,14 @@ def test_morrow2(data):
     graph_model(model)
     graph_prediction(model)
     
+
+def test_empirical(data):
+    model = morrow2(data)
+    graph_prediction(model)
+    
+    model = plastic_manson(data)
+    graph_prediction(model)
+    
+    model = coffin_manson(data)
+    graph_prediction(model)
+    

@@ -19,3 +19,4 @@ def peak_path_from_sample(sample, pager = path_dict):
 def cycle_path_from_sample(sample, pager = path_dict):
     data = [data for data in fatigue_data.data if data.Sample == sample][0]
     return(cycle_path_from_test(data, pager))
+

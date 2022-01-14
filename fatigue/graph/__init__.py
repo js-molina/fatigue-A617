@@ -53,7 +53,7 @@ def graph_peaks_from_test(test, name = ''):
     mm = max(max(df['Max Stress Mpa']), abs(min(df['Min Stress Mpa'])))
 
     ax.set_ylim([-100*np.ceil(mm/100), 100*np.ceil(mm/100)])
-    ax.set_xlim([10, len(df)+10])
+    ax.set_xlim([0, len(df)+10])
 
     ax.set_title('Sample {%s} -- \SI{%d}{\celsius}, %.2f'% \
                  (test.Sample, test.Temp, test.Strain) + '\% Strain', size = 11)
