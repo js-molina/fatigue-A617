@@ -80,7 +80,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
         
         y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
         
-        np.savez('mdata/xval/t%d'%n_fold, x1 = y_pred1, y1 = y_true1, x0 = y_pred2, y0 = y_true2)
+        np.savez('mdata/xval/s%d'%n_fold, x1 = y_pred1, y1 = y_true1, x0 = y_pred2, y0 = y_true2)
         
         rmse_scores.append(rmse)
         print("{}: {:.2f}".format(model.metrics_names[1], rmse))
@@ -98,7 +98,7 @@ def run_xval_model(save_path = None, load_func = load_known_lstm_model, ep = 40)
 #     Training Setup
 # =============================================================================
 
-    FOLDS = 10              # Number of folds for cross validation
+    FOLDS = 9              # Number of folds for cross validation
     EPOCHS = ep             # Epoch size of 20-40 appears to work
     BATCH = 6               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     MULTI_GPU = False       # False for single GPU usage; True to use data parallelisation across GPUs;
