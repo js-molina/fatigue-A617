@@ -99,6 +99,34 @@ def hyperx2_lstm_model(time_input_shape, const_input_shape):
 
     return model
 
+def hyperx3_lstm_model(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.001)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape, name='time_input')
+    const_input = Input(shape=const_input_shape, name='const_input')
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(356, return_sequences=False)(time_mask)
+
+    # Concatenate the LSTM output with the constant input
+    concat_vector = layers.concatenate([time_feats, const_input])
+
+    # Feed through Dense layers
+    hidden_lay = layers.Dense(420, activation='relu')(concat_vector)
+    dnn = layers.Dropout(0.5)(hidden_lay)
+    life_pred = layers.Dense(1)(dnn)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+
+    return model
+
 def preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_max_len):
     
     tempX = pd.concat(Xv_train).reset_index(drop=True)

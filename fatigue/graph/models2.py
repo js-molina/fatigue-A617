@@ -304,7 +304,7 @@ def graph_nn_pred_all(data, log = False):
     ax.add_artist(l1)
     ax.add_artist(l2)
     
-    path = r'D:\WSL\ansto\figs'
+    # path = r'D:\WSL\ansto\figs'
     
-    plt.savefig(os.path.join(path, 'dynamic.pdf'))
+    # plt.savefig(os.path.join(path, 'dynamic.pdf'))
     plt.show()
