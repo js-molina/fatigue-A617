@@ -104,4 +104,4 @@ def features(test, cycles = False):
     
     s = np.random.randint(0, 2)
 
-    return x.iloc[10:120+s]
+    return x.iloc[3:100+s]

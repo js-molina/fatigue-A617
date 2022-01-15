@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
-from keras import layers, Input, optimizers, losses, metrics, Sequential
+from keras import layers, Input, optimizers, losses, metrics, regularizers
 from keras.preprocessing.sequence import pad_sequences
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler, QuantileTransformer, MaxAbsScaler, PowerTransformer, Normalizer
 from sklearn.pipeline import make_pipeline
@@ -109,14 +109,22 @@ def hyperx3_lstm_model(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(356, return_sequences=False)(time_mask)
+    time_feats = layers.LSTM(256, kernel_regularizer=regularizers.l1_l2(1e-6),
+                             recurrent_regularizer=regularizers.l2(1e-6),
+                             bias_regularizer=regularizers.l2(1e-6),
+                             return_sequences=False)(time_mask)
 
     # Concatenate the LSTM output with the constant input
     concat_vector = layers.concatenate([time_feats, const_input])
 
     # Feed through Dense layers
-    hidden_lay = layers.Dense(420, activation='relu')(concat_vector)
-    dnn = layers.Dropout(0.5)(hidden_lay)
+    hidden_lay = layers.Dense(256, kernel_regularizer=regularizers.l1_l2(1e-6),
+                             bias_regularizer=regularizers.l2(1e-6), activation='relu')(concat_vector)
+
+    drop_lay = layers.Dropout(0.5)(hidden_lay)
+    
+    dnn = layers.Dense(256, kernel_regularizer=regularizers.l1_l2(1e-6),
+                        bias_regularizer=regularizers.l2(1e-6), activation='relu')(drop_lay)
     life_pred = layers.Dense(1)(dnn)
 
     # Instantiate model

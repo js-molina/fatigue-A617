@@ -60,7 +60,6 @@ class Data:
     def rm_test_from_samples(self, samples):
         for sample in samples:
             test, = self.get_test_from_sample(sample)
-            print('Removed:', test)
             self.data.remove(test)
             
     def get_test_from_strain(self, strain):
@@ -70,7 +69,7 @@ out = ['31516', 'J3', '4318']
 
 tests, path_dict = populate_from_path(path)
 fatigue_data = Data(tests)
-# fatigue_data.rm_test_from_samples(out)
+fatigue_data.rm_test_from_samples(out)
 
 if __name__ == "__main__" and __package__ is None:
     __package__ = "finder"

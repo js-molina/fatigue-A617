@@ -61,8 +61,6 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
     
         model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=n_epochs, batch_size=n_batch)
         
-        # model.save('../models/folds2/m%d.h5'%n_fold)
-        
         y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
         y_pred1 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
         
@@ -80,7 +78,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
         
         y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
         
-        np.savez('mdata/xval/s%d'%n_fold, x1 = y_pred1, y1 = y_true1, x0 = y_pred2, y0 = y_true2)
+        np.savez('mdata/break/20_%d'%n_fold, x1 = y_pred1, y1 = y_true1, x0 = y_pred2, y0 = y_true2)
         
         rmse_scores.append(rmse)
         print("{}: {:.2f}".format(model.metrics_names[1], rmse))
@@ -98,7 +96,7 @@ def run_xval_model(save_path = None, load_func = load_known_lstm_model, ep = 40)
 #     Training Setup
 # =============================================================================
 
-    FOLDS = 9              # Number of folds for cross validation
+    FOLDS = 9             # Number of folds for cross validation
     EPOCHS = ep             # Epoch size of 20-40 appears to work
     BATCH = 6               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     MULTI_GPU = False       # False for single GPU usage; True to use data parallelisation across GPUs;
@@ -114,3 +112,9 @@ def run_xval_model(save_path = None, load_func = load_known_lstm_model, ep = 40)
     
     end = time.time()
     print("Total time: {}".format(end - start))
+
+    y_pred, y_true = map(np.array, [y_pred, y_true])
+
+    err = abs(y_true-y_pred)/y_true*100
+
+    print(min(err), np.mean(err), np.max(err))
