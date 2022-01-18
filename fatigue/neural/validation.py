@@ -52,7 +52,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
         model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
         print('------------------------------------------------------------------------')
-        print(f'Training for fold {n_fold} with {len(Xv_train)} cycles...')
+        print(f'Training for fold {n_fold} with {Xv_train.shape[1]} cycles...')
     
         model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train, epochs=n_epochs, batch_size=n_batch)
         

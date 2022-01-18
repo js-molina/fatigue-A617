@@ -57,12 +57,12 @@ from fatigue.neural.helper import *
 
 # r = test_some_data(test)
 
-Xv, Xc, y = vectorise_data(fatigue_data.data)
+# Xv, Xc, y = vectorise_data(fatigue_data.data)
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
+# Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-        preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
+# Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
+#         preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
 # X = test_features(fatigue_data.data)
 
@@ -72,7 +72,7 @@ Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
 # run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
 
 
-# run_xval_model(None, hyperx2_lstm_model, ep = 30)
+run_xval_model(hyperx2_lstm_model, ep = 30)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
