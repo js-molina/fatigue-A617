@@ -31,6 +31,8 @@ print("Starting timer...")
 print('Loading Data...')
 Xv, Xc, y = vectorise_data()
 
+#%%
+
 # Target Scaling
 
 y = np.log1p(y)

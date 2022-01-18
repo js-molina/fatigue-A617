@@ -102,6 +102,4 @@ def features(test, cycles = False):
     if not cycles:
         x = x.drop('cycle', axis = 1)
     
-    s = np.random.randint(0, 2)
-
-    return x.iloc[3:100+s]
+    return x.iloc[3:]

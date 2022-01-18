@@ -24,7 +24,7 @@ labels = []
 for i in range(9):
     j = i+1
     
-    d = np.load('../mdata/xval/s%d.npz'%j)
+    d = np.load('../mdata/break/1_%d.npz'%j)
     x0, y0, x1, y1 = d['x0'], d['y0'], d['x1'], d['y1']
     
     axes[i].set_ylim(100, 12000)
@@ -51,9 +51,9 @@ handles, labels = axes[i].get_legend_handles_labels()
 lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'none', \
             framealpha = 0, bbox_to_anchor=(0.7, 0.96), fontsize=12)
 
-path = r'D:\WSL\ansto\figs'
+# path = r'D:\WSL\ansto\figs'
 
-plt.savefig(os.path.join(path, 'folds.pdf'))
+# plt.savefig(os.path.join(path, 'folds.pdf'))
     
     
 plt.show()

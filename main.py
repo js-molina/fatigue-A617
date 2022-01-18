@@ -28,6 +28,7 @@ from fatigue.neural.helper import *
 
 
 # test_strain_vals(fatigue_data)
+# test_morrow2(fatigue_data)
 # test_empirical(fatigue_data)
 
 
@@ -56,8 +57,12 @@ from fatigue.neural.helper import *
 
 # r = test_some_data(test)
 
-# # X, y = vectorise_data(fatigue_data.data)
+Xv, Xc, y = vectorise_data(fatigue_data.data)
 
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
+
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
+        preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
 # X = test_features(fatigue_data.data)
 
@@ -67,20 +72,24 @@ from fatigue.neural.helper import *
 # run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
 
 
-run_xval_model(None, hyperx2_lstm_model, ep = 30)
+# run_xval_model(None, hyperx2_lstm_model, ep = 30)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
 
 # %%
 
-# gr.models2.graph_nn_prediction('mdata/ydata-14-01-22-2.npz')
+# gr.models2.graph_nn_prediction('mdata/ydata-15-01-22-1.npz', log = True)
+# gr.models2.graph_nn_prediction('mdata/ydata-15-01-22-20.npz', log = True)
 # gr.models2.graph_nn_prediction('mdata/ydata-11-01-22-3.npz')
 # gr.models2.graph_nn_prediction('mdata/ydata2-11-01-22-2.npz', log = True)
 # gr.models2.graph_nn_pred_strain('mdata/ydata-13-01-22-1.npz', log=True)
 # gr.models2.graph_nn_prediction('mdata/ydata-13-01-22-1.npz', log = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-13-01-22-1.npz', log=True)
 
-# gr.models2.graph_nn_pred_all('mdata/ydata-14-01-22-2.npz', log=True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-1.npz', log=True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-120.npz', log=True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-300.npz', log=True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-t.npz', log=True)
 
 #%%

@@ -137,6 +137,11 @@ def hyperx3_lstm_model(time_input_shape, const_input_shape):
 
 def preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_max_len):
     
+    for xt in Xv_train:
+        xt = xt.iloc[:seq_max_len]
+    for xt in Xv_test:
+        xt = xt.iloc[:seq_max_len]
+    
     tempX = pd.concat(Xv_train).reset_index(drop=True)
     scaler_var = PowerTransformer()
     scaler_var.fit(tempX)

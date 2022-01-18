@@ -10,7 +10,7 @@ from ..models import TEMPS
 from ..finder import fatigue_data
 from ..models2 import get_nf
 
-def graph_model(model):
+def graph_model(model, save_path = None):
         
     tdata, f, lc = model._get_plot_params()
     model_type = model._get_model_type()
@@ -53,20 +53,23 @@ def graph_model(model):
     
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
+    if save_path:
+        plt.savefig(save_path)
+    
     plt.show()
     
-def graph_prediction(model):
+def graph_prediction(model, save_path = None):
         
     ax = plt.gca()
     
     model_type = model._get_model_type()
     
-    if model_type == 'morrow':
-        ax.set_title('Morrow Model')
-    elif model_type == 'pl_manson':
-        ax.set_title('Inelastic Coffin Manson Model')
-    elif model_type == 'c_manson':
-        ax.set_title('Elastic Coffin Manson Model')
+    # if model_type == 'morrow':
+    #     ax.set_title('Morrow Model')
+    # elif model_type == 'pl_manson':
+    #     ax.set_title('Inelastic Coffin Manson Model')
+    # elif model_type == 'c_manson':
+    #     ax.set_title('Elastic Coffin Manson Model')
     
     ax.set_aspect('equal')
     
@@ -101,6 +104,9 @@ def graph_prediction(model):
     ax.legend(framealpha = 1, edgecolor = 'None')
     
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
+    
+    if save_path:
+        plt.savefig(save_path)
     
     plt.show()
     
