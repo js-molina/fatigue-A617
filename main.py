@@ -3,7 +3,7 @@
 # Importing Modules
 # =============================================================================
 
-import random
+import random, os
 from fatigue.finder import fatigue_data
 from fatigue.finder import cycle_path
 from fatigue.tests.properties import test_plastic_strain, test_strain_from_cycles
@@ -72,8 +72,8 @@ from fatigue.neural.arch import *
 
 # run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
 
-
-run_xval_model(m_lstm_shallow, ep = 30)
+os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
+run_xval_model(hyperx2_lstm_model, ep = 30, save = True)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)

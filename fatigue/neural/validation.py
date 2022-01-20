@@ -21,14 +21,14 @@ from .helper import preprocess_multi_input
 from .arch import load_known_lstm_model, hyperx1_lstm_model
 
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
-                   n_folds, c_len = 120, gpu_list = None, load_func = load_known_lstm_model, save = False):
+                   n_folds, c_len = 120, gpu_list = None, load_func = load_known_lstm_model, verbose = False, save = False):
     
     # Target Scaling
     y = np.log1p(y)
     
     # Fold and score init
     
-    fold = KFold(n_splits=n_folds, shuffle=True, random_state = 88) 
+    fold = KFold(n_splits=n_folds, shuffle=True, random_state = 11) 
     
     rmse_scores = []
     all_y_true_train = []
@@ -54,8 +54,9 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
         
         model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
-        print('------------------------------------------------------------------------')
-        print(f'Training for fold {n_fold} with {Xv_train.shape[1]} cycles...')
+        if verbose:
+            print('------------------------------------------------------------------------')
+            print(f'Training for fold {n_fold} with {Xv_train.shape[1]} cycles...')
     
         model.fit([Xv_train, Xc_train], y_train, epochs=n_epochs, batch_size=n_batch, verbose = 0)
         
@@ -88,16 +89,17 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
             np.savez(os.path.join(path, '%d'%n_fold), x1 = y_pred1, y1 = y_true1, x0 = y_pred2, y0 = y_true2)
         
         rmse_scores.append(rmse1)
-        print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
-        print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
-        print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
-        print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
+        if verbose:
+            print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
+            print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
+            print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
+            print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
         
         n_fold += 1
         
     return rmse_scores, all_y_true_train, all_y_pred_train, all_y_true_test, all_y_pred_test
 
-def run_xval_model(load_func = load_known_lstm_model, ep = 40):
+def run_xval_model(load_func = load_known_lstm_model, ep = 40, save = False):
     
     start = time.time()
     print("Starting timer...")
@@ -115,12 +117,14 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40):
 
     [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 
-    for c_len in [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, max(map(len, Xv))]:
+    for c_len in [1, 10, 120, 1000, 5000, max(map(len, Xv))]:
         t1 = time.time()
+        print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS,
                 n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func)
-        np.savez('mdata/ydata-20-01-22-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
-                                                y_obs_test=y_true1, y_pred_test=y_pred1)
+        if save:
+            np.savez('mdata/ydata-21-01-22-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
+                                                    y_obs_test=y_true1, y_pred_test=y_pred1)
         y_true0, y_pred0, y_true1, y_pred1 = map(np.array, [y_true0, y_pred0, y_true1, y_pred1])
 
         err0 = abs(y_true0-y_pred0)/y_true0*100
