@@ -72,9 +72,9 @@ from fatigue.neural.arch import *
 
 # run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
-# run_xval_model(hyperx2_lstm_model, ep = 30, save = True)
-run_sval_model(s_lstm_shallow, ep = 30, save = True)
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
+# # run_xval_model(hyperx2_lstm_model, ep = 30, save = True)
+# run_sval_model(s_lstm_shallow, ep = 30, save = True)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
@@ -92,6 +92,6 @@ run_sval_model(s_lstm_shallow, ep = 30, save = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-1.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-120.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-300.npz', log=True)
-# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-5000.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-1.npz', log=True, v2 = True)
 
 #%%
