@@ -218,9 +218,12 @@ def graph_nn_pred_strain(data, log = False):
     
     plt.show()
     
-def graph_nn_pred_all(data, log = False):
+def graph_nn_pred_all(data, log = False, v2 = False):
     d = np.load(data)
-    y_obs, y_pred = d['y_obs'], d['y_pred']
+    if v2:
+        y_obs, y_pred = d['y_obs_test'], d['y_pred_test']
+    else:
+        y_obs, y_pred = d['y_obs'], d['y_pred']
     
     strain_data = {}
     
@@ -314,6 +317,6 @@ def graph_nn_pred_all(data, log = False):
     ax.add_artist(l2)
     
     # path = r'D:\WSL\ansto\figs'
-    
     # plt.savefig(os.path.join(path, 'dynamic.pdf'))
+    
     plt.show()

@@ -7,8 +7,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import KFold, LeaveOneOut, train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error
 from scipy.signal import savgol_filter
-import time
-import datetime
 from keras.wrappers.scikit_learn import KerasRegressor
 
 def load_known_lstm_model(time_input_shape, const_input_shape):
@@ -157,6 +155,29 @@ def m_lstm_shallow(time_input_shape, const_input_shape):
 
     # Instantiate model
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+
+    return model
+
+def s_lstm_shallow(time_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(16, return_sequences=False)(time_mask)
+
+    # Feed through Dense layers
+    dnn = layers.Dense(32, activation='relu')(time_feats)
+    life_pred = layers.Dense(1)(dnn)
+
+    # Instantiate model
+    model = Model(inputs=[time_input], outputs=[life_pred])
 
     # Compile
     model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
