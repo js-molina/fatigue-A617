@@ -28,7 +28,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
     
     # Fold and score init
     
-    fold = KFold(n_splits=n_folds, shuffle=True, random_state = 5) 
+    fold = KFold(n_splits=n_folds, shuffle=True, random_state = 88) 
     
     rmse_scores = []
     all_y_true_train = []
@@ -113,9 +113,9 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40):
     
     Xv, Xc, y = vectorise_data()
 
-    # [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
+    [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 
-    for c_len in [1, 10, 60, 120, 5000, max(map(len, Xv))]:
+    for c_len in [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, max(map(len, Xv))]:
         t1 = time.time()
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS,
                 n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func)
