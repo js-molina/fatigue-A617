@@ -58,50 +58,29 @@ def test_scuffed_energy(trial, l_cycle):
         
         print('%.3f\t%.2f'%(es3, abs(es3-es0)/es0*100))
 
-def test_features(data):
+def test_features_wh(data):
     x = []
     for test in data:
         x.append(features(test).reset_index(drop = True))
     return x
+
+def test_features(test):
+    return features(test)
+
+def test_some_data(test, b1, b2):
     
-def test_some_data(test):
+    lw_ = 0.7
     
-    lw_ = 1
+    x = test_features(test)
     
-    x = features(test, True)
-    
-    l = x.cycle.iloc[-1]
-    # l = len(x)
+    l = len(x)
     
     print(test.Sample, 'l = %d'%l, sep = '\t')
     
     ax = plt.gca()
     
-    ax.set_xlim([10, l*1.1])
-    
-    # ax.plot(x.cycle, x.min_s, 'r-', lw = lw_, alpha = 0.3)
-    # ax.plot(x.cycle, x.max_s, 'b-', lw = lw_, alpha = 0.3)
-    
-    # ax.plot(x.cycle, x.min_s_b100, 'r--', lw = lw_)
-    # ax.plot(x.cycle, x.max_s_b100, 'b--', lw = lw_)
-    
-    # ax.plot(x.cycle, x.min_s_b50, 'r-.', lw = lw_)
-    # ax.plot(x.cycle, x.max_s_b50, 'b-.', lw = lw_)
-    
-    # ax.plot(x.cycle, x.min_s_b10, 'r:', lw = lw_)
-    # ax.plot(x.cycle, x.max_s_b10, 'b:', lw = lw_)
-    
-    # ax.plot(x.cycle, x.min_s_b30p, 'r--', lw = lw_)
-    # ax.plot(x.cycle, x.max_s_b30p, 'b--', lw = lw_)
-    
-    # ax.plot(x.cycle, x.min_s_b20p, 'r-.', lw = lw_)
-    # ax.plot(x.cycle, x.max_s_b20p, 'b-.', lw = lw_)
-    
-    # ax.plot(x.cycle, x.min_s_f10p, 'r:', lw = lw_)
-    # ax.plot(x.cycle, x.max_s_f10p, 'b:', lw = lw_)
-    
-    ax.plot(x.cycle, x.max_diff_b50, 'r:', lw = lw_)
-    ax.plot(x.cycle, x.min_diff_b50, 'b:', lw = lw_)
+    ax.plot(x[b1], 'r-', lw = lw_)
+    ax.plot(x[b2], 'b-', lw = lw_)
     
     # ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     plt.show()    

@@ -251,7 +251,10 @@ def graph_nn_pred_all(data, log = False):
     ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
     
-    colors = plt.cm.gist_rainbow(np.linspace(0,1,6))
+    colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
+    colors[1] = 'xkcd:orange'
+    colors[2] = 'xkcd:green'
+    colors[3] = 'xkcd:sky blue'
     strain_vals = [0.3, 0.4, 0.6, 1, 2, 3]
     
     dict_color = dict(zip(strain_vals, colors))

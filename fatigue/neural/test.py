@@ -18,7 +18,8 @@ import datetime
 from keras.wrappers.scikit_learn import KerasRegressor
 
 from ..networks import vectorise_data, ragged_numpy_arr
-from .helper import load_known_lstm_model, preprocess_input
+from .helper import preprocess_multi_input
+from .arch import load_known_lstm_model
 from ..graph import chi_ratio
 from ..graph.models2 import graph_nn_prediction
 
@@ -36,7 +37,7 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=rand_st)
     
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-    preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv))) 
+    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv))) 
     
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
@@ -77,7 +78,7 @@ def run_test_loading(ydata_name = None, model_path = None, rand_st = 31):
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=rand_st)
     
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-    preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv))) 
+    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv))) 
     
     model = load_model(f'models/{model_path}')
     

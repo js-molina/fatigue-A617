@@ -4,9 +4,9 @@ import numpy as np
 
 def stress(test):
     x = get_peak_data_from_test(test).copy()
-    x = x[['Cycle', 'Max Stress Mpa', 'Min Stress Mpa', 'Stress Ratio']]
-    x.columns = ['cycle', 'max_s', 'min_s', 's_ratio']
-    return x
+    x = x[['Max Stress Mpa', 'Min Stress Mpa', 'Stress Ratio']]
+    x.columns = ['max_s', 'min_s', 's_ratio']
+    return x.reset_index(drop = True)
 
 def app_elastic_e(x, E):
     x = x.assign(elastic = (x.max_s-x.min_s)/E*100)
@@ -17,9 +17,12 @@ def app_plastic_e(x, e):
     return x
 
 def app_diff(x):
-    x = x.assign(max_diff = np.insert(np.diff(x.max_s), values = 0, obj = 0))
-    x = x.assign(min_diff = np.insert(np.diff(x.min_s), values = 0, obj = 0))
-    x = x.assign(s_ratio_diff = np.insert(np.diff(x.s_ratio), values = 0, obj = 0))
+    tmp = x.diff()
+    tmp.loc[0] = 0
+    kwarg = {}
+    for col in tmp.columns:
+        kwarg[col + '_d'] = tmp[col]
+    x = x.assign(**kwarg)    
     return x
 
 def app_int(x):
@@ -27,7 +30,7 @@ def app_int(x):
     x = x.assign(min_int = x.min_s.expanding(1).sum())
     x = x.assign(s_ratio_int = x.s_ratio.expanding(1).sum())
     return x
-           
+
 def app_bavg(x):
     
     l = len(x)
@@ -75,6 +78,14 @@ def app_favg(x):
     
     return x  
 
+def app_avg(x):
+    tmp = x.rolling(10, min_periods=1, center=True).mean()
+    kwarg = {}
+    for col in tmp.columns:
+        kwarg[col + '_m'] = tmp[col]
+    x = x.assign(**kwarg)    
+    return x
+
 def app_const(x, test):
     x['temp'] = test.Temp
     x['strain'] = test.Strain
@@ -89,17 +100,17 @@ def features(test, cycles = False):
     else:
         E = 144e3 
     
-    x = app_diff(x)
-    
     x = app_elastic_e(x, E)
     x = app_plastic_e(x, test.Strain)
     
-    x = app_bavg(x)
-    x = app_favg(x)
+    cols = x.columns
+    
+    x = app_diff(x)
+    
+    x = x.drop(cols, axis = 1)
+    
+    x = app_avg(x)
     
     app_const(x, test)
     
-    if not cycles:
-        x = x.drop('cycle', axis = 1)
-    
-    return x.iloc[3:]
+    return x

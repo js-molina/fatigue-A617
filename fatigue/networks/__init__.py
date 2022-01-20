@@ -14,7 +14,16 @@ def vectorise_data(data = fatigue_data.data, cycles = False):
         X_vary.append(tempX.drop(const_data, axis = 1))
         X_const.append(tempX[const_data].iloc[0]) 
         y.append(get_nf(test))
-    return np.array(X_vary, dtype = object), np.array(X_const), np.array(y)
-    
+    return np.array(X_vary, dtype = object), np.array(X_const), np.array(y).reshape(-1, 1)
+
+def single_input_data(data = fatigue_data.data):
+    X = []
+    y = []
+    for test in data:
+        tempX = features(test).reset_index(drop = True)
+        X.append(tempX.drop(const_data, axis = 1))
+        y.append(get_nf(test))
+    return np.array(X, dtype = object), np.array(y).reshape(-1, 1)
+
 def ragged_numpy_arr(rlist):
     return np.array([np.array(el) for el in rlist], dtype= 'object')

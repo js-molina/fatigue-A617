@@ -19,6 +19,7 @@ from fatigue.networks import vectorise_data
 from fatigue.neural.validation import run_xval_model
 from fatigue.neural.test import run_test_model, run_test_loading
 from fatigue.neural.helper import *
+from fatigue.neural.arch import *
 
 #%%
 
@@ -34,7 +35,7 @@ from fatigue.neural.helper import *
 
 #%%
 
-# test = fatigue_data.get_data(950)[0]
+test = fatigue_data.get_data(950)[0]
 
 # test = random.choice(fatigue_data.data)
 # test, = fatigue_data.get_test_from_sample('435')
@@ -57,7 +58,13 @@ from fatigue.neural.helper import *
 
 # r = test_some_data(test)
 
+# r = test_features(test)
+# test_some_data(test, 'elastic_d', 'plastic_d')
+# test_some_data(test, 'elastic_d_m', 'plastic_d_m')
+# test_some_data(test, 'max_s_d_m', 'min_s_d_m')
+
 # Xv, Xc, y = vectorise_data(fatigue_data.data)
+# Xv, y = single_input_data(fatigue_data.data)
 
 # Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
 
@@ -72,7 +79,7 @@ from fatigue.neural.helper import *
 # run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
 
 
-run_xval_model(hyperx2_lstm_model, ep = 30)
+run_xval_model(m_lstm_shallow, ep = 30)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
@@ -90,6 +97,6 @@ run_xval_model(hyperx2_lstm_model, ep = 30)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-1.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-120.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-300.npz', log=True)
-# gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-t.npz', log=True)
+# gr.models2.graph_nn_pred_all('mdata/old/ydata-14-01-22-2.npz', log=True)
 
 #%%

@@ -1,11 +1,21 @@
+import sys
+sys.path.append('..')
+
 import matplotlib.pyplot as plt
 import matplotlib, os
 import numpy as np
+from fatigue.graph.models2 import graph_nn_pred_all
 
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['font.serif'] = 'Computer Modern'
 matplotlib.rcParams['font.family'] = 'serif'
 matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx}'
+
+vals = [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
+n = np.random.choice(vals)
+n = 120
+
+print(f'Plotting prediction with {n} cycles!')
 
 log = True
 
@@ -24,7 +34,7 @@ labels = []
 for i in range(9):
     j = i+1
     
-    d = np.load('../mdata/break/1_%d.npz'%j)
+    d = np.load('../mdata/break/%d/%d.npz'%(n, j))
     x0, y0, x1, y1 = d['x0'], d['y0'], d['x1'], d['y1']
     
     axes[i].set_ylim(100, 12000)
@@ -52,8 +62,9 @@ lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'no
             framealpha = 0, bbox_to_anchor=(0.7, 0.96), fontsize=12)
 
 # path = r'D:\WSL\ansto\figs'
-
 # plt.savefig(os.path.join(path, 'folds.pdf'))
-    
-    
+   
 plt.show()
+#%%
+
+graph_nn_pred_all('../mdata/ydata-18-01-22-%d.npz'%n, log=log)
