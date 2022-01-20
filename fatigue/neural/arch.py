@@ -138,7 +138,7 @@ def m_lstm_shallow(time_input_shape, const_input_shape):
     const_input = Input(shape=const_input_shape)
 
     # Feed time_input through Masking and LSTM layers
-    time_mask = layers.Masking(mask_value=-999)(time)
+    time_mask = layers.Masking(mask_value=-999)(time_input)
     time_feats = layers.LSTM(10, return_sequences=False)(time_mask)
 
     # Concatenate the LSTM output with the constant input

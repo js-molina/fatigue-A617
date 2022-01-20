@@ -113,4 +113,4 @@ def features(test, cycles = False):
     
     app_const(x, test)
     
-    return x
+    return x.iloc[3:]

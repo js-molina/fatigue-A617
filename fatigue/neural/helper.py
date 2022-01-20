@@ -17,7 +17,7 @@ import time
 import datetime
 from keras.wrappers.scikit_learn import KerasRegressor
 
-def preprocess_single_input(Xv_train, Xv_test, y_train, y_test, seq_max_len):
+def preprocess_single_input(Xv_train, Xv_test, y_train, y_test, seq_max_len, padding = 'post'):
     
     for xt in Xv_train:
         xt = xt.iloc[:seq_max_len]
@@ -41,17 +41,17 @@ def preprocess_single_input(Xv_train, Xv_test, y_train, y_test, seq_max_len):
     y_train = scaler_y.transform(y_train)
     y_test = scaler_y.transform(y_test)
     
-    Xv_train = pad_sequences(Xv_train, maxlen = seq_max_len, value = -999, dtype='float64')
-    Xv_test = pad_sequences(Xv_test, maxlen = seq_max_len, value = -999, dtype='float64')
+    Xv_train = pad_sequences(Xv_train, maxlen = seq_max_len, padding = padding, value = -999, dtype='float64')
+    Xv_test = pad_sequences(Xv_test, maxlen = seq_max_len, padding =  padding, value = -999, dtype='float64')
     
     return Xv_train, Xv_test, y_train, y_test, scaler_y
 
-def preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_max_len):
+def preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_max_len, padding = 'post'):
     
     for xt in Xv_train:
-        xt = xt.iloc[3:seq_max_len]
+        xt = xt.iloc[:seq_max_len]
     for xt in Xv_test:
-        xt = xt.iloc[3:seq_max_len]
+        xt = xt.iloc[:seq_max_len]
     
     tempX = pd.concat(Xv_train).reset_index(drop=True)
     scaler_var = PowerTransformer()
@@ -76,7 +76,7 @@ def preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test
     y_train = scaler_y.transform(y_train)
     y_test = scaler_y.transform(y_test)
     
-    Xv_train = pad_sequences(Xv_train, maxlen = seq_max_len, value = -999, dtype='float64')
-    Xv_test = pad_sequences(Xv_test, maxlen = seq_max_len, value = -999, dtype='float64')
+    Xv_train = pad_sequences(Xv_train, maxlen = seq_max_len, padding = padding, value = -999, dtype='float64')
+    Xv_test = pad_sequences(Xv_test, maxlen = seq_max_len, padding =  padding, value = -999, dtype='float64')
     
     return Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y
