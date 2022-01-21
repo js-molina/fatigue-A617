@@ -108,9 +108,9 @@ def features(test, cycles = False):
     x = app_diff(x)
     
     x = x.drop(cols, axis = 1)
-    
+
     x = app_avg(x)
-    
+
     app_const(x, test)
     
     return x.iloc[3:]

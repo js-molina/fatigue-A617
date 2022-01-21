@@ -1,3 +1,4 @@
+from tabnanny import verbose
 import time
 import datetime
 import tensorflow as tf
@@ -32,7 +33,7 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40, save = False):
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS,
                 n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func)
         if save:
-            np.savez('mdata/ydata-21-01-22-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
+            np.savez('mdata/ydata-21-01-22-mrd-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                                                     y_obs_test=y_true1, y_pred_test=y_pred1)
         y_true0, y_pred0, y_true1, y_pred1 = map(np.array, [y_true0, y_pred0, y_true1, y_pred1])
 
@@ -64,9 +65,9 @@ def run_sval_model(load_func = s_lstm_shallow, ep = 30, save = False):
         t1 = time.time()
         print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_single(Xv, y, n_epochs=EPOCHS,
-                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func)
+                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func, verbose = False)
         if save:
-            np.savez('mdata/ydata-21-01-22-s-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
+            np.savez('mdata/ydata-21-01-22-sr-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                                                     y_obs_test=y_true1, y_pred_test=y_pred1)
         y_true0, y_pred0, y_true1, y_pred1 = map(np.array, [y_true0, y_pred0, y_true1, y_pred1])
 

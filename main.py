@@ -17,7 +17,7 @@ from fatigue.filter import test_filter
 from fatigue.networks import vectorise_data
 # from fatigue.neural.rnn import run_xval_model
 from fatigue.neural.running import run_xval_model, run_sval_model
-from fatigue.neural.test import run_test_model, run_test_loading
+from fatigue.neural.test import run_test_model, run_test_loading, run_stest_model
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
 
@@ -70,11 +70,17 @@ from fatigue.neural.arch import *
 
 #%%
 
-# run_test_model('ydata-12-01-22', None, hyperx2_lstm_model, 30, 1111)
+random_state = np.random.randint(1000)
+
+# run_test_model(None, None, load_known_lstm_model, 20, random_state)
+# run_test_model(None, None, hyperx1_lstm_model, 20, random_state)
+# run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
+# run_stest_model(None, None, s_lstm_deep_r_drop, 10, 1111)
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
-# # run_xval_model(hyperx2_lstm_model, ep = 30, save = True)
-# run_sval_model(s_lstm_shallow, ep = 30, save = True)
+# run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
+run_xval_model(m_lstm_deep_r_drop, ep = 20, save = True)
+# run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)

@@ -21,7 +21,7 @@ from .helper import preprocess_multi_input, preprocess_single_input
 from .arch import load_known_lstm_model, hyperx1_lstm_model
 
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
-                   n_folds, c_len = 120, gpu_list = None, load_func = load_known_lstm_model, verbose = False, save = False):
+                   n_folds, c_len = 120, gpu_list = None, load_func = load_known_lstm_model, verbose = False, ver = 0, save = False):
     
     # Target Scaling
     y = np.log1p(y)
@@ -58,7 +58,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
             print('------------------------------------------------------------------------')
             print(f'Training for fold {n_fold} with {Xv_train.shape[1]} cycles...')
     
-        model.fit([Xv_train, Xc_train], y_train, epochs=n_epochs, batch_size=n_batch, verbose = 0)
+        model.fit([Xv_train, Xc_train], y_train, epochs=n_epochs, batch_size=n_batch, verbose = ver)
         
         y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
         y_pred1 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
@@ -100,7 +100,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
     return rmse_scores, all_y_true_train, all_y_pred_train, all_y_true_test, all_y_pred_test
 
 def cross_val_single(Xv, y, n_epochs, n_batch, \
-                   n_folds, c_len = 120, gpu_list = None, load_func = load_known_lstm_model, verbose = False, save = False):
+                   n_folds, c_len = 120, gpu_list = None, load_func = load_known_lstm_model, verbose = False, ver = 0, save = False):
     
     # Target Scaling
     y = np.log1p(y)
@@ -134,7 +134,7 @@ def cross_val_single(Xv, y, n_epochs, n_batch, \
             print('------------------------------------------------------------------------')
             print(f'Training for fold {n_fold} with {Xv_train.shape[1]} cycles...')
     
-        model.fit(Xv_train, y_train, epochs=n_epochs, batch_size=n_batch, verbose = 0)
+        model.fit(Xv_train, y_train, epochs=n_epochs, batch_size=n_batch, verbose = ver)
         
         y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
         y_pred1 = scaler_y.inverse_transform(model.predict(Xv_test)).reshape(-1)

@@ -17,9 +17,9 @@ import time
 import datetime
 from keras.wrappers.scikit_learn import KerasRegressor
 
-from ..networks import vectorise_data, ragged_numpy_arr
-from .helper import preprocess_multi_input
-from .arch import load_known_lstm_model
+from ..networks import vectorise_data, single_input_data
+from .helper import preprocess_multi_input, preprocess_single_input
+from .arch import load_known_lstm_model, s_lstm_shallow
 from ..graph import chi_ratio
 from ..graph.models2 import graph_nn_prediction
 
@@ -37,34 +37,84 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=rand_st)
     
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv))) 
+    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500) 
     
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
-    model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1), epochs=epochs, batch_size=5)
+    model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=5, verbose = 0)
         
     if model_name:
         model.save('models/' + model_name)
     
     # Inverse normalise target data
+    y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
+    y_pred1 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
+
+    y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])
+
+    err1 = abs(y_true1-y_pred1)/y_true1*100
+
+    rmse1 = mean_squared_error(y_true1, y_pred1)
+
+    y_true2 = scaler_y.inverse_transform(y_train).reshape(-1)
+    y_pred2 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
+
+    y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
+
+    rmse2 = mean_squared_error(y_true2, y_pred2)
+    err2 = abs(y_true2-y_pred2)/y_true2*100
+
+    print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
+    print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
+    print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
+    print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
     
-    y_true = scaler_y.inverse_transform(y_test).reshape(-1)
-    y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
+
+def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shallow, epochs = 40, rand_st = 31):
+
+    start = time.time()
+    print("Starting timer...")
     
-    # Inverse scale data
-    y_true, y_pred = map(np.expm1, [y_true, y_pred])
+    Xv, y = single_input_data()
     
-    rmse = mean_squared_error(y_true, y_pred)
+    # Target Scaling
     
-    print("{}: {:.2f}".format(model.metrics_names[1], rmse))
+    y = np.log1p(y)
     
-    end = time.time()
-    print("Total time: {}".format(end - start))
+    Xv_train, Xv_test, y_train, y_test = train_test_split(Xv, y, random_state=rand_st)
     
-    print(abs(y_true-y_pred)/y_true*100)
+    Xv_train, Xv_test, y_train, y_test, scaler_y = \
+    preprocess_single_input(Xv_train, Xv_test, y_train, y_test, 500) 
     
-    if save_path:
-        np.savez('mdata/' + save_path , y_obs=y_true, y_pred=y_pred)
+    model = load_func(Xv_train.shape[1:])
+    
+    model.fit(Xv_train, y_train, epochs=epochs, batch_size=5, verbose = 0)
+        
+    if model_name:
+        model.save('models/' + model_name)
+    
+    # Inverse normalise target data
+    y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
+    y_pred1 = scaler_y.inverse_transform(model.predict(Xv_test)).reshape(-1)
+
+    y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])
+
+    err1 = abs(y_true1-y_pred1)/y_true1*100
+
+    rmse1 = mean_squared_error(y_true1, y_pred1)
+
+    y_true2 = scaler_y.inverse_transform(y_train).reshape(-1)
+    y_pred2 = scaler_y.inverse_transform(model.predict(Xv_train)).reshape(-1)
+
+    y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
+
+    rmse2 = mean_squared_error(y_true2, y_pred2)
+    err2 = abs(y_true2-y_pred2)/y_true2*100
+
+    print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
+    print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
+    print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
+    print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
 
 def run_test_loading(ydata_name = None, model_path = None, rand_st = 31):
 
