@@ -79,7 +79,7 @@ random_state = np.random.randint(1000)
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 # run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
-run_xval_model(m_lstm_deep_r_drop, ep = 20, save = True)
+run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 # %%
 

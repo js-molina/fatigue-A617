@@ -190,6 +190,38 @@ def m_lstm_deep_r_drop(time_input_shape, const_input_shape):
 
     return model
 
+def m_lstm_deep_r_l1l2(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(32, kernel_regularizer=regularizers.l1_l2(),
+                             recurrent_regularizer=regularizers.l1_l2(),
+                             bias_regularizer=regularizers.l1_l2())(time_mask)
+
+    # Concatenate the LSTM output with the constant input
+    temp_vector = layers.concatenate([time_feats, const_input])
+
+    # Feed through Dense layers
+    for i in range(2):
+        temp_vector = layers.Dense(128, kernel_regularizer=regularizers.l1_l2(),
+                             bias_regularizer=regularizers.l1_l2(), activation='relu')(temp_vector)
+
+    life_pred = layers.Dense(1)(temp_vector)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+
+    return model
+
 def s_lstm_shallow(time_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)
