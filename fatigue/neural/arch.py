@@ -1,4 +1,4 @@
-from keras.models import Model
+from keras.models import Model, Sequential
 import tensorflow as tf
 from keras import layers, Input, optimizers, losses, metrics, regularizers
 from keras.preprocessing.sequence import pad_sequences
@@ -267,6 +267,24 @@ def s_lstm_deep_r_drop(time_input_shape):
     model = Model(inputs=[time_input], outputs=[life_pred])
 
     # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+
+    return model
+
+def s_lstmconv_deep(tshape):
+    
+    model = Sequential()
+    
+    model.add(layers.Bidirectional(layers.LSTM(32, return_sequences = True, input_shape = [None, tshape])))
+    model.add(layers.Bidirectional(layers.LSTM(32, return_sequences = True)))
+    model.add(layers.Bidirectional(layers.LSTM(32)))
+    model.add(layers.Dense(32, kernel_regularizer=regularizers.l1_l2(),
+              bias_regularizer=regularizers.l1_l2(), activation='relu'))
+    
+    model.add(layers.Dense(1, activation='relu'))
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
     model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
 
     return model

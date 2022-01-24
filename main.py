@@ -58,19 +58,21 @@ from fatigue.neural.arch import *
 
 # r = test_some_data(test)
 
-# Xv, Xc, y = vectorise_data(fatigue_data.data)
+tf.keras.backend.clear_session()
 
-# Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
+Xv, Xc, y = vectorise_data(fatigue_data.data)
 
-# Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-#         preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
+
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
+        preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
 # X = test_features(fatigue_data.data)
 
 
 #%%
 
-random_state = np.random.randint(1000)
+# random_state = np.random.randint(1000)
 
 # run_test_model(None, None, load_known_lstm_model, 20, random_state)
 # run_test_model(None, None, hyperx1_lstm_model, 20, random_state)
@@ -79,7 +81,7 @@ random_state = np.random.randint(1000)
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 # run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
-run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
+# run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 # %%
 
@@ -98,6 +100,6 @@ run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-1.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-120.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-300.npz', log=True)
-# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-1.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-mrl1l2-10834.npz', log=True, v2 = True)
 
 #%%
