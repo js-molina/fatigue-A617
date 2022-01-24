@@ -128,6 +128,53 @@ def hmodel3(hp, time_input_shape, const_input_shape):
 
     return model
 
+def hmodel4(hp, time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    hp_lstm_units = hp.Int('lstm_units', min_value = 8, max_value = 64, step = 16)
+    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(hp_lstm_units, kernel_regularizer=regularizers.l1_l2(hp_lstm_kr),
+                             recurrent_regularizer=regularizers.l1_l2(hp_lstm_rr),
+                             bias_regularizer=regularizers.l1_l2(hp_lstm_br))(time_mask)
+    # Concatenate the LSTM output with the constant input
+    temp_vector = layers.concatenate([time_feats, const_input])
+
+    hp_hidden_units = []
+    hp_hidden_kr = []
+    hp_hidden_br = []
+    
+    # Initialising regularisers
+    for i in range(2):
+        hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 8, max_value = 512, sampling = 'log'))
+        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-4, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-4, max_value = 1e-1, sampling = 'log'))
+    
+    # Feed through Dense layers
+    for i in range(2):
+        temp_vector = layers.Dense(hp_hidden_units[i], kernel_regularizer=regularizers.l1_l2(hp_hidden_kr[i]),
+                             bias_regularizer=regularizers.l1_l2(hp_hidden_br[i]), activation='relu')(temp_vector)
+
+    life_pred = layers.Dense(1)(temp_vector)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+
+    return model
+
+
 print('Loading Data...')
 Xv, Xc, y = vectorise_data()
 
@@ -138,7 +185,7 @@ y = np.log1p(y)
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y)
 
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, max(map(len, Xv)))
+preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
 tuner = kt.Hyperband(lambda x: hmodel3(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                      objective=kt.Objective("val_root_mean_squared_error", direction="min"),
