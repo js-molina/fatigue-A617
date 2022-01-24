@@ -22,7 +22,7 @@ import keras_tuner as kt
 from keras import regularizers
 
 from fatigue.networks import vectorise_data
-from fatigue.neural.helper import preprocess_input
+from fatigue.neural.helper import preprocess_multi_input
 
 
 def hmodel(hp, time_input_shape, const_input_shape):
@@ -185,26 +185,35 @@ y = np.log1p(y)
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y)
 
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-preprocess_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
+preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
-tuner = kt.Hyperband(lambda x: hmodel3(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+tuner = kt.Hyperband(lambda x: hmodel4(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                      objective=kt.Objective("val_root_mean_squared_error", direction="min"),
-                     max_epochs=10,
-                     factor=3)
+                     max_epochs=20,
+                     factor=3, directory='Tuners',
+                     project_name='m_lstm_r_l1l2',
+                     overwrite = True)
 
 stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
-tuner.search({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1),
-             epochs = 50, validation_split = 0.2, callbacks = [stop_early])
+tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
 
 best_hps=tuner.get_best_hyperparameters(num_trials=3)[0]
 
-print(f"""
-The hyperparameter search is complete. The optimal number of units in the LSTM layer is
-{best_hps.get('units1')}, the optimal number of units in the densely-connected hidden
-layer is {best_hps.get('units2')}, and the optimal learning rate for the optimizer
-is {best_hps.get('learning_rate')}.
-""")
+print(f'The hyperparameter search is complete. The optimal number of units in the LSTM layer is')
+print(f"""{best_hps.get('lstm_units')} with kr = {best_hps.get('lstm_kr')}, rr = {best_hps.get('lstm_rr')} and 
+br = {best_hps.get('lstm_br')}.""")
+
+for i in range(2):
+    print(f"The units in the densely-connected {i+1} is {best_hps.get('hidden_units_%d'%i)} with",
+    f"kr = {best_hps.get('hidden_kr_%d'%i)} and br = {best_hps.get('hidden_br_%d'%i)}")
+
+# print(f"""
+# The hyperparameter search is complete. The optimal number of units in the LSTM layer is
+# {best_hps.get('units1')}, the optimal number of units in the densely-connected hidden
+# layer is {best_hps.get('units2')}, and the optimal learning rate for the optimizer
+# is {best_hps.get('learning_rate')}.
+# """)
 
 # print(f"""
 # The hyperparameter search for a LSTM-DENSE-DENSE-OUT architecture is complete.
@@ -216,28 +225,38 @@ is {best_hps.get('learning_rate')}.
 # """)
 
 model = tuner.hypermodel.build(best_hps)
-history = model.fit({"time_input": Xv_train, "const_input": Xc_train}, y_train.reshape(-1),
-                    epochs=50, validation_split=0.2)
+history = model.fit((Xv_train, Xc_train), y_train, epochs=50, validation_split=0.2)
 
 val_rms_per_epoch = history.history['val_root_mean_squared_error']
 best_epoch = val_rms_per_epoch.index(max(val_rms_per_epoch)) + 1
 print('Best epoch: %d' % (best_epoch,))
 
 hypermodel = tuner.hypermodel.build(best_hps)
-hypermodel.fit({"time_input": Xv_train, "const_input": Xc_train},
-               y_train.reshape(-1), epochs=best_epoch, validation_split=0.2)
+hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_split=0.2)
 
-eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test.reshape(-1))
+eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms]:", eval_result)
 
-y_true = scaler_y.inverse_transform(y_test.reshape(-1, 1)).reshape(-1)
-y_pred = scaler_y.inverse_transform(hypermodel.predict((Xv_test, Xc_test)).reshape(-1, 1)).reshape(-1)
+y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
+y_pred1 = scaler_y.inverse_transform(hypermodel.predict((Xv_test, Xc_test))).reshape(-1)
 
-y_true, y_pred = map(np.expm1, [y_true, y_pred])
+y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])
 
-rmse = mean_squared_error(y_true, y_pred)
+err1 = abs(y_true1-y_pred1)/y_true1*100
 
-print("{}: {:.2f}".format(model.metrics_names[1], rmse))
+rmse1 = mean_squared_error(y_true1, y_pred1)
 
-print(abs(y_true-y_pred)/y_true*100)
+y_true2 = scaler_y.inverse_transform(y_train).reshape(-1)
+y_pred2 = scaler_y.inverse_transform(hypermodel.predict((Xv_train, Xc_train))).reshape(-1)
+
+y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
+
+err2 = abs(y_true2-y_pred2)/y_true2*100
+
+rmse2 = mean_squared_error(y_true2, y_pred2)
+
+print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
+print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
+print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
+print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
 # np.savez('mdata/' + 'ydata-11-01-22' , y_obs=y_true, y_pred=y_pred)

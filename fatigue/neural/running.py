@@ -33,7 +33,7 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40, save = False):
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS,
                 n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func)
         if save:
-            np.savez('mdata/ydata-21-01-22-mrl1l2-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
+            np.savez('mdata/ydata-24-01-22-ml1l2-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                                                     y_obs_test=y_true1, y_pred_test=y_pred1)
         y_true0, y_pred0, y_true1, y_pred1 = map(np.array, [y_true0, y_pred0, y_true1, y_pred1])
 

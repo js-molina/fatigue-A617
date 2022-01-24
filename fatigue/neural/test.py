@@ -25,6 +25,7 @@ from ..graph.models2 import graph_nn_prediction
 
 def run_test_model(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, rand_st = 31):
 
+    tf.keras.backend.clear_session()
     start = time.time()
     print("Starting timer...")
     
@@ -68,10 +69,14 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
     print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
     print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
-    
+    end = time.time()
+    print("Total time: {:.2f} minutes".format((end - start)/60))
+
+    return np.mean(err2), np.mean(err1)
 
 def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shallow, epochs = 40, rand_st = 31):
 
+    tf.keras.backend.clear_session()
     start = time.time()
     print("Starting timer...")
     
@@ -115,6 +120,11 @@ def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shal
     print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
     print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
     print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
+    
+    end = time.time()
+    print("Total time: {:.2f} minutes".format((end - start)/60))
+
+    return np.mean(err2), np.mean(err1)  
 
 def run_test_loading(ydata_name = None, model_path = None, rand_st = 31):
 
