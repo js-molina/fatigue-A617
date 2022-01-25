@@ -110,9 +110,12 @@ def graph_prediction(model, save_path = None):
     
     plt.show()
     
-def graph_nn_prediction(data, log = False):
+def graph_nn_prediction(data, log = False, v2 = False):
     d = np.load(data)
-    y_obs, y_pred = d['y_obs'], d['y_pred']
+    if v2:
+        y_obs, y_pred = d['y_obs_test'], d['y_pred_test']
+    else:
+        y_obs, y_pred = d['y_obs'], d['y_pred']
     
     c8 = []
     c9 = []
@@ -169,7 +172,7 @@ def graph_nn_prediction(data, log = False):
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
     plt.show()
-    
+
 def graph_nn_pred_strain(data, log = False):
     d = np.load(data)
     y_obs, y_pred = d['y_obs'], d['y_pred']
@@ -315,6 +318,8 @@ def graph_nn_pred_all(data, log = False, v2 = False):
     
     ax.add_artist(l1)
     ax.add_artist(l2)
+    
+    ax.set_title('$\chi^2 = %.3f$'%chi_ratio(y_pred, y_obs))
     
     # path = r'D:\WSL\ansto\figs'
     # plt.savefig(os.path.join(path, 'dynamic.pdf'))

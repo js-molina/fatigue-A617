@@ -58,8 +58,13 @@ from fatigue.neural.arch import *
 
 # r = test_some_data(test)
 
-# Xv, Xc, y = vectorise_data(fatigue_data.data)
+# Xv, y = single_input_data(fatigue_data.data)
+# Xv_train, Xv_test, y_train, y_test = train_test_split(Xv, y, random_state=30)
 
+# Xv_train, Xv_test, y_train, y_test, scaler_y = preprocess_single_input_rand(Xv_train, Xv_test, y_train, y_test, 120, 130)
+
+
+# Xv, Xc, y = vectorise_data(fatigue_data.data)
 # Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
 
 # Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
@@ -69,31 +74,36 @@ from fatigue.neural.arch import *
 
 
 #%%
-n = 40
+# n = 40
 
-errors0 = np.zeros((n, 5))
-errors1 = np.zeros((n, 5))
+# errors0 = np.zeros((n, 5))
+# errors1 = np.zeros((n, 5))
 
-for i in range(n):
-    random_state = np.random.randint(1000)
-    print(f'Running known_lstm_model No {i+1}/{n}...')
-    errors0[i, 0], errors1[i, 0] = run_test_model(None, None, load_known_lstm_model, 20, random_state)
-    print(f'Running hyperx1_lstm_model No {i+1}/{n}...')
-    errors0[i, 1], errors1[i, 1] = run_test_model(None, None, hyperx1_lstm_model, 20, random_state)
-    print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
-    errors0[i, 2], errors1[i, 2] =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
-    print(f'Running m_lstm_deep_r_l1l2 No {i+1}/{n}...')
-    errors0[i, 3], errors1[i, 3] = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
-    print(f'Running s_lstm_deep_r_drop No {i+1}/{n}...')
-    errors0[i, 4], errors1[i, 4] = run_stest_model(None, None, s_lstm_deep_r_drop, 15, random_state)
+# for i in range(n):
+#     random_state = np.random.randint(1000)
+#     print(f'Running known_lstm_model No {i+1}/{n}...')
+#     errors0[i, 0], errors1[i, 0] = run_test_model(None, None, load_known_lstm_model, 20, random_state)
+#     print(f'Running hyperx1_lstm_model No {i+1}/{n}...')
+#     errors0[i, 1], errors1[i, 1] = run_test_model(None, None, hyperx1_lstm_model, 20, random_state)
+#     print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
+#     errors0[i, 2], errors1[i, 2] =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
+#     print(f'Running m_lstm_deep_r_l1l2 No {i+1}/{n}...')
+#     errors0[i, 3], errors1[i, 3] = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
+#     print(f'Running s_lstm_deep_r_drop No {i+1}/{n}...')
+#     errors0[i, 4], errors1[i, 4] = run_stest_model(None, None, s_lstm_deep_r_drop, 15, random_state)
 
-print(errors0.mean(axis=0))
-print(errors1.mean(axis=0))
+# print(errors0.mean(axis=0))
+# print(errors1.mean(axis=0))
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 # run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 15, save = True)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
+# run_stest_model(None, None, s_lstmconv_deep, epochs=20)
+
+random_state = np.random.randint(1000)
+
+_, _, history = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
@@ -111,6 +121,8 @@ print(errors1.mean(axis=0))
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-1.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-120.npz', log=True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-15-01-22-300.npz', log=True)
-# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-mrl1l2-10834.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-24-01-22-ml1l2-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_prediction('mdata/ydata-24-01-22-ml1l2-120.npz', log=True, v2 = True)
+# #%%
 
-#%%
+# gr.models2.graph_nn_pred_all('mdata/old/ydata-14-01-22-2.npz', log=True, v2 = False)

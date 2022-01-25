@@ -18,20 +18,23 @@ import datetime
 from keras.wrappers.scikit_learn import KerasRegressor
 
 def preprocess_single_input(Xv_train, Xv_test, y_train, y_test, seq_max_len, padding = 'post'):
+      
+    Xv_train_proc = []
+    Xv_test_proc = []
     
     for xt in Xv_train:
-        xt = xt.iloc[:seq_max_len]
+        Xv_train_proc.append(xt.iloc[:seq_max_len])
     for xt in Xv_test:
-        xt = xt.iloc[:seq_max_len]
-    
-    tempX = pd.concat(Xv_train).reset_index(drop=True)
+        Xv_test_proc.append(xt.iloc[:seq_max_len])
+
+    tempX = pd.concat(Xv_train_proc).reset_index(drop=True)
     scaler_var = PowerTransformer()
     scaler_var.fit(tempX)
     
     # Scaling and normalising data.
     
-    Xv_train = np.array([scaler_var.transform(x) for x in Xv_train], dtype='object')
-    Xv_test = np.array([scaler_var.transform(x) for x in Xv_test], dtype= 'object')
+    Xv_train_proc = np.array([scaler_var.transform(x) for x in Xv_train_proc], dtype='object')
+    Xv_test_proc = np.array([scaler_var.transform(x) for x in Xv_test_proc], dtype= 'object')
     
     # Normalising output data.
     
@@ -41,26 +44,29 @@ def preprocess_single_input(Xv_train, Xv_test, y_train, y_test, seq_max_len, pad
     y_train = scaler_y.transform(y_train)
     y_test = scaler_y.transform(y_test)
     
-    Xv_train = pad_sequences(Xv_train, maxlen = seq_max_len, padding = padding, value = -999, dtype='float64')
-    Xv_test = pad_sequences(Xv_test, maxlen = seq_max_len, padding =  padding, value = -999, dtype='float64')
+    Xv_train_proc = pad_sequences(Xv_train_proc, maxlen = seq_max_len, padding = padding, value = -999, dtype='float64')
+    Xv_test_proc = pad_sequences(Xv_test_proc, maxlen = seq_max_len, padding =  padding, value = -999, dtype='float64')
     
-    return Xv_train, Xv_test, y_train, y_test, scaler_y
+    return Xv_train_proc, Xv_test_proc, y_train, y_test, scaler_y
 
 def preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_max_len, padding = 'post'):
     
-    for xt in Xv_train:
-        xt = xt.iloc[:seq_max_len]
-    for xt in Xv_test:
-        xt = xt.iloc[:seq_max_len]
+    Xv_train_proc = []
+    Xv_test_proc = []
     
-    tempX = pd.concat(Xv_train).reset_index(drop=True)
+    for xt in Xv_train:
+        Xv_train_proc.append(xt.iloc[:seq_max_len])
+    for xt in Xv_test:
+        Xv_test_proc.append(xt.iloc[:seq_max_len])
+    
+    tempX = pd.concat(Xv_train_proc).reset_index(drop=True)
     scaler_var = PowerTransformer()
     scaler_var.fit(tempX)
     
     # Scaling and normalising data.
     
-    Xv_train = np.array([scaler_var.transform(x) for x in Xv_train], dtype='object')
-    Xv_test = np.array([scaler_var.transform(x) for x in Xv_test], dtype= 'object')
+    Xv_train_proc = np.array([scaler_var.transform(x) for x in Xv_train_proc], dtype='object')
+    Xv_test_proc = np.array([scaler_var.transform(x) for x in Xv_test_proc], dtype= 'object')
     
     scaler_con = StandardScaler()
     scaler_con.fit(Xc_train)
@@ -76,7 +82,7 @@ def preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test
     y_train = scaler_y.transform(y_train)
     y_test = scaler_y.transform(y_test)
     
-    Xv_train = pad_sequences(Xv_train, maxlen = seq_max_len, padding = padding, value = -999, dtype='float64')
-    Xv_test = pad_sequences(Xv_test, maxlen = seq_max_len, padding =  padding, value = -999, dtype='float64')
+    Xv_train_proc = pad_sequences(Xv_train_proc, maxlen = seq_max_len, padding = padding, value = -999, dtype='float64')
+    Xv_test_proc = pad_sequences(Xv_test_proc, maxlen = seq_max_len, padding =  padding, value = -999, dtype='float64')
     
-    return Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y
+    return Xv_train_proc, Xv_test_proc, Xc_train, Xc_test, y_train, y_test, scaler_y

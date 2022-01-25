@@ -27,7 +27,7 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40, save = False):
 
     [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 
-    for c_len in [1, 10, 120, 1000, 5000, max(map(len, Xv))]:
+    for c_len in [1, 10, 120, 500, 1000, 5000, max(map(len, Xv))]:
         t1 = time.time()
         print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_eval(Xv,Xc, y, n_epochs=EPOCHS,
@@ -54,14 +54,14 @@ def run_sval_model(load_func = s_lstm_shallow, ep = 30, save = False):
     
     FOLDS = 5             # Number of folds for cross validation
     EPOCHS = ep             # Epoch size of 20-40 appears to work
-    BATCH = 6               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
+    BATCH = 11               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
     GPUS = tf.config.list_logical_devices('GPU')    # List of GPUs
     
     Xv, y = single_input_data()
 
     [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 
-    for c_len in [1, 10, 120, 1000, 5000, max(map(len, Xv))]:
+    for c_len in [1, 10, 120, 500, 1000, 5000, max(map(len, Xv))]:
         t1 = time.time()
         print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_single(Xv, y, n_epochs=EPOCHS,

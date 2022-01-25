@@ -161,6 +161,32 @@ def m_lstm_shallow(time_input_shape, const_input_shape):
 
     return model
 
+def m_lstmconv_deep(tshape, cshape):
+    
+    time_input = Input(shape=tshape)
+    const_input = Input(shape=cshape)
+    
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    
+    bi1 = layers.Bidirectional(layers.LSTM(32, return_sequences = True)(time_mask))
+    bi2 = layers.Bidirectional(layers.LSTM(32, return_sequences = True)(bi1))
+    bi3 = layers.Bidirectional(layers.LSTM(32)(bi2))
+    
+    concat_vector = layers.concatenate([const_input, bi3])
+    
+    dense = layers.Dense(32, kernel_regularizer=regularizers.l1_l2(),
+              bias_regularizer=regularizers.l1_l2(), activation='relu')(concat_vector)
+    
+    out = layers.Dense(1, activation='relu')(dense)
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.04)
+    
+    model = Model(inputs=[time_input, const_input], outputs=[out])
+    
+    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+
+    return model
+
 def m_lstm_deep_r_drop(time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.05)
@@ -220,7 +246,7 @@ def m_lstm_deep_r_l1l2(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=["mean_absolute_percentage_error"])
 
     return model
 
@@ -277,7 +303,7 @@ def s_lstmconv_deep(tshape):
     
     model = Sequential()
     
-    model.add(layers.Bidirectional(layers.LSTM(32, return_sequences = True, input_shape = [None, tshape])))
+    model.add(layers.Bidirectional(layers.LSTM(32, return_sequences = True, input_shape = tshape)))
     model.add(layers.Bidirectional(layers.LSTM(32, return_sequences = True)))
     model.add(layers.Bidirectional(layers.LSTM(32)))
     model.add(layers.Dense(32, kernel_regularizer=regularizers.l1_l2(),

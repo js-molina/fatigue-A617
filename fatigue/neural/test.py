@@ -19,7 +19,7 @@ from keras.wrappers.scikit_learn import KerasRegressor
 
 from ..networks import vectorise_data, single_input_data
 from .helper import preprocess_multi_input, preprocess_single_input
-from .arch import load_known_lstm_model, s_lstm_shallow
+from .arch import load_known_lstm_model, s_lstm_shallow, s_lstmconv_deep
 from ..graph import chi_ratio
 from ..graph.models2 import graph_nn_prediction
 
@@ -42,8 +42,8 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
-    model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=5, verbose = 0)
-        
+    history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=11, verbose = 1,
+                        validation_split = 0)
     if model_name:
         model.save('models/' + model_name)
     
@@ -72,7 +72,7 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     end = time.time()
     print("Total time: {:.2f} minutes".format((end - start)/60))
 
-    return np.mean(err2), np.mean(err1)
+    return np.mean(err2), np.mean(err1), history
 
 def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shallow, epochs = 40, rand_st = 31):
 
@@ -93,7 +93,7 @@ def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shal
     
     model = load_func(Xv_train.shape[1:])
     
-    model.fit(Xv_train, y_train, epochs=epochs, batch_size=5, verbose = 0)
+    model.fit(Xv_train, y_train, epochs=epochs, batch_size=5, verbose = 1)
         
     if model_name:
         model.save('models/' + model_name)
