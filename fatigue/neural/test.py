@@ -43,7 +43,7 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
     history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=11, verbose = 1,
-                        validation_split = 0)
+                        validation_split = 0.2)
     if model_name:
         model.save('models/' + model_name)
     

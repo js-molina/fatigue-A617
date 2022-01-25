@@ -11,6 +11,7 @@ matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx}'
 from .funcs import *
 from .helper import *
 from .models import *
+from .validation import *
 from ..finder.cycle_path import *
 
 main_path = os.path.abspath(__file__ + "/../")
