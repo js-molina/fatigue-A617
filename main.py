@@ -97,13 +97,13 @@ from fatigue.neural.arch import *
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 # run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
-# run_xval_model(m_lstm_deep_r_l1l2, ep = 15, save = True)
+run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 # run_stest_model(None, None, s_lstmconv_deep, epochs=20)
 
-random_state = np.random.randint(1000)
+# random_state = np.random.randint(1000)
 
-_, _, history = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
+# _, _, history = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
 # %%
 
 # run_test_loading(None, model_path='test_model.h5', rand_st=31)
