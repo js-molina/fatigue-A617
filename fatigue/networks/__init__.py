@@ -3,7 +3,7 @@ from ..models2.helper import get_nf
 from ..finder import fatigue_data
 import numpy as np
 
-const_data = ['temp', 'strain', 'rate']
+const_data = ['temp', 'strain']
 
 def vectorise_data(data = fatigue_data.data, cycles = False):
     X_vary = []

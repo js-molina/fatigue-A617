@@ -97,19 +97,19 @@ from fatigue.neural.arch import *
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 # run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
-# run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
+run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
-# run_stest_model(None, None, s_lstmconv_deep, epochs=20)
+# run_stest_model(None, None, s_lstm_deep_r_drop, epochs=20)
 
-random_state = np.random.randint(1000)
+# random_state = np.random.randint(1000)
 
-_, _, history1 = run_test_model(None, None, m_lstm_deep, 40, random_state)
-_, _, history2 = run_test_model(None, None, m_lstm_deep_r_l1l2, 40, random_state)
+# _, _, history1 = run_test_model(None, None, m_lstm_deep, 100, random_state)
+# _, _, history2 = run_test_model(None, None, m_lstm_deep_r_l1l2, 100, random_state)
 
-gr.validation.plot_history_loss(history1, 'No Regularisation Loss')
-gr.validation.plot_history_mape(history1, 'No Regularisation MAPE')
-gr.validation.plot_history_loss(history2)
-gr.validation.plot_history_mape(history2)
+# gr.validation.plot_history_loss(history1, 'No Regularisation Loss')
+# gr.validation.plot_history_mape(history1, 'No Regularisation MAPE')
+# gr.validation.plot_history_loss(history2)
+# gr.validation.plot_history_mape(history2)
 
 
 # %%
@@ -133,4 +133,4 @@ gr.validation.plot_history_mape(history2)
 # gr.models2.graph_nn_prediction('mdata/ydata-24-01-22-ml1l2-120.npz', log=True, v2 = True)
 # #%%
 
-# gr.models2.graph_nn_pred_all('mdata/ydata-25-01-22-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-25-01-22-1000.npz', log=False, v2 = True)

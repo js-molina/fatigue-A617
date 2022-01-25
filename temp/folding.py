@@ -4,7 +4,7 @@ sys.path.append('..')
 import matplotlib.pyplot as plt
 import matplotlib, os
 import numpy as np
-from fatigue.graph.models2 import graph_nn_pred_all
+from fatigue.graph.models2 import graph_nn_pred_all, chi_ratio
 
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['font.serif'] = 'Computer Modern'
@@ -19,19 +19,19 @@ print(f'Plotting prediction with {n} cycles!')
 
 log = True
 
-fig, taxes = plt.subplots(3, 3, sharex=True, sharey = True, figsize=(9,9))
+fig, taxes = plt.subplots(2, 2, sharex=True, sharey = True, figsize=(8,8))
 fig.add_subplot(111, frameon=False)
 plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 plt.ylabel("Observed $N_f$", fontsize=13, )
 plt.xlabel("Predicted $N_f$", fontsize=13)
 
-axes = [taxes[i][j] for i in range(3) for j in range(3)]
+axes = [taxes[i][j] for i in range(2) for j in range(2)]
 
 colors = ['b', 'r']
 markers = ['x', 'o']
 labels = []
 
-for i in range(9):
+for i in range(4):
     j = i+1
     
     d = np.load('../mdata/break/%d/%d.npz'%(n, j))
@@ -55,7 +55,8 @@ for i in range(9):
     axes[i].plot(x1, y1, color = colors[1], ls = 'none', marker = markers[1], markersize = 6, \
               markerfacecolor = 'None', label = 'Test Data')
     
-    axes[i].set_title('Fold %d'%j)
+    axes[i].set_title('Fold %d, $\chi^2 = %.2f$'%(j, chi_ratio(np.concatenate((x0, x1), axis = 0), \
+                                                               np.concatenate((y0, y1), axis = 0))))
 
 handles, labels = axes[i].get_legend_handles_labels()
 lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'none', \
@@ -67,4 +68,4 @@ lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'no
 plt.show()
 #%%
 
-graph_nn_pred_all('../mdata/ydata-18-01-22-%d.npz'%n, log=log)
+graph_nn_pred_all('../mdata/ydata-25-01-22-%d.npz'%n, log=log, v2 = True)
