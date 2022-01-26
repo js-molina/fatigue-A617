@@ -64,12 +64,12 @@ def graph_prediction(model, save_path = None):
     
     model_type = model._get_model_type()
     
-    # if model_type == 'morrow':
-    #     ax.set_title('Morrow Model')
-    # elif model_type == 'pl_manson':
-    #     ax.set_title('Inelastic Coffin Manson Model')
-    # elif model_type == 'c_manson':
-    #     ax.set_title('Elastic Coffin Manson Model')
+    if model_type == 'morrow':
+        ax.set_title('Morrow Model')
+    elif model_type == 'pl_manson':
+        ax.set_title('Inelastic Coffin Manson Model')
+    elif model_type == 'c_manson':
+        ax.set_title('Elastic Coffin Manson Model')
     
     ax.set_aspect('equal')
     

@@ -3,7 +3,8 @@ from ..models2.helper import get_nf
 from ..finder import fatigue_data
 import numpy as np
 
-const_data = ['temp', 'strain']
+all_const_data = ['temp', 'strain', 'rate']
+const_data = ['temp', 'strain', 'rate']
 
 def vectorise_data(data = fatigue_data.data, cycles = False):
     X_vary = []
@@ -11,7 +12,7 @@ def vectorise_data(data = fatigue_data.data, cycles = False):
     y = []
     for test in data:
         tempX = features(test).reset_index(drop = True)
-        X_vary.append(tempX.drop(const_data, axis = 1))
+        X_vary.append(tempX.drop(all_const_data, axis = 1))
         X_const.append(tempX[const_data].iloc[0]) 
         y.append(get_nf(test))
     return np.array(X_vary, dtype = object), np.array(X_const), np.array(y).reshape(-1, 1)
@@ -21,7 +22,7 @@ def single_input_data(data = fatigue_data.data):
     y = []
     for test in data:
         tempX = features(test).reset_index(drop = True)
-        X.append(tempX.drop(const_data, axis = 1))
+        X.append(tempX.drop(all_const_data, axis = 1))
         y.append(get_nf(test))
     return np.array(X, dtype = object), np.array(y).reshape(-1, 1)
 

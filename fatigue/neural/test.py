@@ -64,6 +64,10 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
 
     rmse2 = mean_squared_error(y_true2, y_pred2)
     err2 = abs(y_true2-y_pred2)/y_true2*100
+    
+    if save_path:
+        np.savez('mdata/' + save_path, y_obs_train=y_true2, y_pred_train=y_pred2,
+                 y_obs_test=y_true1, y_pred_test=y_pred1)
 
     print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
     print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
