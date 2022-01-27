@@ -17,7 +17,7 @@ FOLDS = 4             # Number of folds for cross validation
 BATCH = 11               # Batch size of 1 seems to work. Batch size may need to be >=3 if MULTI_GPU=True
 GPUS = tf.config.list_logical_devices('GPU')    # List of GPUs
 
-def run_xval_model(load_func = load_known_lstm_model, ep = 40, save = True):
+def run_xval_model(load_func = load_known_lstm_model, ep = 40, save = True, rs = 11):
     
     start = time.time()
     print("Starting timer...")
@@ -26,13 +26,16 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40, save = True):
 
     [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 
-    for c_len in [120]:
+    for c_len in [1, 10, 120, 500, 1000, 5000, max(map(len, Xv))]:
+        save = False
+        # if c_len == 120:
+        #     save = True
         t1 = time.time()
         print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_eval(Xv,Xc, y, n_epochs=ep,
-                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func, ver=1, save=True)
+                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, rs = rs, load_func = load_func, ver=0, save=save)
         if save:
-            np.savez('mdata/ydata-25-01-22-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
+            np.savez('mdata/' + save + '%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                                                     y_obs_test=y_true1, y_pred_test=y_pred1)
         y_true0, y_pred0, y_true1, y_pred1 = map(np.array, [y_true0, y_pred0, y_true1, y_pred1])
 
@@ -55,13 +58,16 @@ def run_sval_model(load_func = s_lstm_shallow, ep = 30, save = False):
 
     [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 
-    for c_len in [150]:
+    for c_len in [1, 10, 120, 500, 1000, 5000, max(map(len, Xv))]:
+        save = False
+        if c_len == 120:
+            save = True
         t1 = time.time()
         print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_single(Xv, y, n_epochs=ep,
-                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func, save=True)
+                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, gpu_list=GPUS, load_func = load_func, save=save)
         if save:
-            np.savez('mdata/ydata-21-01-22-sr-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
+            np.savez('mdata/ydata-27-01-22-grul1l2-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                                                     y_obs_test=y_true1, y_pred_test=y_pred1)
         y_true0, y_pred0, y_true1, y_pred1 = map(np.array, [y_true0, y_pred0, y_true1, y_pred1])
 

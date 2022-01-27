@@ -341,6 +341,40 @@ def m_lstm_deep_r_l1l2(time_input_shape, const_input_shape):
 
     return model
 
+def m_lstm_gru_r_l1l2(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.GRU(8, kernel_regularizer=regularizers.l1_l2(0.000263),
+                             recurrent_regularizer=regularizers.l1_l2(0.01412),
+                             bias_regularizer=regularizers.l1_l2(0.000126))(time_mask)
+
+    # Concatenate the LSTM output with the constant input
+    temp_vector = layers.concatenate([time_feats, const_input])
+    hidden_units = [10, 468]
+    hidden_kr = [0.0038, 0.000214]
+    hidden_br = [0.00297, 0.05646]
+    # Feed through Dense layers
+    for i in range(2):
+        temp_vector = layers.Dense(hidden_units[i], kernel_regularizer=regularizers.l1_l2(hidden_kr[i]),
+                             bias_regularizer=regularizers.l1_l2(hidden_br[i]), activation='relu')(temp_vector)
+
+    life_pred = layers.Dense(1)(temp_vector)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=["mean_absolute_percentage_error"])
+
+    return model
+
 def s_lstm_shallow(time_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)

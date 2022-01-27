@@ -233,11 +233,11 @@ Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc,
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
 preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
-tuner = kt.Hyperband(lambda x: hmodel4(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+tuner = kt.Hyperband(lambda x: hmodel5(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                      objective=kt.Objective("val_root_mean_squared_error", direction="min"),
                      max_epochs=20,
                      factor=3, directory='Tuners',
-                     project_name='m_lstm_r_l1l2',
+                     project_name='m_gru_r_l1l2',
                      overwrite = True)
 
 stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)

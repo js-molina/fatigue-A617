@@ -42,7 +42,7 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
-    history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=11, verbose = 1,
+    history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=11, verbose = 0,
                         validation_split = 0.2)
     if model_name:
         model.save('models/' + model_name)
@@ -93,11 +93,11 @@ def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shal
     Xv_train, Xv_test, y_train, y_test = train_test_split(Xv, y, random_state=rand_st)
     
     Xv_train, Xv_test, y_train, y_test, scaler_y = \
-    preprocess_single_input(Xv_train, Xv_test, y_train, y_test, 500) 
+    preprocess_single_input(Xv_train, Xv_test, y_train, y_test, 120) 
     
     model = load_func(Xv_train.shape[1:])
     
-    model.fit(Xv_train, y_train, epochs=epochs, batch_size=5, verbose = 1)
+    model.fit(Xv_train, y_train, epochs=epochs, batch_size=5, verbose = 0)
         
     if model_name:
         model.save('models/' + model_name)

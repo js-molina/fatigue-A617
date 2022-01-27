@@ -21,14 +21,14 @@ from .helper import preprocess_multi_input, preprocess_single_input
 from .arch import load_known_lstm_model, hyperx1_lstm_model
 
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
-                   n_folds, c_len = 120, gpu_list = None, load_func = load_known_lstm_model, verbose = False, ver = 0, save = False):
+                   n_folds, c_len = 120, rs = 11, load_func = load_known_lstm_model, verbose = False, ver = 0, save = False):
     
     # Target Scaling
     y = np.log1p(y)
     
     # Fold and score init
     
-    fold = KFold(n_splits=n_folds, shuffle=True, random_state = 11) 
+    fold = KFold(n_splits=n_folds, shuffle=True, random_state = rs) 
     
     rmse_scores = []
     all_y_true_train = []

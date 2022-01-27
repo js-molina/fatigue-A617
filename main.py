@@ -21,7 +21,7 @@ from fatigue.neural.test import run_test_model, run_test_loading, run_stest_mode
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
 
-#%% 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
+#%% 
 
 # =============================================================================
 # Plotting Empirical Model Results
@@ -74,43 +74,47 @@ from fatigue.neural.arch import *
 
 
 #%%
-# n = 40
+n = 100
 
-# errors0 = np.zeros((n, 5))
-# errors1 = np.zeros((n, 5))
+errors0 = np.zeros((n, 5))
+errors1 = np.zeros((n, 5))
 
-# for i in range(n):
-#     random_state = np.random.randint(1000)
-#     print(f'Running known_lstm_model No {i+1}/{n}...')
-#     errors0[i, 0], errors1[i, 0] = run_test_model(None, None, load_known_lstm_model, 20, random_state)
-#     print(f'Running hyperx1_lstm_model No {i+1}/{n}...')
-#     errors0[i, 1], errors1[i, 1] = run_test_model(None, None, hyperx1_lstm_model, 20, random_state)
-#     print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
-#     errors0[i, 2], errors1[i, 2] =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
-#     print(f'Running m_lstm_deep_r_l1l2 No {i+1}/{n}...')
-#     errors0[i, 3], errors1[i, 3] = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
-#     print(f'Running s_lstm_deep_r_drop No {i+1}/{n}...')
-#     errors0[i, 4], errors1[i, 4] = run_stest_model(None, None, s_lstm_deep_r_drop, 15, random_state)
+for i in range(n):
+    random_state = np.random.randint(1000)
+    # print(f'Running known_lstm_model No {i+1}/{n}...')
+    # errors0[i, 0], errors1[i, 0] = run_test_model(None, None, load_known_lstm_model, 20, random_state)
+    print(f'Running hyperx1_lstm_model No {i+1}/{n}...')
+    errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_lstm_gru_r_l1l2, 20, random_state)
+    print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
+    errors0[i, 2], errors1[i, 2], _ =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
+    print(f'Running m_lstm_deep_r_l1l2 No {i+1}/{n}...')
+    errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
+    # print(f'Running s_lstm_deep_r_drop No {i+1}/{n}...')
+    # errors0[i, 4], errors1[i, 4] = run_stest_model(None, None, s_lstm_deep_r_drop, 15, random_state)
 
-# print(errors0.mean(axis=0))
-# print(errors1.mean(axis=0))
+print(errors0.mean(axis=0))
+print(errors1.mean(axis=0))
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 # run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 20, save = True)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 
+# random_state = np.random.randint(1000)
+# random_state = 11
+# run_xval_model(m_lstm_gru_r_l1l2, ep = 20, rs = random_state, save = 'ydata-27-01-22-GRU%d-'%random_state)
+
 # run_stest_model(None, None, s_lstm_deep_r_drop, epochs=20)
 
 # random_state = np.random.randint(1000)
 
-# _, _, history1 = run_test_model(None, None, m_lstm_deep, 100, random_state)
+# _, _, history1 = run_test_model(None, None, hyperx2_l, 100, random_state)
 # _, _, history2 = run_test_model(None, None, m_gru_deep, 100, random_state)
 
-gr.validation.plot_history_loss(history1, 'No Regularisation Loss')
-gr.validation.plot_history_mape(history1, 'No Regularisation MAPE')
-gr.validation.plot_history_loss(history2)
-gr.validation.plot_history_mape(history2)
+# gr.validation.plot_history_loss(history1, 'No Regularisation Loss')
+# gr.validation.plot_history_mape(history1, 'No Regularisation MAPE')
+# gr.validation.plot_history_loss(history2)
+# gr.validation.plot_history_mape(history2)
 
 
 # %%
