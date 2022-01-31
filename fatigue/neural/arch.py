@@ -9,6 +9,8 @@ from sklearn.metrics import mean_squared_error
 from scipy.signal import savgol_filter
 from keras.wrappers.scikit_learn import KerasRegressor
 
+metrics = [tf.keras.metrics.RootMeanSquaredError(), 'mean_absolute_percentage_error']
+
 def load_known_lstm_model(time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.001)
@@ -32,7 +34,7 @@ def load_known_lstm_model(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -59,7 +61,7 @@ def hyperx1_lstm_model(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -91,7 +93,7 @@ def hyperx2_lstm_model(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -123,7 +125,7 @@ def hyperx2_gru_model(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -162,7 +164,7 @@ def hyperx3_lstm_model(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -189,7 +191,7 @@ def m_lstm_shallow(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -218,7 +220,7 @@ def m_lstm_deep(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=["mean_absolute_percentage_error"])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -247,7 +249,7 @@ def m_gru_deep(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=["mean_absolute_percentage_error"])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -274,7 +276,7 @@ def m_lstmconv_deep(tshape, cshape):
     
     model = Model(inputs=[time_input, const_input], outputs=[out])
     
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -303,7 +305,7 @@ def m_lstm_deep_r_drop(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -337,11 +339,11 @@ def m_lstm_deep_r_l1l2(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=["mean_absolute_percentage_error"])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
-def m_lstm_gru_r_l1l2(time_input_shape, const_input_shape):
+def m_gru_r_l1l2(time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.05)
     
@@ -371,7 +373,7 @@ def m_lstm_gru_r_l1l2(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=["mean_absolute_percentage_error"])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -394,7 +396,7 @@ def s_lstm_shallow(time_input_shape):
     model = Model(inputs=[time_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -420,7 +422,7 @@ def s_lstm_deep_r_drop(time_input_shape):
     model = Model(inputs=[time_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -438,6 +440,6 @@ def s_lstmconv_deep(tshape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.04)
     
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model

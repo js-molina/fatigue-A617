@@ -103,14 +103,38 @@ def features(test, cycles = False):
     x = app_elastic_e(x, E)
     x = app_plastic_e(x, test.Strain)
     
-    cols = x.columns
+    x = app_diff(x)
+    
+    cols = x.columns    
+
+    x = app_avg(x)
+    
+    x = x.drop(cols, axis = 1)
+    
+    app_const(x, test)
+    
+    return x.iloc[3:]
+
+def features_rel(test, cycles = False):
+    
+    x = stress(test)
+    
+    if test.Temp == 850:
+        E = 153e3
+    else:
+        E = 144e3 
+    
+    x = app_elastic_e(x, E)
+    x = app_plastic_e(x, test.Strain)
+    
+    cols = x.columns  
     
     x = app_diff(x)
     
     x = x.drop(cols, axis = 1)
 
     x = app_avg(x)
-
+    
     app_const(x, test)
     
     return x.iloc[3:]

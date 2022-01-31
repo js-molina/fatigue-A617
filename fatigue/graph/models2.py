@@ -221,8 +221,11 @@ def graph_nn_pred_strain(data, log = False):
     
     plt.show()
     
-def graph_nn_pred_all(data, log = False, v2 = False):
-    d = np.load(data)
+def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
+    if load:
+        d = np.load(data)
+    else:
+        d = data
     if v2:
         y_obs, y_pred = d['y_obs_test'], d['y_pred_test']
     else:
@@ -257,6 +260,8 @@ def graph_nn_pred_all(data, log = False, v2 = False):
     ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
     
+    msize = 7
+    
     colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
     colors[1] = 'xkcd:orange'
     colors[2] = 'xkcd:green'
@@ -278,14 +283,14 @@ def graph_nn_pred_all(data, log = False, v2 = False):
         
         x, y = zip(*value)
         
-        ax.plot(x, y, marker = marker, markersize = 6, ls = 'None', \
+        ax.plot(x, y, marker = marker, markersize = msize, ls = 'None', \
         markeredgecolor = color, markerfacecolor = facecol, markeredgewidth = 1.5)
             
     strain_elements = [Patch(facecolor= val, edgecolor=val, label='{:.1f}\%'.format(key))
                        for key, val in dict_color.items()]
     
     rate_elements = [Line2D([0], [0], marker=val, color='k', label='{:.5f}'.format(key), ls = 'None', \
-                     markerfacecolor='None', markeredgewidth = 1.5, markersize=6) for key, val in dict_marker.items()]
+                     markerfacecolor='None', markeredgewidth = 1.5, markersize=msize) for key, val in dict_marker.items()]
         
     temp_elements = []
     
@@ -294,7 +299,7 @@ def graph_nn_pred_all(data, log = False, v2 = False):
         if val:
             cl = 'k'
         temp_elements.append(Line2D([0], [0], marker='h', color='k', label='\SI{%d}{\celsius}'%key, ls = 'None', \
-             markerfacecolor=cl, markeredgewidth = 1.5, markersize=6))
+             markerfacecolor=cl, markeredgewidth = 1.5, markersize=msize))
     
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
@@ -321,7 +326,8 @@ def graph_nn_pred_all(data, log = False, v2 = False):
     
     ax.set_title('$\chi^2 = %.3f$'%chi_ratio(y_pred, y_obs))
     
-    # path = r'D:\WSL\ansto\figs'
-    # plt.savefig(os.path.join(path, 'dynamic.pdf'))
+    if save:
+        path = r'D:\WSL\ansto\figs'
+        plt.savefig(os.path.join(path, save + '.pdf'))
     
     plt.show()

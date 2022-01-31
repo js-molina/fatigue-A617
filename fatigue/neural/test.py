@@ -23,13 +23,14 @@ from .arch import load_known_lstm_model, s_lstm_shallow, s_lstmconv_deep
 from ..graph import chi_ratio
 from ..graph.models2 import graph_nn_prediction
 
-def run_test_model(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, rand_st = 31):
+def run_test_model(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, rand_st = 31,
+                   tfeats = [], cfeats = []):
 
     tf.keras.backend.clear_session()
     start = time.time()
     print("Starting timer...")
     
-    Xv, Xc, y = vectorise_data()
+    Xv, Xc, y = vectorise_data(tfeats=tfeats, cfeats=cfeats)
     
     # Target Scaling
     

@@ -49,7 +49,7 @@ def preprocess_single_input(Xv_train, Xv_test, y_train, y_test, seq_max_len, pad
     
     return Xv_train_proc, Xv_test_proc, y_train, y_test, scaler_y
 
-def preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_max_len, padding = 'post'):
+def preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, seq_max_len, rm = [], padding = 'post'):
     
     Xv_train_proc = []
     Xv_test_proc = []

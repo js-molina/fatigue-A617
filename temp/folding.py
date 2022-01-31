@@ -13,17 +13,17 @@ matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx}'
 
 vals = [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 n = np.random.choice(vals)
-n = 120
+n = 60
 
 print(f'Plotting prediction with {n} cycles!')
 
 log = True
 
-fig, taxes = plt.subplots(2, 2, sharex=True, sharey = True, figsize=(8,8))
+fig, taxes = plt.subplots(2, 2, sharex=False, sharey = False, figsize=(8,8))
 fig.add_subplot(111, frameon=False)
 plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-plt.ylabel("Observed $N_f$", fontsize=13, )
-plt.xlabel("Predicted $N_f$", fontsize=13)
+plt.ylabel("Observed $N_f$", fontsize=13, labelpad=12)
+plt.xlabel("Predicted $N_f$", fontsize=13, labelpad=12)
 
 axes = [taxes[i][j] for i in range(2) for j in range(2)]
 
@@ -34,7 +34,7 @@ labels = []
 for i in range(4):
     j = i+1
     
-    d = np.load('../mdata/break/%d/%d.npz'%(n, j))
+    d = np.load('../mdata/break/sparse%d/%d.npz'%(n, j))
     x0, y0, x1, y1 = d['x0'], d['y0'], d['x1'], d['y1']
     
     axes[i].set_ylim(100, 12000)
@@ -60,7 +60,7 @@ for i in range(4):
 
 handles, labels = axes[i].get_legend_handles_labels()
 lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'none', \
-            framealpha = 0, bbox_to_anchor=(0.7, 0.96), fontsize=12)
+            framealpha = 0, bbox_to_anchor=(0.7, 0.97), fontsize=12)
 
 # path = r'D:\WSL\ansto\figs'
 # plt.savefig(os.path.join(path, 'folds.pdf'))
@@ -68,4 +68,4 @@ lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'no
 plt.show()
 #%%
 
-graph_nn_pred_all('../mdata/ydata-25-01-22-%d.npz'%n, log=log, v2 = True)
+graph_nn_pred_all('../mdata/ydata-31-01-22-sparse-%d.npz'%n, log=log, v2 = True)

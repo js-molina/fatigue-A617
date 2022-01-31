@@ -3,7 +3,7 @@ import numpy as np
 
 from .helper import chi_ratio
 
-def plot_history_loss(history, title = 'L1/L2 Activity Loss'):
+def plot_history_loss(history, title = 'L1/L2 Activity Loss', xlim = None):
 
     ax = plt.gca()
     
@@ -12,7 +12,8 @@ def plot_history_loss(history, title = 'L1/L2 Activity Loss'):
     ax.set_title(title)
     ax.set_ylabel('Loss value')
     ax.set_xlabel('No. Epoch')
-    
+    if xlim:
+        ax.set_xlim(*xlim)
     ax.legend(framealpha = 1, edgecolor = 'None')
     
     plt.show()
@@ -31,7 +32,7 @@ def plot_history_mape(history, title = 'L1/L2 Mean Absolute Percentage Error'):
     
     plt.show()
     
-def plot_history_rmse(history, title = 'L1/L2 Root Mean Squared Error'):
+def plot_history_rmse(history, title = 'L1/L2 Root Mean Squared Error', xlim = None):
 
     ax = plt.gca()
     
@@ -40,7 +41,8 @@ def plot_history_rmse(history, title = 'L1/L2 Root Mean Squared Error'):
     ax.set_title(title)
     ax.set_ylabel('Root Mean Squared Error')
     ax.set_xlabel('No. Epoch')
-    
+    if xlim:
+        ax.set_xlim(*xlim)
     ax.legend(framealpha = 1, edgecolor = 'None')
     
     plt.show()

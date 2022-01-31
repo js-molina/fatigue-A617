@@ -21,7 +21,7 @@ from .helper import preprocess_multi_input, preprocess_single_input
 from .arch import load_known_lstm_model, hyperx1_lstm_model
 
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
-                   n_folds, c_len = 120, rs = 11, load_func = load_known_lstm_model, verbose = False, ver = 0, save = False):
+                   n_folds, c_len = 120, rs = 11, load_func = load_known_lstm_model, verbose = False, ver = 0, save_ = 'RM'):
     
     # Target Scaling
     y = np.log1p(y)
@@ -43,8 +43,8 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
         Xv_train = Xv[train]
         y_train = y[train]
         
-        Xc_train = Xc[train]
-        Xc_test = Xc[test]
+        Xc_train = Xc.iloc[train]
+        Xc_test = Xc.iloc[test]
         
         Xv_test = Xv[test]
         y_test = y[test]
@@ -83,8 +83,8 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
         rmse2 = mean_squared_error(y_true2, y_pred2)
         err2 = abs(y_true2-y_pred2)/y_true2*100
         
-        if save:
-            path = 'mdata/break/%d'%c_len
+        if save_:
+            path = 'mdata/break/' + save_ + '%d'%c_len
             os.makedirs(path, exist_ok = True)
             np.savez(os.path.join(path, '%d'%n_fold), x1 = y_pred1, y1 = y_true1, x0 = y_pred2, y0 = y_true2)
         
