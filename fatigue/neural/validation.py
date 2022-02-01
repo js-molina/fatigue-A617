@@ -23,6 +23,7 @@ from .arch import load_known_lstm_model, hyperx1_lstm_model
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
                    n_folds, c_len = 120, rs = 11, load_func = load_known_lstm_model, verbose = False, ver = 0, save_ = 'RM'):
     
+    tf.keras.backend.clear_session()
     # Target Scaling
     y = np.log1p(y)
     

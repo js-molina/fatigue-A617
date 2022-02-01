@@ -104,10 +104,12 @@ cfeats = ['rate']
 
 # random_state = 994
 
-run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_ = 'full',
-                save_all = 'ydata-31-01-22-full', rs = random_state)
-run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_ = 'sparse',
-                save_all = 'ydata-31-01-22-sparse', tfeats=tfeats, cfeats=cfeats, rs = random_state)
+
+# run_xval_model(m_lstm_r, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v22', rs = random_state)
+run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_all = 'ydata-01-02-22-v1', rs = random_state)
+# run_xval_model(m_lstm_deep_r_l1l2, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v12', rs = random_state)
+run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-01-02-22-v3', save_ = 'ydata-01-02-22-v3', rs = random_state)
+run_xval_model(m_lstm_r, ep = 40, save_all = 'ydata-01-02-22-v2', save_ = 'ydata-01-02-22-v3', rs = random_state)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 
 # random_state = np.random.randint(1000)
@@ -133,5 +135,7 @@ run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_ = 'sparse',
 
 # gr.models2.graph_nn_prediction('mdata/ydata-24-01-22-ml1l2-120.npz', log=True, v2 = True)
 
-gr.models2.graph_nn_pred_all('mdata/ydata-31-01-22-full-60.npz', log=True, v2 = True)
-gr.models2.graph_nn_pred_all('mdata/ydata-31-01-22-sparse-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-31-01-22-full-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-31-01-22-sparse-60.npz', log=True, v2 = True)
+
+# %%

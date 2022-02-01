@@ -24,6 +24,7 @@ from keras import regularizers
 from fatigue.networks import vectorise_data
 from fatigue.neural.helper import preprocess_multi_input
 
+metrics = [tf.keras.metrics.RootMeanSquaredError(), 'mean_absolute_percentage_error']
 
 def hmodel(hp, time_input_shape, const_input_shape):
     
@@ -52,7 +53,7 @@ def hmodel(hp, time_input_shape, const_input_shape):
     opt = tf.keras.optimizers.Adam(learning_rate=hp_learning_rate)
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
 
     return model
 
@@ -87,7 +88,7 @@ def hmodel2(hp, time_input_shape, const_input_shape):
     opt = tf.keras.optimizers.Adam(learning_rate=hp_learning_rate)
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
 
     return model
 
@@ -124,7 +125,7 @@ def hmodel3(hp, time_input_shape, const_input_shape):
     opt = tf.keras.optimizers.Adam(learning_rate=hp_learning_rate)
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
 
     return model
 
@@ -137,9 +138,9 @@ def hmodel4(hp, time_input_shape, const_input_shape):
     const_input = Input(shape=const_input_shape)
 
     hp_lstm_units = hp.Int('lstm_units', min_value = 8, max_value = 64, step = 16)
-    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
-    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
-    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
+    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
@@ -156,8 +157,8 @@ def hmodel4(hp, time_input_shape, const_input_shape):
     # Initialising regularisers
     for i in range(2):
         hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 8, max_value = 512, sampling = 'log'))
-        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-4, max_value = 1e-1, sampling = 'log'))
-        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-4, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-5, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-5, max_value = 1e-1, sampling = 'log'))
     
     # Feed through Dense layers
     for i in range(2):
@@ -170,7 +171,7 @@ def hmodel4(hp, time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
 
     return model
 
@@ -216,26 +217,30 @@ def hmodel5(hp, time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
 
     return model
 
 
 print('Loading Data...')
-Xv, Xc, y = vectorise_data()
+tfeats = ['plastic_d_m', 's_ratio_m', 's_ratio_d_m', 'min_s_m', 'max_s_m']
+cfeats = ['rate']
+
+tfeats, cfeats = [], []
+Xv, Xc, y = vectorise_data(tfeats = tfeats, cfeats = cfeats)
 
 # Target Scaling
 
 y = np.log1p(y)
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y)
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
 
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
 preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
-tuner = kt.Hyperband(lambda x: hmodel5(x, Xv_train.shape[1:], Xc_train.shape[1:]),
-                     objective=kt.Objective("val_root_mean_squared_error", direction="min"),
-                     max_epochs=20,
+tuner = kt.Hyperband(lambda x: hmodel4(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+                     objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
+                     max_epochs=40, seed = 1,
                      factor=3, directory='Tuners',
                      project_name='m_gru_r_l1l2',
                      overwrite = True)
@@ -246,13 +251,13 @@ tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2,
 
 best_hps=tuner.get_best_hyperparameters(num_trials=3)[0]
 
-# print(f'The hyperparameter search is complete. The optimal number of units in the LSTM layer is')
-# print(f"""{best_hps.get('lstm_units')} with kr = {best_hps.get('lstm_kr')}, rr = {best_hps.get('lstm_rr')} and 
-# br = {best_hps.get('lstm_br')}.""")
+print(f'The hyperparameter search is complete. The optimal number of units in the LSTM layer is')
+print(f"""{best_hps.get('lstm_units')} with kr = {best_hps.get('lstm_kr')}, rr = {best_hps.get('lstm_rr')} and 
+br = {best_hps.get('lstm_br')}.""")
 
-print(f'The hyperparameter search is complete. The optimal number of units in the GRU layer is')
-print(f"""{best_hps.get('gru_units')} with kr = {best_hps.get('gru_kr')}, rr = {best_hps.get('gru_rr')} and 
-br = {best_hps.get('gru_br')}.""")
+# print(f'The hyperparameter search is complete. The optimal number of units in the GRU layer is')
+# print(f"""{best_hps.get('gru_units')} with kr = {best_hps.get('gru_kr')}, rr = {best_hps.get('gru_rr')} and 
+# br = {best_hps.get('gru_br')}.""")
 
 for i in range(2):
     print(f"The units in the densely-connected {i+1} is {best_hps.get('hidden_units_%d'%i)} with",
