@@ -21,7 +21,7 @@ from .helper import preprocess_multi_input, preprocess_single_input
 from .arch import load_known_lstm_model, hyperx1_lstm_model
 
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
-                   n_folds, c_len = 120, rs = 11, load_func = load_known_lstm_model, verbose = False, ver = 0, save_ = 'RM'):
+                   n_folds, c_len = 120, rs = 11, load_func = load_known_lstm_model, verbose = False, ver = 0, save_ = ''):
     
     tf.keras.backend.clear_session()
     # Target Scaling
@@ -85,7 +85,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
         err2 = abs(y_true2-y_pred2)/y_true2*100
         
         if save_:
-            path = 'mdata/break/' + save_ + '%d'%c_len
+            path = 'mdata/break/' + save_ + '-%d'%c_len
             os.makedirs(path, exist_ok = True)
             np.savez(os.path.join(path, '%d'%n_fold), x1 = y_pred1, y1 = y_true1, x0 = y_pred2, y0 = y_true2)
         

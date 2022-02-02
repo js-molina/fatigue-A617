@@ -223,6 +223,7 @@ def graph_nn_pred_strain(data, log = False):
     
 def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
     if load:
+        print(data)
         d = np.load(data)
     else:
         d = data
@@ -259,6 +260,9 @@ def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
     # ax.set_aspect('equal')
     ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
+    
+    ax.plot([100, 20000], [200, 40000], lw = 1, ls = '--', color = 'gray')
+    ax.plot([200, 40000], [100, 20000], lw = 1, ls = '--', color = 'gray')
     
     msize = 7
     

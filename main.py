@@ -2,7 +2,6 @@
 # =============================================================================
 # Importing Modules
 # =============================================================================
-
 import random, os
 from fatigue.finder import fatigue_data
 from fatigue.finder import cycle_path
@@ -14,7 +13,7 @@ import fatigue.graph as gr
 import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import *
-from fatigue.neural.running import run_xval_model, run_sval_model
+from fatigue.neural.running import run_xval_model, run_sval_model, run_rd_model
 from fatigue.neural.test import run_test_model, run_test_loading, run_stest_model
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
@@ -98,19 +97,23 @@ from fatigue.neural.arch import *
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 # run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
 
-random_state = np.random.randint(1000)
-tfeats = ['plastic_d_m', 's_ratio_m', 's_ratio_d_m', 'min_s_m', 'max_s_m']
-cfeats = ['rate']
+# random_state = np.random.randint(1000)
+# tfeats = ['plastic_d_m', 's_ratio_m', 's_ratio_d_m', 'min_s_m', 'max_s_m']
+# cfeats = ['rate']
 
 # random_state = 994
 
-
-# run_xval_model(m_lstm_r, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v22', rs = random_state)
-run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_all = 'ydata-01-02-22-v1', rs = random_state)
+# run_xval_model(m_lstm_r, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-sparse', rs = random_state)
+# run_xval_model(m_lstm_r, ep = 40, save_all = 'ydata-01-02-22-full', rs = random_state)
+# run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_all = 'ydata-01-02-22-v1', rs = random_state)
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v12', rs = random_state)
-run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-01-02-22-v3', save_ = 'ydata-01-02-22-v3', rs = random_state)
-run_xval_model(m_lstm_r, ep = 40, save_all = 'ydata-01-02-22-v2', save_ = 'ydata-01-02-22-v3', rs = random_state)
+# run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-01-02-22-v3', save_ = 'ydata-01-02-22-v3', rs = random_state)
+# run_xval_model(m_lstm_r, ep = 40, save_all = 'ydata-01-02-22-v2', save_ = 'ydata-01-02-22-v3', rs = random_state)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
+run_rd_model('d', m_lstm_r, 100, 'ydata-02-02-22-D')
+run_rd_model('r', m_lstm_r, 100, 'ydata-02-02-22-R')
 
 # random_state = np.random.randint(1000)
 # random_state = 11
@@ -121,21 +124,34 @@ run_xval_model(m_lstm_r, ep = 40, save_all = 'ydata-01-02-22-v2', save_ = 'ydata
 # random_state = np.random.randint(1000)
 
 # _, _, history1 = run_test_model(None, None, m_gru_r_l1l2, 100, random_state)
-# _, _, history2 = run_test_model(None, None, m_lstm_deep_r_l1l2, 100, random_state)
+# _, _, history2 = run_test_model(None, None, m_lstm_r, 100, random_state)
 
-# gr.validation.plot_history_loss(history1, 'Regularised GRU Loss')
-# gr.validation.plot_history_mape(history1, 'Regularised GRU MAPE')
-# gr.validation.plot_history_rmse(history1, 'Regularised GRU RMSE')
-# gr.validation.plot_history_loss(history2, 'Regularised LSTM Loss')
-# gr.validation.plot_history_mape(history2, 'Regularised LSTM MAPE')
-# gr.validation.plot_history_rmse(history2, 'Regularised LSTM RMS')
+# gr.validation.plot_history_loss(history1, 'GRU')
+# gr.validation.plot_history_loss(history2, 'LSTM')
+# gr.validation.plot_history_mape(history1, 'GRU')
+# gr.validation.plot_history_mape(history2, 'LSTM')
+# gr.validation.plot_history_rmse(history1, 'GRU')
+# gr.validation.plot_history_rmse(history2, 'LSTM')
 
 
 # %%
-
 # gr.models2.graph_nn_prediction('mdata/ydata-24-01-22-ml1l2-120.npz', log=True, v2 = True)
-
+# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-nr-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-mrd-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-hx2-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-21-01-22-mrl1l2-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-24-01-22-ml1l2-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-25-01-22-500.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-28-01-22-full-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-28-01-22-sparse-60.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-31-01-22-full-60.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-31-01-22-sparse-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-v1-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-v2-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-v3-120.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-full-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-sparse-60.npz', log=True, v2 = True)
 
-# %%
+# gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-D-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-R-60.npz', log=True, v2 = True)

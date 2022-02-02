@@ -4,7 +4,7 @@ sys.path.append('..')
 import matplotlib.pyplot as plt
 import matplotlib, os
 import numpy as np
-from fatigue.graph.models2 import graph_nn_pred_all, chi_ratio
+from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_prediction, chi_ratio
 
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['font.serif'] = 'Computer Modern'
@@ -34,7 +34,7 @@ labels = []
 for i in range(4):
     j = i+1
     
-    d = np.load('../mdata/break/sparse%d/%d.npz'%(n, j))
+    d = np.load('../mdata/break/elasticNet-%d/%d.npz'%(n, j))
     x0, y0, x1, y1 = d['x0'], d['y0'], d['x1'], d['y1']
     
     axes[i].set_ylim(100, 12000)
@@ -50,6 +50,9 @@ for i in range(4):
     axes[i].plot([100, 20000], [100, 20000], lw = 2, color = 'k')
     axes[i].fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
     
+    axes[i].plot([100, 20000], [200, 40000], lw = 1, ls = '--', color = 'gray')
+    axes[i].plot([200, 40000], [100, 20000], lw = 1, ls = '--', color = 'gray')
+    
     axes[i].plot(x0, y0, color = colors[0], ls = 'none', marker = markers[0], markersize = 6, \
               markerfacecolor = 'None', label = 'Train Data')
     axes[i].plot(x1, y1, color = colors[1], ls = 'none', marker = markers[1], markersize = 6, \
@@ -57,6 +60,7 @@ for i in range(4):
     
     axes[i].set_title('Fold %d, $\chi^2 = %.2f$'%(j, chi_ratio(np.concatenate((x0, x1), axis = 0), \
                                                                np.concatenate((y0, y1), axis = 0))))
+    axes[i].grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 
 handles, labels = axes[i].get_legend_handles_labels()
 lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'none', \
@@ -68,4 +72,4 @@ lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'no
 plt.show()
 #%%
 
-graph_nn_pred_all('../mdata/ydata-31-01-22-sparse-%d.npz'%n, log=log, v2 = True)
+graph_nn_pred_all('../mdata/elasticNet-%d.npz'%n, log=log, v2 = True)

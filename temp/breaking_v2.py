@@ -3,13 +3,13 @@ import matplotlib, os
 import numpy as np
 
 vals = [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
-vals = [1, 10, 120, 500, 1000, 5000, 10834]
+vals = [1, 5, 10, 60, 120, 500, 1000, 5000, 10834]
 
 labels = list(map(str, vals))
 
 err0 = []; err1= []
 for el in labels:
-    d = np.load('../mdata/ydata-25-01-22-ml1l2-%s.npz'%el)
+    d = np.load('../mdata/ydata-01-02-22-v3-%s.npz'%el)
     x0, y0 = d['y_pred_train'], d['y_obs_train']
     x1, y1 = d['y_pred_test'], d['y_obs_test']
     er0 = abs(y0-x0)/y0*100
@@ -68,3 +68,5 @@ path = r'D:\WSL\ansto\figs'
 # plt.savefig(os.path.join(path, 'bboxplot.pdf'), bbox_inches = 'tight')
 
 plt.show()
+
+print(np.mean(merr0), np.mean(merr1))
