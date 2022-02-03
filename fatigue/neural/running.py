@@ -28,7 +28,7 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40, save_all = '', sa
 
     [1, 10, 20, 40, 60, 80, 100, 120, 150, 200, 500, 1000, 5000, 10000, 20000]
 
-    for c_len in [60]:
+    for c_len in [1, 10, 60, 120, 500, 1000, 5000, max(map(len, Xv))]:
         t1 = time.time()
         print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_eval(Xv,Xc, y, n_epochs=ep,

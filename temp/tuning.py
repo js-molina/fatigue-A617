@@ -3,6 +3,8 @@ import os, sys
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 
+sys.path.append('..')
+
 from keras.models import Model, load_model
 import pandas as pd
 import numpy as np
@@ -184,9 +186,9 @@ def hmodel5(hp, time_input_shape, const_input_shape):
     const_input = Input(shape=const_input_shape)
 
     hp_gru_units = hp.Int('gru_units', min_value = 8, max_value = 64, step = 16)
-    hp_gru_kr = hp.Float('gru_kr', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
-    hp_gru_rr = hp.Float('gru_rr', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
-    hp_gru_br = hp.Float('gru_br', min_value = 1e-4, max_value = 1e-1, sampling = 'log')
+    hp_gru_kr = hp.Float('gru_kr', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
+    hp_gru_rr = hp.Float('gru_rr', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
+    hp_gru_br = hp.Float('gru_br', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
 
     # Feed time_input through Masking and GRU layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
@@ -203,8 +205,8 @@ def hmodel5(hp, time_input_shape, const_input_shape):
     # Initialising regularisers
     for i in range(2):
         hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 8, max_value = 512, sampling = 'log'))
-        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-4, max_value = 1e-1, sampling = 'log'))
-        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-4, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-5, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-5, max_value = 1e-1, sampling = 'log'))
     
     # Feed through Dense layers
     for i in range(2):
@@ -233,17 +235,24 @@ Xv, Xc, y = vectorise_data(tfeats = tfeats, cfeats = cfeats)
 
 y = np.log1p(y)
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
+Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y)
 
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
 preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
 tuner = kt.Hyperband(lambda x: hmodel4(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                      objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
-                     max_epochs=40, seed = 1,
+                     max_epochs=40, seed = 1, hyperband_iterations = 10,
                      factor=3, directory='Tuners',
-                     project_name='m_gru_r_l1l2',
-                     overwrite = True)
+                     project_name='m_lstm_r_hb',
+                     overwrite = False)
+
+# tuner = kt.BayesianOptimization(lambda x: hmodel5(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+#                      objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
+#                      seed = 1, directory='Tuners',
+#                      project_name='m_gru_r_baye',
+#                      overwrite = False)
+
 
 stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 

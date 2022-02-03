@@ -73,29 +73,31 @@ from fatigue.neural.arch import *
 # Xv_train, Xv_test, y_train, y_test = train_test_split(Xv, y, random_state=30)
 
 #%%
-# n = 100
+n = 200
 
-# errors0 = np.zeros((n, 5))
-# errors1 = np.zeros((n, 5))
+errors0 = np.zeros((n, 5))
+errors1 = np.zeros((n, 5))
 
-# for i in range(n):
-#     random_state = np.random.randint(1000)
-#     # print(f'Running known_lstm_model No {i+1}/{n}...')
-#     # errors0[i, 0], errors1[i, 0] = run_test_model(None, None, load_known_lstm_model, 20, random_state)
-#     print(f'Running hyperx1_lstm_model No {i+1}/{n}...')
-#     errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_lstm_gru_r_l1l2, 20, random_state)
-#     print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
-#     errors0[i, 2], errors1[i, 2], _ =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
-#     print(f'Running m_lstm_deep_r_l1l2 No {i+1}/{n}...')
-#     errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_deep_r_l1l2, 20, random_state)
-#     # print(f'Running s_lstm_deep_r_drop No {i+1}/{n}...')
-#     # errors0[i, 4], errors1[i, 4] = run_stest_model(None, None, s_lstm_deep_r_drop, 15, random_state)
+for i in range(n):
+    random_state = np.random.randint(1000)
+    print(f'Running m_gru_r No {i+1}/{n}...')
+    errors0[i, 0], errors1[i, 0], _ = run_test_model(None, None, m_gru_r, 20, random_state)
+    print(f'Running m_gru_r2 No {i+1}/{n}...')
+    errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_gru_r2, 20, random_state)
+    print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
+    errors0[i, 2], errors1[i, 2], _ =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
+    print(f'Running m_lstm_r No {i+1}/{n}...')
+    errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_r, 20, random_state)
+    print(f'Running  m_lstm_r2 No {i+1}/{n}...')
+    errors0[i, 4], errors1[i, 4], _ = run_test_model(None, None, m_lstm_r2, 20, random_state)
 
-# print(errors0.mean(axis=0))
-# print(errors1.mean(axis=0))
+print(errors0.mean(axis=0))
+print(errors1.mean(axis=0))
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
-# run_xval_model(hyperx2_lstm_model, ep = 20, save = True)
+np.savez('mdata/errors', err0 = errors0, err1 = errors1)
+
+# os.environ['CUDA_VISIBLE_DEVICES'] = "1"
+# run_xval_model(hyperx2_lstm_model, ep = 20)
 
 # random_state = np.random.randint(1000)
 # tfeats = ['plastic_d_m', 's_ratio_m', 's_ratio_d_m', 'min_s_m', 'max_s_m']
@@ -108,12 +110,12 @@ from fatigue.neural.arch import *
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_all = 'ydata-01-02-22-v1', rs = random_state)
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v12', rs = random_state)
 # run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-01-02-22-v3', save_ = 'ydata-01-02-22-v3', rs = random_state)
-# run_xval_model(m_lstm_r, ep = 40, save_all = 'ydata-01-02-22-v2', save_ = 'ydata-01-02-22-v3', rs = random_state)
+# run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-03-02-22-LSTM2', rs = random_state)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
-run_rd_model('d', m_lstm_r, 100, 'ydata-02-02-22-D')
-run_rd_model('r', m_lstm_r, 100, 'ydata-02-02-22-R')
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# run_rd_model('d', m_lstm_r, 100, 'ydata-02-02-22-D')
+# run_rd_model('r', m_lstm_r, 100, 'ydata-02-02-22-R')
 
 # random_state = np.random.randint(1000)
 # random_state = 11
