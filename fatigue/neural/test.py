@@ -22,6 +22,7 @@ from .helper import preprocess_multi_input, preprocess_single_input
 from .arch import load_known_lstm_model, s_lstm_shallow, s_lstmconv_deep
 from ..graph import chi_ratio
 from ..graph.models2 import graph_nn_prediction
+from temp.get_folds import test_idx, train_idx
 
 def run_test_model(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, rand_st = 31,
                    tfeats = [], cfeats = []):
@@ -78,6 +79,72 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     print("Total time: {:.2f} minutes".format((end - start)/60))
 
     return np.mean(err2), np.mean(err1), history
+
+def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, fold = 'best',
+                   tfeats = [], cfeats = []):
+
+    tf.keras.backend.clear_session()
+    start = time.time()
+    print("Starting timer...")
+    
+    Xv, Xc, y = vectorise_data(tfeats=tfeats, cfeats=cfeats)
+    
+    # Target Scaling
+    
+    y = np.log1p(y)
+    
+    train, test = train_idx['best'], test_idx['best']
+
+    Xv_train = Xv[train]
+    y_train = y[train]
+
+    Xc_train = Xc.iloc[train]
+    Xc_test = Xc.iloc[test]
+
+    Xv_test = Xv[test]
+    y_test = y[test]
+    
+    Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
+    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 120) 
+    
+    model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
+    
+    history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=11, verbose = 0,
+                        validation_split = 0.2)
+    if model_name:
+        model.save('models/' + model_name)
+    
+    # Inverse normalise target data
+    y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
+    y_pred1 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
+
+    y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])
+
+    err1 = abs(y_true1-y_pred1)/y_true1*100
+
+    rmse1 = mean_squared_error(y_true1, y_pred1)
+
+    y_true2 = scaler_y.inverse_transform(y_train).reshape(-1)
+    y_pred2 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
+
+    y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
+
+    rmse2 = mean_squared_error(y_true2, y_pred2)
+    err2 = abs(y_true2-y_pred2)/y_true2*100
+    
+    if save_path:
+        np.savez('mdata/' + save_path, y_obs_train=y_true2, y_pred_train=y_pred2,
+                 y_obs_test=y_true1, y_pred_test=y_pred1)
+
+    print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
+    print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
+    print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
+    print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
+    end = time.time()
+    print("Total time: {:.2f} minutes".format((end - start)/60))
+
+    return np.mean(err2), np.mean(err1), history
+
 
 def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shallow, epochs = 40, rand_st = 31):
 

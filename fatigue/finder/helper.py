@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+import numpy as np
 
 def get_trs_from_path(folder, pager = {}):
     ss = folder.split(os.sep)
@@ -14,3 +16,13 @@ def get_ss_from_file(fileName, pager):
     sample = fileName.split('.')[0]
     pager[(sample, 'S2')] = fileName
     return sample
+
+def fd_to_df(data):
+    temp, rate, strain, sample = [], [] ,[] ,[]
+    for test in data:
+        temp.append(test.Temp)
+        rate.append(test.Rate)
+        strain.append(test.Strain)
+        sample.append(test.Sample)
+    return pd.DataFrame(zip(temp, rate, strain, sample), columns = ['Temps', 'Rates', 'Strains', 'Samples'])
+        

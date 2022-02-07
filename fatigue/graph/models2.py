@@ -110,8 +110,11 @@ def graph_prediction(model, save_path = None):
     
     plt.show()
     
-def graph_nn_prediction(data, log = False, v2 = False):
-    d = np.load(data)
+def graph_nn_prediction(data, log = False, v2 = False, load = True):
+    if load:
+        d = np.load(data)
+    else:
+        d = data
     if v2:
         y_obs, y_pred = d['y_obs_test'], d['y_pred_test']
     else:
@@ -160,12 +163,12 @@ def graph_nn_prediction(data, log = False, v2 = False):
     
     ax.set_aspect('equal')
     
-    for i in range(2):
-        ax.plot(x_pred[i], x_obs[i], marker = markers[i], markersize = 5, ls = 'None', \
-        markeredgecolor = colors[i], markerfacecolor = 'None', markeredgewidth = 1, label = labels[i])
-    
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
     ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
+    
+    for i in range(2):
+        ax.plot(x_pred[i], x_obs[i], marker = markers[i], markersize = 7, ls = 'None', \
+        markeredgecolor = colors[i], markerfacecolor = 'None', markeredgewidth = 1, label = labels[i])
     
     ax.legend(framealpha = 1, edgecolor = 'None')
     
@@ -173,8 +176,11 @@ def graph_nn_prediction(data, log = False, v2 = False):
     
     plt.show()
 
-def graph_nn_pred_strain(data, log = False):
-    d = np.load(data)
+def graph_nn_pred_strain(data, log = False, load = True):
+    if load:
+        d = np.load(data)
+    else:
+        d = data
     y_obs, y_pred = d['y_obs'], d['y_pred']
     
     strain_data = {}
@@ -240,7 +246,7 @@ def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
             if c == el:
                 strain_data.setdefault((test.Temp, test.Strain, test.Rate), [])
                 strain_data[(test.Temp, test.Strain, test.Rate)].append((y_pred[j], el))
-                break
+                # break
     
     fig, ax = plt.subplots(figsize=(8,4))
     fig.subplots_adjust(right=0.5)
@@ -313,7 +319,7 @@ def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
               bbox_to_anchor=(1.4, 0.525),
               edgecolor = 'None')
     
-    l2 = ax.legend(title = 'Strain Rate (Hz)', 
+    l2 = ax.legend(title = 'Strain Rate (/s)', 
           handles=rate_elements,
           loc='center right',
           bbox_to_anchor=(1.45, 0.1),

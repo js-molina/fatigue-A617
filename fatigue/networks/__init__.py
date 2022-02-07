@@ -53,3 +53,23 @@ def slatten(data = fatigue_data.data, tfeats = [], cfeats = [], cycles = 10):
     Xv = np.array(Xv_proc)
     
     return np.concatenate((Xv, Xc), axis = 1), y
+
+def natural(data = fatigue_data.data, tfeats = [], cfeats = [], cycles = 10):
+    X_vary = []
+    X_const = []
+    y = []
+    for test in data:
+        tempX = features_nat(test).iloc[:cycles].reset_index(drop = True)
+        X_vary.append(tempX.drop(all_const_data, axis = 1))
+        X_const.append(tempX[const_data].iloc[0]) 
+        y.append(get_nf(test))
+    Xv = X_vary
+    Xc = pd.DataFrame(X_const, columns=all_const_data).reset_index(drop = True)
+    y = np.array(y).reshape(-1, 1)
+    
+    if tfeats:
+        Xv = drop_time_feats(Xv, tfeats)
+    if cfeats:
+        Xc = drop_const_feats(Xc, cfeats)
+    return Xv, Xc, y
+

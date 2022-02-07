@@ -138,3 +138,19 @@ def features_rel(test, cycles = False):
     app_const(x, test)
     
     return x.iloc[3:]
+
+def features_nat(test, cycles = False):
+    
+    x = stress(test)
+    
+    if test.Temp == 850:
+        E = 153e3
+    else:
+        E = 144e3 
+    
+    x = app_elastic_e(x, E)
+    x = app_plastic_e(x, test.Strain)
+    
+    app_const(x, test)
+    
+    return x.iloc[3:]

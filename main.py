@@ -2,9 +2,8 @@
 # =============================================================================
 # Importing Modules
 # =============================================================================
-import random, os
-from fatigue.finder import fatigue_data
-from fatigue.finder import cycle_path
+import random, os, sys
+from fatigue.finder import fatigue_data, cycle_path, fd_to_df
 from fatigue.tests.properties import test_plastic_strain, test_strain_from_cycles
 from fatigue.tests.strain import test_strain_vals
 from fatigue.tests.models2 import test_morrow2, test_empirical
@@ -14,9 +13,12 @@ import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import *
 from fatigue.neural.running import run_xval_model, run_sval_model, run_rd_model
-from fatigue.neural.test import run_test_model, run_test_loading, run_stest_model
+from fatigue.neural.test import run_test_model, run_test_loading, run_test_fmodel
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
+from temp.get_folds import test_idx, train_idx
+
+sys.path.append(os.path.dirname(__file__))
 
 #%% 
 # =============================================================================
@@ -44,7 +46,8 @@ from fatigue.neural.arch import *
 # for test in fatigue_data.data:
 #     gr.graph_peaks_from_test(test)
 
-# gr.graph_peaks_from_test(test)
+# gr.graph_cycles_from_test(test)
+
 
 # test_filter(fatigue_data.get_data(850)[-1], lowest_cov = True)
 
@@ -61,10 +64,20 @@ from fatigue.neural.arch import *
 # tfeats = ['plastic_d_m', 's_ratio_d_m']
 # cfeats = ['rate']
 # Xv, Xc, y = vectorise_data(fatigue_data.data)
-# Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=30)
+
+# train, test = train_idx['best'], test_idx['best']
+
+# Xv_train = Xv[train]
+# y_train = y[train]
+
+# Xc_train = Xc.iloc[train]
+# Xc_test = Xc.iloc[test]
+
+# Xv_test = Xv[test]
+# y_test = y[test]
 
 # Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-#         preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
+#         preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 120)
 
 # X = test_features(fatigue_data.data)
 
@@ -73,28 +86,28 @@ from fatigue.neural.arch import *
 # Xv_train, Xv_test, y_train, y_test = train_test_split(Xv, y, random_state=30)
 
 #%%
-n = 200
+# n = 200
 
-errors0 = np.zeros((n, 5))
-errors1 = np.zeros((n, 5))
+# errors0 = np.zeros((n, 5))
+# errors1 = np.zeros((n, 5))
 
-for i in range(n):
-    random_state = np.random.randint(1000)
-    print(f'Running m_gru_r No {i+1}/{n}...')
-    errors0[i, 0], errors1[i, 0], _ = run_test_model(None, None, m_gru_r, 20, random_state)
-    print(f'Running m_gru_r2 No {i+1}/{n}...')
-    errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_gru_r2, 20, random_state)
-    print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
-    errors0[i, 2], errors1[i, 2], _ =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
-    print(f'Running m_lstm_r No {i+1}/{n}...')
-    errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_r, 20, random_state)
-    print(f'Running  m_lstm_r2 No {i+1}/{n}...')
-    errors0[i, 4], errors1[i, 4], _ = run_test_model(None, None, m_lstm_r2, 20, random_state)
+# for i in range(n):
+#     random_state = np.random.randint(1000)
+#     print(f'Running m_gru_r No {i+1}/{n}...')
+#     errors0[i, 0], errors1[i, 0], _ = run_test_model(None, None, m_gru_r, 20, random_state)
+#     print(f'Running m_gru_r2 No {i+1}/{n}...')
+#     errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_gru_r2, 20, random_state)
+#     print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
+#     errors0[i, 2], errors1[i, 2], _ =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
+#     print(f'Running m_lstm_r No {i+1}/{n}...')
+#     errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_r, 20, random_state)
+#     print(f'Running  m_lstm_r2 No {i+1}/{n}...')
+#     errors0[i, 4], errors1[i, 4], _ = run_test_model(None, None, m_lstm_r2, 20, random_state)
 
-print(errors0.mean(axis=0))
-print(errors1.mean(axis=0))
+# print(errors0.mean(axis=0))
+# print(errors1.mean(axis=0))
 
-np.savez('mdata/errors', err0 = errors0, err1 = errors1)
+# np.savez('mdata/errors', err0 = errors0, err1 = errors1)
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = "1"
 # run_xval_model(hyperx2_lstm_model, ep = 20)
@@ -125,15 +138,15 @@ np.savez('mdata/errors', err0 = errors0, err1 = errors1)
 
 # random_state = np.random.randint(1000)
 
-# _, _, history1 = run_test_model(None, None, m_gru_r_l1l2, 100, random_state)
-# _, _, history2 = run_test_model(None, None, m_lstm_r, 100, random_state)
+_, _, history1 = run_test_fmodel(None, None, m_gru_r, 100, 'high')
+_, _, history2 = run_test_fmodel(None, None, m_lstm_r, 100, 'high')
 
-# gr.validation.plot_history_loss(history1, 'GRU')
-# gr.validation.plot_history_loss(history2, 'LSTM')
-# gr.validation.plot_history_mape(history1, 'GRU')
-# gr.validation.plot_history_mape(history2, 'LSTM')
-# gr.validation.plot_history_rmse(history1, 'GRU')
-# gr.validation.plot_history_rmse(history2, 'LSTM')
+gr.validation.plot_history_loss(history1, 'GRU')
+gr.validation.plot_history_loss(history2, 'LSTM')
+gr.validation.plot_history_mape(history1, 'GRU')
+gr.validation.plot_history_mape(history2, 'LSTM')
+gr.validation.plot_history_rmse(history1, 'GRU')
+gr.validation.plot_history_rmse(history2, 'LSTM')
 
 
 # %%
@@ -154,6 +167,9 @@ np.savez('mdata/errors', err0 = errors0, err1 = errors1)
 # gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-v3-120.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-full-60.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-sparse-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-03-02-22-LSTM-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-03-02-22-GRU-60.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-D-1000.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-R-1000.npz', log=True, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/elasticNet-60.npz', log=True, v2 = True)
 
-# gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-D-60.npz', log=True, v2 = True)
-# gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-R-60.npz', log=True, v2 = True)

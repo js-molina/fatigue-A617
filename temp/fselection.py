@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.preprocessing import StandardScaler
 
-# matplotlib.rcParams['text.usetex'] = False
+matplotlib.rcParams['text.usetex'] = False
 
 tcols = ['max_s_m', 'min_s_m', 's_ratio_m', 'elastic_m', 'plastic_m',
        'max_s_d_m', 'min_s_d_m', 's_ratio_d_m', 'elastic_d_m', 'plastic_d_m']
@@ -109,17 +109,17 @@ err = abs(y_obs1-y_pred1)/y_obs1*100
 
 names = x.columns
 
-# r = report_coeff(names, model.coef_[0,:], model.intercept_)
+r = report_coeff(names, model.coef_[0,:], model.intercept_)
 
-nr_data = {'y_obs_test': np.concatenate((y_obs1, y_obs0)), 'y_pred_test': np.concatenate((y_pred1,y_pred0))}
+# nr_data = {'y_obs_test': np.concatenate((y_obs1, y_obs0)), 'y_pred_test': np.concatenate((y_pred1,y_pred0))}
 
-nr_data = {'y_obs_test': y_obs1,'y_pred_test': y_pred1}
+# nr_data = {'y_obs_test': y_obs1,'y_pred_test': y_pred1}
 
-graph_nn_pred_all(nr_data, log = True, v2 = True, load = False)
+# graph_nn_pred_all(nr_data, log = True, v2 = True, load = False)
 
 #%%
 
-model = ElasticNet(random_state=0, alpha = 0.1)
+model = ElasticNet(random_state=0, alpha = 0.2)
 
 model.fit(X_train, Y_train)
 
@@ -138,10 +138,10 @@ print(f'Final MAPE: {score0:.3f}/{score1:.3f}')
 
 err = abs(y_obs1-y_pred1)/y_obs1*100
 
-r_data = {'y_obs_test': np.concatenate((y_obs1, y_obs0)),'y_pred_test': np.concatenate((y_pred1,y_pred0))}
+# r_data = {'y_obs_test': np.concatenate((y_obs1, y_obs0)),'y_pred_test': np.concatenate((y_pred1,y_pred0))}
 
-graph_nn_pred_all(r_data, log = True, v2 = True, load = False)
+# graph_nn_pred_all(r_data, log = True, v2 = True, load = False)
 
-# r = report_coeff(names, model.coef_, model.intercept_)
+r = report_coeff(names, model.coef_, model.intercept_)
 
 
