@@ -40,7 +40,7 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y, random_state=rand_st)
     
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500) 
+    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 120) 
     
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
@@ -93,7 +93,7 @@ def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_
     
     y = np.log1p(y)
     
-    train, test = train_idx['best'], test_idx['best']
+    train, test = train_idx[fold], test_idx[fold]
 
     Xv_train = Xv[train]
     y_train = y[train]

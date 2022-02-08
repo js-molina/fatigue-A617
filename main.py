@@ -3,6 +3,7 @@
 # Importing Modules
 # =============================================================================
 import random, os, sys
+from re import M
 from fatigue.finder import fatigue_data, cycle_path, fd_to_df
 from fatigue.tests.properties import test_plastic_strain, test_strain_from_cycles
 from fatigue.tests.strain import test_strain_vals
@@ -12,7 +13,7 @@ import fatigue.graph as gr
 import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import *
-from fatigue.neural.running import run_xval_model, run_sval_model, run_rd_model
+from fatigue.neural.running import run_xval_model, run_xval_model_f, run_sval_model, run_rd_model
 from fatigue.neural.test import run_test_model, run_test_loading, run_test_fmodel
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
@@ -86,26 +87,26 @@ sys.path.append(os.path.dirname(__file__))
 # Xv_train, Xv_test, y_train, y_test = train_test_split(Xv, y, random_state=30)
 
 #%%
-# n = 200
+n = 50
 
-# errors0 = np.zeros((n, 5))
-# errors1 = np.zeros((n, 5))
+errors0 = np.zeros((n, 5))
+errors1 = np.zeros((n, 5))
 
-# for i in range(n):
-#     random_state = np.random.randint(1000)
-#     print(f'Running m_gru_r No {i+1}/{n}...')
-#     errors0[i, 0], errors1[i, 0], _ = run_test_model(None, None, m_gru_r, 20, random_state)
-#     print(f'Running m_gru_r2 No {i+1}/{n}...')
-#     errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_gru_r2, 20, random_state)
-#     print(f'Running hyperx2_lstm_model No {i+1}/{n}...')
-#     errors0[i, 2], errors1[i, 2], _ =  run_test_model(None, None, hyperx2_lstm_model, 20, random_state)
-#     print(f'Running m_lstm_r No {i+1}/{n}...')
-#     errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_r, 20, random_state)
-#     print(f'Running  m_lstm_r2 No {i+1}/{n}...')
-#     errors0[i, 4], errors1[i, 4], _ = run_test_model(None, None, m_lstm_r2, 20, random_state)
+for i in range(n):
+    random_state = np.random.randint(1000)
+    # print(f'Running m_gru_r No {i+1}/{n}...')
+    # errors0[i, 0], errors1[i, 0], _ = run_test_model(None, None, m_gru_r, 20, random_state)
+    # print(f'Running m_gru_r2 No {i+1}/{n}...')
+    # errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_gru_r2, 20, random_state)
+    print(f'Running m_lstm_best2 No {i+1}/{n}...')
+    errors0[i, 2], errors1[i, 2], _ =  run_test_fmodel(None, None, m_lstm_best2, 20, 'best')
+    print(f'Running m_lstm_r No {i+1}/{n}...')
+    errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_r, 20, random_state)
+    # print(f'Running  m_lstm_r2 No {i+1}/{n}...')
+    # errors0[i, 4], errors1[i, 4], _ = run_test_model(None, None, m_lstm_r2, 20, random_state)
 
-# print(errors0.mean(axis=0))
-# print(errors1.mean(axis=0))
+print(errors0.mean(axis=0))
+print(errors1.mean(axis=0))
 
 # np.savez('mdata/errors', err0 = errors0, err1 = errors1)
 
@@ -123,7 +124,7 @@ sys.path.append(os.path.dirname(__file__))
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_all = 'ydata-01-02-22-v1', rs = random_state)
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v12', rs = random_state)
 # run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-01-02-22-v3', save_ = 'ydata-01-02-22-v3', rs = random_state)
-# run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-03-02-22-LSTM2', rs = random_state)
+# run_xval_model_f(m_lstm_best2, ep = 40, save_all = 'ydata-08-02-22-bf2', fold='best')
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
@@ -138,15 +139,15 @@ sys.path.append(os.path.dirname(__file__))
 
 # random_state = np.random.randint(1000)
 
-_, _, history1 = run_test_fmodel(None, None, m_gru_r, 100, 'high')
-_, _, history2 = run_test_fmodel(None, None, m_lstm_r, 100, 'high')
+# _, _, history1 = run_test_fmodel(None, None, m_gru_r, 100, 'high')
+# _, _, history2 = run_test_fmodel(None, None, m_lstm_r, 100, 'high')
 
-gr.validation.plot_history_loss(history1, 'GRU')
-gr.validation.plot_history_loss(history2, 'LSTM')
-gr.validation.plot_history_mape(history1, 'GRU')
-gr.validation.plot_history_mape(history2, 'LSTM')
-gr.validation.plot_history_rmse(history1, 'GRU')
-gr.validation.plot_history_rmse(history2, 'LSTM')
+# gr.validation.plot_history_loss(history1, 'GRU')
+# gr.validation.plot_history_loss(history2, 'LSTM')
+# gr.validation.plot_history_mape(history1, 'GRU')
+# gr.validation.plot_history_mape(history2, 'LSTM')
+# gr.validation.plot_history_rmse(history1, 'GRU')
+# gr.validation.plot_history_rmse(history2, 'LSTM')
 
 
 # %%

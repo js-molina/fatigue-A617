@@ -25,6 +25,7 @@ from keras import regularizers
 
 from fatigue.networks import vectorise_data
 from fatigue.neural.helper import preprocess_multi_input
+from get_folds import test_idx, train_idx
 
 metrics = [tf.keras.metrics.RootMeanSquaredError(), 'mean_absolute_percentage_error']
 
@@ -139,10 +140,10 @@ def hmodel4(hp, time_input_shape, const_input_shape):
     time_input = Input(shape=time_input_shape)
     const_input = Input(shape=const_input_shape)
 
-    hp_lstm_units = hp.Int('lstm_units', min_value = 8, max_value = 64, step = 16)
-    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
-    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
-    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-5, max_value = 1e-1, sampling = 'log')
+    hp_lstm_units = hp.Int('lstm_units', min_value = 4, max_value = 64, sampling = 'linear')
+    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
@@ -158,9 +159,9 @@ def hmodel4(hp, time_input_shape, const_input_shape):
     
     # Initialising regularisers
     for i in range(2):
-        hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 8, max_value = 512, sampling = 'log'))
-        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-5, max_value = 1e-1, sampling = 'log'))
-        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-5, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 4, max_value = 60, sampling = 'linear'))
+        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
     
     # Feed through Dense layers
     for i in range(2):
@@ -223,6 +224,53 @@ def hmodel5(hp, time_input_shape, const_input_shape):
 
     return model
 
+def hmodel6(hp, time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    hp_lstm_units = hp.Int('lstm_units', min_value = 30, max_value = 30)
+    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(hp_lstm_units, kernel_regularizer=regularizers.l1_l2(hp_lstm_kr),
+                             recurrent_regularizer=regularizers.l1_l2(hp_lstm_rr),
+                             bias_regularizer=regularizers.l1_l2(hp_lstm_br))(time_mask)
+    # Concatenate the LSTM output with the constant input
+    temp_vector = layers.concatenate([time_feats, const_input])
+
+    hp_hidden_units = []
+    hp_hidden_kr = []
+    hp_hidden_br = []
+    
+    cv = [20, 10]
+
+    # Initialising regularisers
+    for i in range(2):
+        hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = cv[i], max_value = cv[i]))
+        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
+    
+    # Feed through Dense layers
+    for i in range(2):
+        temp_vector = layers.Dense(hp_hidden_units[i], kernel_regularizer=regularizers.l1_l2(hp_hidden_kr[i]),
+                             bias_regularizer=regularizers.l1_l2(hp_hidden_br[i]), activation='relu')(temp_vector)
+
+    life_pred = layers.Dense(1)(temp_vector)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
+
+    return model
 
 print('Loading Data...')
 tfeats = ['plastic_d_m', 's_ratio_m', 's_ratio_d_m', 'min_s_m', 'max_s_m']
@@ -235,28 +283,36 @@ Xv, Xc, y = vectorise_data(tfeats = tfeats, cfeats = cfeats)
 
 y = np.log1p(y)
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test = train_test_split(Xv, Xc, y)
+train, test = train_idx['best'], test_idx['best']
+
+Xv_train = Xv[train]
+y_train = y[train]
+
+Xc_train = Xc.iloc[train]
+Xc_test = Xc.iloc[test]
+
+Xv_test = Xv[test]
+y_test = y[test]
 
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
 preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 500)
 
-tuner = kt.Hyperband(lambda x: hmodel4(x, Xv_train.shape[1:], Xc_train.shape[1:]),
-                     objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
-                     max_epochs=40, seed = 1, hyperband_iterations = 10,
-                     factor=3, directory='Tuners',
-                     project_name='m_lstm_r_hb',
-                     overwrite = False)
-
-# tuner = kt.BayesianOptimization(lambda x: hmodel5(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+# tuner = kt.Hyperband(lambda x: hmodel6(x, Xv_train.shape[1:], Xc_train.shape[1:]),
 #                      objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
-#                      seed = 1, directory='Tuners',
-#                      project_name='m_gru_r_baye',
-#                      overwrite = False)
+#                      max_epochs=40, factor=3, hyperband_iterations=1, directory='Tuners',
+#                      project_name='m_lstm_best2',
+#                      overwrite = True)
+
+tuner = kt.BayesianOptimization(lambda x: hmodel6(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+                     objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
+                     directory='Tuners', project_name='m_lstm_best_baye',
+                     overwrite = True)
 
 
 stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
-tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
+# tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
+tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_data = ((Xv_test, Xc_test), y_test), callbacks = [stop_early])
 
 best_hps=tuner.get_best_hyperparameters(num_trials=3)[0]
 
