@@ -102,7 +102,7 @@ def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \
     return rmse_scores, all_y_true_train, all_y_pred_train, all_y_true_test, all_y_pred_test
 
 def cross_val_evalf(Xv, Xc, y, n_epochs, n_batch, \
-                   n_folds, c_len = 120, fold = 'best', load_func = load_known_lstm_model, verbose = False, ver = 0, save_ = ''):
+                   n_folds, c_len = 120, fold = 'best', load_func = load_known_lstm_model, verbose = False, ver = 0, save_ = '', l0 = 0, l1 = 0):
     
     tf.keras.backend.clear_session()
     # Target Scaling
@@ -130,7 +130,10 @@ def cross_val_evalf(Xv, Xc, y, n_epochs, n_batch, \
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
     preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, c_len)
     
-    model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
+    if l0 + l1 > 0:
+        model = load_func(Xv_train.shape[1:], Xc_train.shape[1:], l0 = l0, l1 = l1)
+    else:
+        model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
 
     model.fit([Xv_train, Xc_train], y_train, epochs=n_epochs, batch_size=n_batch, verbose = ver)
     

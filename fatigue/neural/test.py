@@ -81,7 +81,7 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     return np.mean(err2), np.mean(err1), history
 
 def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, fold = 'best',
-                   tfeats = [], cfeats = []):
+                   tfeats = [], cfeats = [], l0 = 0, l1 = 0):
 
     tf.keras.backend.clear_session()
     start = time.time()
@@ -107,10 +107,13 @@ def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
     preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 120) 
     
-    model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
+    if l0 + l1 > 0:
+        model = load_func(Xv_train.shape[1:], Xc_train.shape[1:], l0 = l0, l1 = l1)
+    else:
+        model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
     history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, batch_size=11, verbose = 0,
-                        validation_split = 0.2)
+                validation_data = ((Xv_test, Xc_test), y_test))
     if model_name:
         model.save('models/' + model_name)
     

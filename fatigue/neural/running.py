@@ -49,7 +49,7 @@ def run_xval_model(load_func = load_known_lstm_model, ep = 40, save_all = '', sa
     print("Total time: {:.2f} minutes".format((end - start)/60))
 
 def run_xval_model_f(load_func = load_known_lstm_model, ep = 40, save_all = '', save_ = '',
-                   fold = 'best', tfeats = [], cfeats = []):
+                   fold = 'best', tfeats = [], cfeats = [], l0 = 0, l1 = 0):
     
     start = time.time()
     print("Starting timer...")
@@ -62,7 +62,7 @@ def run_xval_model_f(load_func = load_known_lstm_model, ep = 40, save_all = '', 
         t1 = time.time()
         print(f'Training NN with {c_len} cycles...')
         rmse_scores, y_true0, y_pred0, y_true1, y_pred1 = cross_val_evalf(Xv, Xc, y, n_epochs=ep,
-                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, fold = fold, load_func = load_func, ver=0, save_=save_)
+                n_batch=BATCH, c_len=c_len, n_folds = FOLDS, fold = fold, load_func = load_func, ver=0, save_=save_, l0 = l0, l1 = l1)
         if save_all:
             np.savez('mdata/' + save_all + '-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                                                     y_obs_test=y_true1, y_pred_test=y_pred1)

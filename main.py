@@ -87,26 +87,26 @@ sys.path.append(os.path.dirname(__file__))
 # Xv_train, Xv_test, y_train, y_test = train_test_split(Xv, y, random_state=30)
 
 #%%
-n = 50
+# n = 30
 
-errors0 = np.zeros((n, 5))
-errors1 = np.zeros((n, 5))
+# errors0 = np.zeros((n, 5))
+# errors1 = np.zeros((n, 5))
 
-for i in range(n):
-    random_state = np.random.randint(1000)
-    # print(f'Running m_gru_r No {i+1}/{n}...')
-    # errors0[i, 0], errors1[i, 0], _ = run_test_model(None, None, m_gru_r, 20, random_state)
-    # print(f'Running m_gru_r2 No {i+1}/{n}...')
-    # errors0[i, 1], errors1[i, 1], _ = run_test_model(None, None, m_gru_r2, 20, random_state)
-    print(f'Running m_lstm_best2 No {i+1}/{n}...')
-    errors0[i, 2], errors1[i, 2], _ =  run_test_fmodel(None, None, m_lstm_best2, 20, 'best')
-    print(f'Running m_lstm_r No {i+1}/{n}...')
-    errors0[i, 3], errors1[i, 3], _ = run_test_model(None, None, m_lstm_r, 20, random_state)
-    # print(f'Running  m_lstm_r2 No {i+1}/{n}...')
-    # errors0[i, 4], errors1[i, 4], _ = run_test_model(None, None, m_lstm_r2, 20, random_state)
+# for i in range(n):
+#     random_state = np.random.randint(1000)
+#     print(f'Running 15-10 No No {i+1}/{n}...')
+#     errors0[i, 0], errors1[i, 0], _ = run_test_fmodel(None, None,  m_lstm_s, 20, 'best', l0 = 15, l1 = 10)
+#     print(f'Running m_gru_r2 No {i+1}/{n}...')
+#     errors0[i, 1], errors1[i, 1], _ = run_test_fmodel(None, None,  m_lstm_best3, 20, 'best')
+#     print(f'Running r15-10 No {i+1}/{n}...')
+#     errors0[i, 2], errors1[i, 2], _ =  run_test_fmodel(None, None,  m_lstm_best2, 20, 'best')
+#     # print(f'Running 20-20 No {i+1}/{n}...')
+#     # errors0[i, 3], errors1[i, 3], _ = run_test_fmodel(None, None, m_lstm_s, 20, 'best', l0 = 20, l1 = 20)
+#     print(f'Running  m_lstm_r2 No {i+1}/{n}...')
+#     errors0[i, 4], errors1[i, 4], _ =  run_test_fmodel(None, None,  m_lstm_best, 20, 'best')
 
-print(errors0.mean(axis=0))
-print(errors1.mean(axis=0))
+# print(errors0.mean(axis=0))
+# print(errors1.mean(axis=0))
 
 # np.savez('mdata/errors', err0 = errors0, err1 = errors1)
 
@@ -124,7 +124,7 @@ print(errors1.mean(axis=0))
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_all = 'ydata-01-02-22-v1', rs = random_state)
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v12', rs = random_state)
 # run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-01-02-22-v3', save_ = 'ydata-01-02-22-v3', rs = random_state)
-# run_xval_model_f(m_lstm_best2, ep = 40, save_all = 'ydata-08-02-22-bf2', fold='best')
+run_xval_model_f(m_lstm_s, ep = 20, save_all = 'ydata-11-02-22-NR', fold='best', l0 = 15, l1 = 10)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
@@ -139,8 +139,8 @@ print(errors1.mean(axis=0))
 
 # random_state = np.random.randint(1000)
 
-# _, _, history1 = run_test_fmodel(None, None, m_gru_r, 100, 'high')
-# _, _, history2 = run_test_fmodel(None, None, m_lstm_r, 100, 'high')
+# _, _, history1 = run_test_fmodel(None, None, m_lstm_best2, 100, 'best')
+# _, _, history2 = run_test_fmodel(None, None, m_lstm_s, 100, 'best')
 
 # gr.validation.plot_history_loss(history1, 'GRU')
 # gr.validation.plot_history_loss(history2, 'LSTM')
