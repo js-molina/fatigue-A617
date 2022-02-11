@@ -234,9 +234,9 @@ def hmodel6(hp, time_input_shape, const_input_shape):
     const_input = Input(shape=const_input_shape)
 
     hp_lstm_units = hp.Int('lstm_units', min_value = 8, max_value = 64, sampling = 'linear')
-    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
-    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
-    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
+    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
@@ -253,8 +253,8 @@ def hmodel6(hp, time_input_shape, const_input_shape):
     # Initialising regularisers
     for i in range(1):
         hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 8, max_value = 64, sampling = 'linear'))
-        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
-        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
     
     # Feed through Dense layers
     for i in range(1):
@@ -267,7 +267,7 @@ def hmodel6(hp, time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
+    model.compile(loss='mean_absolute_percentage_error', optimizer=opt, metrics = metrics)
 
     return model
 
@@ -316,9 +316,9 @@ def rm(hp, time_input_shape, const_input_shape):
     time_input = Input(shape=time_input_shape)
     const_input = Input(shape=const_input_shape)
 
-    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
-    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
-    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-6, max_value = 1e-1, sampling = 'log')
+    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
@@ -334,8 +334,8 @@ def rm(hp, time_input_shape, const_input_shape):
 
     # Initialising regularisers
     for i in range(1):
-        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
-        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-6, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
     
     # Feed through Dense layers
     for i in range(1):
@@ -377,12 +377,11 @@ y_test = y[test]
 Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
 preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 120)
 
-nr_lay = 1
 
 tuner = kt.Hyperband(lambda x: hmodel6(x, Xv_train.shape[1:], Xc_train.shape[1:]),
-                     objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
+                     objective=kt.Objective("val_loss", direction="min"),
                      max_epochs=40, factor=3, hyperband_iterations=1, directory='Tuners',
-                     project_name='m_lstm_r2',
+                     project_name='m_lstm_r1v2',
                      overwrite = False)
 
 # tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
@@ -440,14 +439,19 @@ for key, val in best_hps.values.items():
     print(key + f' = {val}')
 
 model = tuner.hypermodel.build(best_hps)
-history = model.fit((Xv_train, Xc_train), y_train, epochs=150, validation_data = ((Xv_test, Xc_test), y_test))
+history = model.fit((Xv_train, Xc_train), y_train, epochs=150, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0)
 
 val_meap_per_epoch = history.history['val_mean_absolute_percentage_error']
+val_rmse_per_epoch = history.history['val_root_mean_squared_error']
 best_epoch = val_meap_per_epoch.index(min(val_meap_per_epoch)) + 1
+# best_epoch = val_rmse_per_epoch.index(min(val_rmse_per_epoch)) + 1
 print('Best epoch: %d' % (best_epoch,))
 
 hypermodel = tuner.hypermodel.build(best_hps)
-hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_test, Xc_test), y_test))
+hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0)
+
+
+hypermodel.save('models/m1.h5')
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms, test mape]:", eval_result)
