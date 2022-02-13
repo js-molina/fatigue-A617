@@ -8,7 +8,7 @@ from ..networks import vectorise_data, single_input_data
 from .helper import preprocess_multi_input, preprocess_single_input
 from .arch import load_known_lstm_model, s_lstm_shallow
 from .validation import cross_val_eval, cross_val_single, cross_val_evalf
-from .robust import robustness, determinism
+from .robust import robustness, determinism, determinism_1
 
 # =============================================================================
 #     Training Setup
@@ -111,7 +111,7 @@ def run_sval_model(load_func = s_lstm_shallow, ep = 30, save = False):
     print("Total time: {:.2f} minutes".format((end - start)/60))
     
 
-def run_rd_model(test = 'r', load_func = load_known_lstm_model, n_try = 100, save_ = '', tfeats = [], cfeats = []):
+def run_rd_model(test = 'r', load_func = load_known_lstm_model, n_try = 100, save_ = '', tfeats = [], cfeats = [], light = False):
     
     start = time.time()
     print("Starting timer...")
@@ -125,7 +125,10 @@ def run_rd_model(test = 'r', load_func = load_known_lstm_model, n_try = 100, sav
         if test == 'r':
             y_true0, y_pred0, y_true1, y_pred1 = robustness(load_func, c_len, n_try, tfeats, cfeats)
         elif test == 'd':
-            y_true0, y_pred0, y_true1, y_pred1 = determinism(load_func, c_len, n_try, tfeats, cfeats)
+            if light:
+                y_true0, y_pred0, y_true1, y_pred1 = determinism_1(load_func, c_len, n_try, tfeats, cfeats)
+            else:
+                y_true0, y_pred0, y_true1, y_pred1 = determinism(load_func, c_len, n_try, tfeats, cfeats)
         if save_:
             np.savez('mdata/' + save_ + '-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                                                     y_obs_test=y_true1, y_pred_test=y_pred1)

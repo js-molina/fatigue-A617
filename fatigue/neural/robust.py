@@ -136,7 +136,7 @@ def determinism(load_func = load_known_lstm_model, clen = 60, n_try = 100, tfeat
         
     return all_y_true_train, all_y_pred_train, all_y_true_test, all_y_pred_test
 
-def determinism_1(load_func = load_known_lstm_model, clen = 60, n_try = 100, tfeats = [], cfeats = [], fold = 'best'):
+def determinism_1(load_func = load_known_lstm_model, clen = 120, n_try = 100, tfeats = [], cfeats = [], fold = 'best'):
     
     Xv, Xc, y = vectorise_data(tfeats=tfeats, cfeats=cfeats)
     

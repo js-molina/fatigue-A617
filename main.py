@@ -127,9 +127,9 @@ sys.path.append(os.path.dirname(__file__))
 # run_xval_model_f(m_lstm_r, ep = 20, save_all = 'ydata-11-02-22-R3', fold='best')
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 # 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-# run_rd_model('d', m_lstm_r, 100, 'ydata-02-02-22-D')
-# run_rd_model('r', m_lstm_r, 100, 'ydata-02-02-22-R')
+# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+# run_rd_model('d', m_lstm_best, 100, 'ydata-13-02-22-D', light = True)
+run_rd_model('r', m_lstm_best, 100, 'ydata-13-02-22-R')
 
 # random_state = np.random.randint(1000)
 # # random_state = 11
@@ -141,12 +141,12 @@ sys.path.append(os.path.dirname(__file__))
 
 # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', 'm2.h5', None, 100, 'best')
 # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', None, m_lstm_best, 100, 'origin')
-_, _, history1 = run_test_fmodel('ydata-13-02-22-M1', None, hyperx1, 200, 'best')
+# _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', None, hyperx1, 200, 'best')
 # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', 'm2.h5', None, 100, 'best')
 
-gr.validation.plot_history_loss(history1, 'LOSS')
-gr.validation.plot_history_mape(history1, 'MAPE')
-gr.validation.plot_history_rmse(history1, 'RMSE')
+# gr.validation.plot_history_loss(history1, 'LOSS')
+# gr.validation.plot_history_mape(history1, 'MAPE')
+# gr.validation.plot_history_rmse(history1, 'RMSE')
 
 
 # %%
@@ -167,21 +167,25 @@ gr.validation.plot_history_rmse(history1, 'RMSE')
 # gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-v3-120.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-full-60.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-01-02-22-sparse-60.npz', log=True, v2 = True)
-gr.models2.graph_nn_pred_all('mdata/ydata-03-02-22-LSTM-5000.npz', log=False, v2 = True)
+# gr.models2.graph_nn_pred_all('mdata/ydata-03-02-22-LSTM-5000.npz', log=False, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-03-02-22-GRU-60.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-D-1000.npz', log=False, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/ydata-02-02-22-R-1000.npz', log=True, v2 = True)
 # gr.models2.graph_nn_pred_all('mdata/elasticNet-60.npz', log=True, v2 = True)
+
+# gr.models2.graph_nn_pred_all('mdata/ydata-13-02-22-D-500.npz', log=True, v2 = True)
 
 # data = 'ydata-03-02-22-LSTM-500'
 
 # for i in [1, 10, 60, 120, 500, 1000, 5000, 10834]:
 #     gr.models2.graph_nn_1_fold('mdata/ydata-11-02-22-R2-%d.npz'%i, log=False)
 
-data = 'mdata/ydata-13-02-22-M1.npz'
+# data = 'mdata/ydata-13-02-22-M1.npz'
 
-log = False
+# log = False
 
-gr.models2.graph_nn_1_fold(data, log = log, which = 'train')
-gr.models2.graph_nn_1_fold(data, log = log, which = 'test')
-gr.models2.graph_nn_1_fold(data, log = log, which = 'both')
+# gr.models2.graph_nn_1_fold(data, log = log, which = 'train')
+# gr.models2.graph_nn_1_fold(data, log = log, which = 'test')
+# gr.models2.graph_nn_1_fold(data, log = log, which = 'both')
+
+# %%
