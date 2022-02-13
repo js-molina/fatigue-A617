@@ -91,7 +91,9 @@ for st in Data_950.Strains.unique():
     tmp = Data_950[Data_950.Strains == st]
     test_samples.append(tmp.Samples.sample().iloc[0])
     
-test_samples = ['4313', '41615', '4168', '41622', '41621', '41619', 'F12', '435', 'B13', 'E12', 'J6']
+# test_samples = ['4313', '41615', '4168', '41622', '41621', '41619', 'F12', '435', 'B13', 'E12', 'J6']
+
+test_samples = ['4322', '41620', '4168', '4169', '41621', '41614', 'B3', '439', 'B15', '438', 'E28']
 
 Data_test = Data[Data.Samples.isin(test_samples)].sort_values(by=['Cycles'])
 Data_train = Data[~Data.Samples.isin(test_samples)].sort_values(by='Cycles')
@@ -109,6 +111,18 @@ if plot:
 
 test_idx['best'] = cTest.index
 train_idx['best'] = cTrain.index
+
+
+test_samples = ['4313', '41615', '4168', '41622', '41621', '41619', 'F12', '435', 'B13', 'E12', 'J6']
+
+Data_test = Data[Data.Samples.isin(test_samples)].sort_values(by=['Cycles'])
+Data_train = Data[~Data.Samples.isin(test_samples)].sort_values(by='Cycles')
+
+cTest = Data_test.Cycles
+cTrain = Data_train.Cycles
+
+test_idx['origin'] = cTest.index
+train_idx['origin'] = cTrain.index
 
 #%%
 

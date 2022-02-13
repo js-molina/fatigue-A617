@@ -267,8 +267,134 @@ def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
     ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
     
-    ax.plot([100, 20000], [200, 40000], lw = 1, ls = '--', color = 'gray')
-    ax.plot([200, 40000], [100, 20000], lw = 1, ls = '--', color = 'gray')
+    if not log:
+        ax.plot([0, 6000], [0, 12000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([0, 12000], [0, 6000], lw = 1, ls = '--', color = 'gray')
+    else:
+        ax.plot([100, 20000], [200, 40000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([200, 40000], [100, 20000], lw = 1, ls = '--', color = 'gray')
+    
+    msize = 7
+    
+    colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
+    colors[1] = 'xkcd:orange'
+    colors[2] = 'xkcd:green'
+    colors[3] = 'xkcd:sky blue'
+    strain_vals = [0.3, 0.4, 0.6, 1, 2, 3]
+    
+    dict_color = dict(zip(strain_vals, colors))
+    dict_marker = {0.001 : 'o', 0.0001: '^', 1e-5: 's'}
+    dict_shade = {850 : False, 950: True}
+    
+    for key, value in strain_data.items():
+        temp, strain, rate = key
+        color, marker, shade = dict_color[strain], dict_marker[rate], dict_shade[temp]
+        
+        if shade:
+            facecol = color
+        else:
+            facecol = 'None'
+        
+        x, y = zip(*value)
+        
+        ax.plot(x, y, marker = marker, markersize = msize, ls = 'None', \
+        markeredgecolor = color, markerfacecolor = facecol, markeredgewidth = 1.5)
+            
+    strain_elements = [Patch(facecolor= val, edgecolor=val, label='{:.1f}\%'.format(key))
+                       for key, val in dict_color.items()]
+    
+    rate_elements = [Line2D([0], [0], marker=val, color='k', label='{:.5f}'.format(key), ls = 'None', \
+                     markerfacecolor='None', markeredgewidth = 1.5, markersize=msize) for key, val in dict_marker.items()]
+        
+    temp_elements = []
+    
+    for key, val in dict_shade.items():
+        cl = 'None'
+        if val:
+            cl = 'k'
+        temp_elements.append(Line2D([0], [0], marker='h', color='k', label='\SI{%d}{\celsius}'%key, ls = 'None', \
+             markerfacecolor=cl, markeredgewidth = 1.5, markersize=msize))
+    
+    ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
+    
+    l1 = ax.legend(title = 'Strain Range', 
+              handles=strain_elements,
+              loc='center right',
+              bbox_to_anchor=(1.4, 0.525),
+              edgecolor = 'None')
+    
+    l2 = ax.legend(title = 'Strain Rate (/s)', 
+          handles=rate_elements,
+          loc='center right',
+          bbox_to_anchor=(1.45, 0.1),
+          edgecolor = 'None')
+    
+    ax.legend(title = 'Temperature', 
+          handles=temp_elements,
+          loc='center right',
+          bbox_to_anchor=(1.4, 0.9),
+          edgecolor = 'None')
+    
+    ax.add_artist(l1)
+    ax.add_artist(l2)
+    
+    ax.set_title('$\chi^2 = %.3f$'%chi_ratio(y_pred, y_obs))
+    
+    if save:
+        path = r'D:\WSL\ansto\figs'
+        plt.savefig(os.path.join(path, save + '.pdf'))
+    
+    plt.show()
+    
+def graph_nn_1_fold(data, log = False, load = True, save = '', which = 'both'):
+    if load:
+        print(data)
+        d = np.load(data)
+    else:
+        d = data
+    if which == 'test':
+        y_obs, y_pred = d['y_obs_test'], d['y_pred_test']
+    elif which == 'train':
+        y_obs, y_pred = d['y_obs_train'], d['y_pred_train']
+    elif which == 'both':
+        y_obs, y_pred = np.concatenate((d['y_obs_train'], d['y_obs_test'])), \
+                        np.concatenate((d['y_pred_train'], d['y_pred_test']))
+    
+    strain_data = {}
+    
+    for test in fatigue_data.data:
+        c = get_nf(test)
+        for j, el in enumerate(np.rint(y_obs).astype('int')):
+            if c == el:
+                strain_data.setdefault((test.Temp, test.Strain, test.Rate), [])
+                strain_data[(test.Temp, test.Strain, test.Rate)].append((y_pred[j], el))
+                # break
+    
+    fig, ax = plt.subplots(figsize=(8,4))
+    fig.subplots_adjust(right=0.5)
+    
+    ax.set_xlabel('Predicted $N_f$')
+    ax.set_ylabel('Measured $N_f$')
+        
+    ax.set_ylim(100, 12000)
+    ax.set_xlim(100, 12000)
+    
+    if log:
+        ax.set_ylim(100, 20000)
+        ax.set_xlim(100, 20000)
+        ax.set_yscale('log')
+        ax.set_xscale('log')
+    
+    # ax.set_aspect('equal')
+    ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
+    ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
+    
+    if not log:
+        ax.plot([0, 6000], [0, 12000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([0, 12000], [0, 6000], lw = 1, ls = '--', color = 'gray')
+    else:
+        ax.plot([100, 20000], [200, 40000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([200, 40000], [100, 20000], lw = 1, ls = '--', color = 'gray')
     
     msize = 7
     

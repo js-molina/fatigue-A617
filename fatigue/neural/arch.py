@@ -38,9 +38,9 @@ def load_known_lstm_model(time_input_shape, const_input_shape):
 
     return model
 
-def hyperx1_lstm_model(time_input_shape, const_input_shape):
+def hyperx1(time_input_shape, const_input_shape):
     
-    opt = tf.keras.optimizers.Adam(learning_rate=0.001)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
     
     # Create separate inputs for time series and constants
     time_input = Input(shape=time_input_shape, name='time_input')
@@ -48,20 +48,23 @@ def hyperx1_lstm_model(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(232, return_sequences=False)(time_mask)
+    time_feats = layers.LSTM(8, kernel_regularizer=regularizers.l1_l2(1.703159e-5),
+                             recurrent_regularizer=regularizers.l1_l2(3.95848e-10),
+                             bias_regularizer=regularizers.l1_l2(0.0917412))(time_mask)
 
     # Concatenate the LSTM output with the constant input
     concat_vector = layers.concatenate([time_feats, const_input])
 
     # Feed through Dense layers
-    dnn = layers.Dense(296, activation='relu')(concat_vector)
+    dnn = layers.Dense(54, kernel_regularizer=regularizers.l1_l2(0.00070517),
+                       bias_regularizer=regularizers.l1_l2(3.81407e-11), activation='relu')(concat_vector)
     life_pred = layers.Dense(1)(dnn)
 
     # Instantiate model
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+    model.compile(loss='mean_absolute_percentage_error', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -129,9 +132,9 @@ def hyperx2_gru_model(time_input_shape, const_input_shape):
 
     return model
 
-def hyperx3_lstm_model(time_input_shape, const_input_shape):
+def hyperx3(time_input_shape, const_input_shape):
     
-    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
     
     # Create separate inputs for time series and constants
     time_input = Input(shape=time_input_shape, name='time_input')
@@ -139,32 +142,24 @@ def hyperx3_lstm_model(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(256, kernel_regularizer=regularizers.l2(),
-                             recurrent_regularizer=regularizers.l2(),
-                             bias_regularizer=regularizers.l2(),
+    time_feats = layers.LSTM(19, kernel_regularizer=regularizers.l2(3.037e-9),
+                             recurrent_regularizer=regularizers.l2(4.979e-10),
+                             bias_regularizer=regularizers.l2(4.049e-11),
                              return_sequences=False)(time_mask)
 
     # Concatenate the LSTM output with the constant input
     concat_vector = layers.concatenate([time_feats, const_input])
 
-    # Feed through Dense layers
-    hidden_lay = layers.Dense(256, kernel_regularizer=regularizers.l2(),
-                             bias_regularizer=regularizers.l2(), activation='relu')(concat_vector)
+    dnn = layers.Dense(12, kernel_regularizer=regularizers.l1(2.01e-7),
+                        bias_regularizer=regularizers.l2(3.9689e-12), activation='relu')(concat_vector)
 
-    drop_lay = layers.Dropout(0.5)(hidden_lay)
-    
-    dnn = layers.Dense(256, kernel_regularizer=regularizers.l1(),
-                        bias_regularizer=regularizers.l2(), activation='relu')(drop_lay)
-
-    drop_dnn = layers.Dropout(0.2)(dnn)
-
-    life_pred = layers.Dense(1)(drop_dnn)
+    life_pred = layers.Dense(1)(dnn)
 
     # Instantiate model
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+    model.compile(loss='mean_absolute_percentage_error', optimizer=opt, metrics=metrics)
 
     return model
 
@@ -517,15 +512,15 @@ def m_lstm_best(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(15, kernel_regularizer=regularizers.l1_l2(0.01108571944178997),
-                             recurrent_regularizer=regularizers.l1_l2(1.2392519627434888e-05),
-                             bias_regularizer=regularizers.l1_l2(0.07985894801188062))(time_mask)
+    time_feats = layers.LSTM(42, kernel_regularizer=regularizers.l1_l2(9.301e-7),
+                             recurrent_regularizer=regularizers.l1_l2(0.004248),
+                             bias_regularizer=regularizers.l1_l2(8.7213e-12))(time_mask)
 
     # Concatenate the LSTM output with the constant input
     temp_vector = layers.concatenate([time_feats, const_input])
 
-    temp_vector = layers.Dense(10, kernel_regularizer=regularizers.l1_l2(0.0022005361077336682),
-                            bias_regularizer=regularizers.l1_l2(3.452976572193992e-05), activation='relu')(temp_vector)
+    temp_vector = layers.Dense(23, kernel_regularizer=regularizers.l1_l2(0.0044339),
+                            bias_regularizer=regularizers.l1_l2(0.01275), activation='relu')(temp_vector)
 
     life_pred = layers.Dense(1)(temp_vector)
 

@@ -22,7 +22,7 @@ import sys
 
 sys.path.append('..')
 
-from fatigue.networks import vectorise_data, ragged_numpy_arr
+from fatigue.networks import vectorise_data
 from fatigue.graph import chi_ratio
 
 start = time.time()
@@ -74,7 +74,7 @@ max_len = max(map(len, Xv))
 Xv_train = pad_sequences(Xv_train, maxlen = max_len, padding='post', value = -999, dtype='float64')
 Xv_test = pad_sequences(Xv_test, maxlen = max_len, padding='post', value = -999, dtype='float64')
 
-model = load_model('../models/test_model2.h5')
+model = load_model('../models/m1.h5')
 
 y_true = scaler_y.inverse_transform(y_test.reshape(-1, 1)).reshape(-1)
 y_pred = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test)).reshape(-1, 1)).reshape(-1)

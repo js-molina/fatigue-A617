@@ -18,7 +18,7 @@ import time
 
 from ..networks import vectorise_data
 from .helper import preprocess_multi_input, preprocess_single_input
-from .arch import load_known_lstm_model, hyperx1_lstm_model
+from .arch import load_known_lstm_model
 from temp.get_folds import test_idx, train_idx
 
 def cross_val_eval(Xv, Xc, y, n_epochs, n_batch, \

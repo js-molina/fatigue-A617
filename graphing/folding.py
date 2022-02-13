@@ -34,7 +34,7 @@ labels = []
 for i in range(4):
     j = i+1
     
-    d = np.load('../mdata/break/sparse%d/%d.npz'%(n, j))
+    d = np.load('../mdata/break/ydata-01-02-22-v2%d/%d.npz'%(n, j))
     x0, y0, x1, y1 = d['x0'], d['y0'], d['x1'], d['y1']
     
     axes[i].set_ylim(100, 12000)
@@ -72,4 +72,4 @@ lgd = fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'no
 plt.show()
 #%%
 
-graph_nn_pred_all('../mdata/ydata-31-01-22-sparse-%d.npz'%n, log=log, v2 = True)
+graph_nn_pred_all('../mdata/ydata-01-02-22-v2-%d.npz'%n, log=log, v2 = True)

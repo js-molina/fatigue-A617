@@ -11,7 +11,7 @@ labels = list(map(str, vals))
 
 err0 = []; err1= []
 for el in labels:
-    d = np.load('../mdata/ydata-03-02-22-LSTM-%s.npz'%el)
+    d = np.load('../mdata/ydata-11-02-22-R-%s.npz'%el)
     x0, y0 = d['y_pred_train'], d['y_obs_train']
     x1, y1 = d['y_pred_test'], d['y_obs_test']
     er0 = abs(y0-x0)/y0*100
