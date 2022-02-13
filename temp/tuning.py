@@ -380,7 +380,7 @@ preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 12
 
 tuner = kt.Hyperband(lambda x: hmodel6(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                      objective=kt.Objective("val_loss", direction="min"),
-                     max_epochs=40, factor=3, hyperband_iterations=1, directory='Tuners',
+                     max_epochs=40, factor=3, hyperband_iterations=10, directory='Tuners',
                      project_name='m_lstm_r1v2',
                      overwrite = False)
 
@@ -451,7 +451,7 @@ hypermodel = tuner.hypermodel.build(best_hps)
 hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0)
 
 
-hypermodel.save('models/m1.h5')
+hypermodel.save('models/m2.h5')
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms, test mape]:", eval_result)

@@ -124,7 +124,8 @@ sys.path.append(os.path.dirname(__file__))
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, save_all = 'ydata-01-02-22-v1', rs = random_state)
 # run_xval_model(m_lstm_deep_r_l1l2, ep = 40, tfeats = tfeats, cfeats=cfeats, save_all = 'ydata-01-02-22-v12', rs = random_state)
 # run_xval_model(m_lstm_r2, ep = 40, save_all = 'ydata-01-02-22-v3', save_ = 'ydata-01-02-22-v3', rs = random_state)
-run_xval_model_f(m_lstm_s, ep = 20, save_all = 'ydata-11-02-22-NR', fold='best', l0 = 15, l1 = 10)
+run_xval_model_f(m_lstm_best2, ep = 20, save_all = 'ydata-11-02-22-R', fold='best')
+run_xval_model_f(m_lstm_best3, ep = 20, save_all = 'ydata-11-02-22-R2', fold='best')
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
