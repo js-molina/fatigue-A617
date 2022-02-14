@@ -330,45 +330,6 @@ tuner.search((Xv_train, Xc_train), y_train, epochs = 200, validation_data = ((Xv
 
 best_hps=tuner.get_best_hyperparameters()[0]
 
-# print(f'The hyperparameter search is complete. The optimal number of units in the LSTM layer is')
-# print(f"""{best_hps.get('lstm_units')} with kr = {best_hps.get('lstm_kr')}, rr = {best_hps.get('lstm_rr')} and 
-# br = {best_hps.get('lstm_br')}.""")
-
-# print(f"The hyperparameter search is complete. The optimal number of units in the LSTM layer is {best_hps.get('lstm_units')}")
-
-# print(f'The hyperparameter search is complete. The optimal number of units in the GRU layer is')
-# print(f"""{best_hps.get('gru_units')} with kr = {best_hps.get('gru_kr')}, rr = {best_hps.get('gru_rr')} and 
-# br = {best_hps.get('gru_br')}.""")
-
-# for i in range(nr_lay):
-#     print(f"The units in the densely-connected {i+1} is {best_hps.get('hidden_units_%d'%i)}")
-
-# for i in range(nr_lay):
-#     print(f"The units in the densely-connected {i+1} is {best_hps.get('hidden_units_%d'%i)} with",
-#     f"kr = {best_hps.get('hidden_kr_%d'%i)} and br = {best_hps.get('hidden_br_%d'%i)}")
-
-# hlays = [8, 8]
-
-# for i in range(nr_lay):
-#     print(f"The units in the densely-connected {hlays[i]} is {best_hps.get('hidden_units_%d'%i)} with",
-#     f"kr = {best_hps.get('hidden_kr_%d'%i)} and br = {best_hps.get('hidden_br_%d'%i)}")
-
-# print(f"""
-# The hyperparameter search is complete. The optimal number of units in the LSTM layer is
-# {best_hps.get('units1')}, the optimal number of units in the densely-connected hidden
-# layer is {best_hps.get('units2')}, and the optimal learning rate for the optimizer
-# is {best_hps.get('learning_rate')}.
-# """)
-
-# print(f"""
-# The hyperparameter search for a LSTM-DENSE-DENSE-OUT architecture is complete.
-# The optimal number of units in the LSTM layer is {best_hps.get('units1')}, the
-# optimal number of units in the first densely-connected hidden layer is
-# {best_hps.get('units2')}, the optimal number of units in the second densely-connected hidden
-# layer is {best_hps.get('units3')}, and the optimal learning rate for the optimizer
-# is {best_hps.get('learning_rate')}.
-# """)
-
 for key, val in best_hps.values.items():
     print(key + f' = {val}')
 
@@ -384,7 +345,7 @@ print('Best epoch: %d' % (best_epoch,))
 hypermodel = tuner.hypermodel.build(best_hps)
 hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0, batch_size = 33)
 
-hypermodel.save('models/m4.h5')
+# hypermodel.save('models/m4.h5')
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms, test mape]:", eval_result)
