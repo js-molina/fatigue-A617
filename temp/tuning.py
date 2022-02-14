@@ -314,8 +314,8 @@ preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 12
 
 tuner = kt.Hyperband(lambda x: hmodel6(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                      objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
-                     max_epochs=40, factor=3, hyperband_iterations=1, directory='Tuners',
-                     project_name='m_lstm_r3',
+                     max_epochs=150, factor=3, hyperband_iterations=1, directory='Tuners',
+                     project_name='m_lstm_r4',
                      overwrite = False)
 
 # tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
@@ -326,7 +326,7 @@ tuner = kt.Hyperband(lambda x: hmodel6(x, Xv_train.shape[1:], Xc_train.shape[1:]
 stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
 # tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
-tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_data = ((Xv_test, Xc_test), y_test), callbacks = [stop_early], batch_size = 33)
+tuner.search((Xv_train, Xc_train), y_train, epochs = 200, validation_data = ((Xv_test, Xc_test), y_test), callbacks = [stop_early], batch_size = 33)
 
 best_hps=tuner.get_best_hyperparameters()[0]
 
@@ -373,7 +373,7 @@ for key, val in best_hps.values.items():
     print(key + f' = {val}')
 
 model = tuner.hypermodel.build(best_hps)
-history = model.fit((Xv_train, Xc_train), y_train, epochs=150, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0, batch_size = 33)
+history = model.fit((Xv_train, Xc_train), y_train, epochs=200, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0, batch_size = 33)
 
 val_meap_per_epoch = history.history['val_mean_absolute_percentage_error']
 val_rmse_per_epoch = history.history['val_root_mean_squared_error']
@@ -384,8 +384,7 @@ print('Best epoch: %d' % (best_epoch,))
 hypermodel = tuner.hypermodel.build(best_hps)
 hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0, batch_size = 33)
 
-
-hypermodel.save('models/m3.h5')
+hypermodel.save('models/m4.h5')
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms, test mape]:", eval_result)
