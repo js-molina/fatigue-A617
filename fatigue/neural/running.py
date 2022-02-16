@@ -121,7 +121,7 @@ def run_rd_model(test = 'r', load_func = load_known_lstm_model, n_try = 100, sav
     elif test == 'd':
         print('Testing Determinism...')
    
-    for c_len in [1, 10, 50] + list(range(100, 10900, 100)):
+    for c_len in range(7300, 10900, 100):
         if test == 'r':
             y_true0, y_pred0, y_true1, y_pred1 = robustness(load_func, c_len, n_try, tfeats, cfeats)
         elif test == 'd':

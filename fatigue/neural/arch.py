@@ -173,16 +173,16 @@ def hyperx3(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(19, kernel_regularizer=regularizers.l2(3.037e-9),
-                             recurrent_regularizer=regularizers.l2(4.979e-10),
-                             bias_regularizer=regularizers.l2(4.049e-11),
+    time_feats = layers.LSTM(40, kernel_regularizer=regularizers.l1_l2(0.013491474174332142, 0.004355987086768707),
+                             recurrent_regularizer=regularizers.l1_l2(3.5788076188136305e-06, 0.038251121538016755),
+                             bias_regularizer=regularizers.l1_l2(2.358256969621759e-09, 2.7988380055278342e-09),
                              return_sequences=False)(time_mask)
 
     # Concatenate the LSTM output with the constant input
     concat_vector = layers.concatenate([time_feats, const_input])
 
-    dnn = layers.Dense(12, kernel_regularizer=regularizers.l1(2.01e-7),
-                        bias_regularizer=regularizers.l2(3.9689e-12), activation='relu')(concat_vector)
+    dnn = layers.Dense(34, kernel_regularizer=regularizers.l1_l2(3.6700055846798666e-07, 1.2636301180302531e-10),
+                        bias_regularizer=regularizers.l1_l2(4.462083996604814e-05, 1.296603217683237e-10), activation='relu')(concat_vector)
 
     life_pred = layers.Dense(1)(dnn)
 
@@ -190,7 +190,7 @@ def hyperx3(time_input_shape, const_input_shape):
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
 
     # Compile
-    model.compile(loss='mean_absolute_percentage_error', optimizer=opt, metrics=metrics)
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
 
