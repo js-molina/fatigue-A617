@@ -105,11 +105,11 @@ def features(test, cycles = False):
     
     x = app_diff(x)
     
-    cols = x.columns    
+    # cols = x.columns    
 
-    x = app_avg(x)
+    # x = app_avg(x)
     
-    x = x.drop(cols, axis = 1)
+    # x = x.drop(cols, axis = 1)
     
     app_const(x, test)
     

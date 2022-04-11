@@ -77,7 +77,7 @@ if drop_temp:
 
 y = np.log1p(y) 
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=30)
+x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=30, shuffle=False)
 
 xScaler = StandardScaler()
 xScaler.fit(x_train)

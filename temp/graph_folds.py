@@ -20,7 +20,7 @@ from fatigue.models2.helper import get_nf
 test_idx = {}
 train_idx = {}
 
-plot = False
+plot = True
 
 def plot_test_train(cTrain, cTest, save = None):
     
@@ -41,10 +41,9 @@ def plot_test_train(cTrain, cTest, save = None):
     ax.plot(cTest, 2*np.ones(cTest.shape), marker = 'o', markersize = 5, ls = 'None', \
     color = 'red', label = 'Test')
     
-        
     if save:
         path = r'D:\WSL\ansto\figs'
-        plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
+        # plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
         
     plt.show()
 
@@ -69,18 +68,64 @@ def plot_cum_prob(cTrain, cTest, save = None):
     ax.step(t_train, [f(x, cTrain) for x in t_train], where = 'post', lw = 0.8, color = 'blue', label = 'Train')  
     ax.step(t_test, [f(x, cTest) for x in t_test], where = 'post', lw = 0.8, color = 'red', label = 'Test')  
     
-    # gTrain = np.array([f(x, cTrain) for x in t])
-    # gTest = np.array([f(x, cTest) for x in t])
-    # ax.plot(t, gTrain, lw = 0.8, color = 'blue', label = 'Train')
-    # ax.plot(t, gTest, lw = 0.8, color = 'red', label = 'Test')  
-    # KS = max(abs(gTrain-gTest))
-    # print(KS)
+    gTrain = np.array([f(x, cTrain) for x in t])
+    gTest = np.array([f(x, cTest) for x in t])
+    ax.plot(t, gTrain, lw = 0.8, color = 'blue', label = 'Train')
+    ax.plot(t, gTest, lw = 0.8, color = 'red', label = 'Test')  
+    KS = max(abs(gTrain-gTest))
+    print(KS)
     
     ax.legend(framealpha = 1, edgecolor = 'None')
     
     if save:
         path = r'D:\WSL\ansto\figs'
+        # plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
+    
+    plt.show()
+    
+def plot_all(cTrain, cTest, save = None):
+    
+    fig = plt.figure(figsize=(7,3))
+    ax1 = fig.add_axes([0, 0, 3/7, 1])
+    ax2 = fig.add_axes([4/7, 0, 3/7, 1])
+    
+    ax1.set_xlabel('$N_f$ - Observed')
+
+    ax1.set_ylim(0, 3)
+    ax1.set_xlim(100, 20000)
+    ax1.set_xscale('log')
+    
+    ax1.set_yticks([1, 2])
+    ax1.set_yticklabels(['Train', 'Test'])
+    
+    ax1.plot(cTrain, np.ones(cTrain.shape), marker = 'o', markersize = 5, ls = 'None', \
+    color = 'blue', label = 'Train')  
+    
+    ax1.plot(cTest, 2*np.ones(cTest.shape), marker = 'o', markersize = 5, ls = 'None', \
+    color = 'red', label = 'Test')
+
+    
+    ax2.set_xlabel('$N_f$ - Observed')
+    ax2.set_ylabel('Cumulative Probability')
+    
+    ax2.set_ylim(0, 1.1)
+    ax2.set_xlim(100, 20000)
+    ax2.set_xscale('log')
+    
+    t = np.linspace(100, 20000, 20000)
+    
+    t_train = [100] + cTrain.tolist() + [20000]
+    t_test = [100] + cTest.tolist() + [20000]
+    
+    ax2.step(t_train, [f(x, cTrain) for x in t_train], where = 'post', lw = 0.8, color = 'blue', label = 'Train')  
+    ax2.step(t_test, [f(x, cTest) for x in t_test], where = 'post', lw = 0.8, color = 'red', label = 'Test')  
+    
+    ax2.legend(framealpha = 1, edgecolor = 'None')
+    
+    if save:
+        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
+
     
     plt.show()
 
@@ -118,6 +163,7 @@ if plot:
     
     plot_test_train(cTrain, cTest, save = 'best_data.svg')
     plot_cum_prob(cTrain, cTest, save = 'best_prob.svg')
+    plot_all(cTrain, cTest, save = 'best_prob.svg')
 
 test_idx['best'] = cTest.index
 train_idx['best'] = cTrain.index

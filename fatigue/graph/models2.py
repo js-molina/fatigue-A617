@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as st
 import os
 
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
+import matplotlib.path as mpath
 
 from .helper import chi_ratio
 from ..models import TEMPS
@@ -15,7 +17,7 @@ def graph_model(model, save_path = None):
     tdata, f, lc = model._get_plot_params()
     model_type = model._get_model_type()
     
-    ax = plt.gca()
+    fig, ax = plt.subplots(figsize=(4,4))
     
     if model_type == 'morrow':
         ax.set_ylabel(r"Cycles to Failure")
@@ -227,7 +229,7 @@ def graph_nn_pred_strain(data, log = False, load = True):
     
     plt.show()
     
-def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
+def graph_nn_pred_all(data, log = False, v2 = True, load = True, save = ''):
     if load:
         print(data)
         d = np.load(data)
@@ -340,9 +342,11 @@ def graph_nn_pred_all(data, log = False, v2 = False, load = True, save = ''):
     
     ax.set_title('$\chi^2 = %.3f$'%chi_ratio(y_pred, y_obs))
     
+    ax.tick_params(axis = 'both', direction='in', which = 'both')
+    
     if save:
         path = r'D:\WSL\ansto\figs'
-        plt.savefig(os.path.join(path, save + '.pdf'))
+        plt.savefig(os.path.join(path, save))
     
     plt.show()
     
@@ -353,21 +357,23 @@ def graph_nn_1_fold(data, log = False, load = True, save = '', which = 'both'):
     else:
         d = data
     if which == 'test':
-        y_obs, y_pred = d['y_obs_test'], d['y_pred_test']
+        y_obs, y_pred = d['y_obs_test'].reshape(11,-1), d['y_pred_test'].reshape(11,-1)
     elif which == 'train':
-        y_obs, y_pred = d['y_obs_train'], d['y_pred_train']
+        y_obs, y_pred = d['y_obs_train'].reshape(33,-1), d['y_pred_train'].reshape(33,-1)
     elif which == 'both':
-        y_obs, y_pred = np.concatenate((d['y_obs_train'], d['y_obs_test'])), \
-                        np.concatenate((d['y_pred_train'], d['y_pred_test']))
+        y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1), d['y_obs_test'].reshape(11,-1)), axis = 0)
+        y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1), d['y_pred_test'].reshape(11,-1)), axis = 0)
+        # y_obs, y_pred = np.concatenate((d['y_obs_train'], d['y_obs_test'])), \
+        #                 np.concatenate((d['y_pred_train'], d['y_pred_test']))
     
     strain_data = {}
     
     for test in fatigue_data.data:
         c = get_nf(test)
-        for j, el in enumerate(np.rint(y_obs).astype('int')):
+        for j, el in enumerate(np.rint(y_obs.flatten()).astype('int')):
             if c == el:
                 strain_data.setdefault((test.Temp, test.Strain, test.Rate), [])
-                strain_data[(test.Temp, test.Strain, test.Rate)].append((y_pred[j], el))
+                strain_data[(test.Temp, test.Strain, test.Rate)].append((y_pred.flatten()[j], el))
                 # break
     
     fig, ax = plt.subplots(figsize=(8,4))
@@ -380,21 +386,21 @@ def graph_nn_1_fold(data, log = False, load = True, save = '', which = 'both'):
     ax.set_xlim(100, 12000)
     
     if log:
-        ax.set_ylim(100, 20000)
-        ax.set_xlim(100, 20000)
+        ax.set_ylim(100, 2e4)
+        ax.set_xlim(100, 2e4)
         ax.set_yscale('log')
         ax.set_xscale('log')
     
     # ax.set_aspect('equal')
-    ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
-    ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
+    ax.fill_between([100, 1e5], 100, [100, 1e5], color = 'k', alpha = 0.1)
+    ax.plot([100, 1e5], [100, 1e5], lw = 2, color = 'k')
     
     if not log:
         ax.plot([0, 6000], [0, 12000], lw = 1, ls = '--', color = 'gray')
         ax.plot([0, 12000], [0, 6000], lw = 1, ls = '--', color = 'gray')
     else:
-        ax.plot([100, 20000], [200, 40000], lw = 1, ls = '--', color = 'gray')
-        ax.plot([200, 40000], [100, 20000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([100, 1e5], [200, 2e5], lw = 1, ls = '--', color = 'gray')
+        ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
     
     msize = 7
     
@@ -462,8 +468,338 @@ def graph_nn_1_fold(data, log = False, load = True, save = '', which = 'both'):
     
     ax.set_title('$\chi^2 = %.3f$'%chi_ratio(y_pred, y_obs))
     
+    ax.tick_params(axis = 'both', direction='in', which = 'both')
+    
     if save:
-        path = r'D:\WSL\ansto\figs'
-        plt.savefig(os.path.join(path, save + '.pdf'))
+        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
+        plt.savefig(os.path.join(path, save))
     
     plt.show()
+
+def graph_nn_hist(data, log = False, load = True, save = '', which = 'both', bins = 10):
+    if load:
+        print(data)
+        d = np.load(data)
+    else:
+        d = data
+    if which == 'test':
+        y_obs, y_pred = d['y_obs_test'].reshape(11,-1), d['y_pred_test'].reshape(11,-1)
+    elif which == 'train':
+        y_obs, y_pred = d['y_obs_train'].reshape(33,-1), d['y_pred_train'].reshape(33,-1)
+    elif which == 'both':
+        y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1), d['y_obs_test'].reshape(11,-1)), axis = 0)
+        y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1), d['y_pred_test'].reshape(11,-1)), axis = 0)
+    
+    strain_data = {}
+    
+    for test in fatigue_data.data:
+        c = get_nf(test)
+        for j, el in enumerate(np.rint(y_obs.flatten()).astype('int')):
+            if c == el:
+                strain_data.setdefault((test.Temp, test.Strain, test.Rate), [])
+                strain_data[(test.Temp, test.Strain, test.Rate)].append((y_pred.flatten()[j], el))
+                # break
+    
+    fig, ax = plt.subplots(figsize=(5,5))
+    fig.subplots_adjust(right=0.7, top = 0.8)
+    
+    ax.set_xlabel('Predicted $N_f$')
+    ax.set_ylabel('Measured $N_f$')
+        
+    ax.set_ylim(100, 12000)
+    ax.set_xlim(100, 12000)
+    
+    if log:
+        ax.set_ylim(100, 1e5)
+        ax.set_xlim(100, 1e5)
+        ax.set_yscale('log')
+        ax.set_xscale('log')
+    
+    ax.set_aspect('equal')
+    ax.fill_between([100, 1e5], 100, [100, 1e5], color = '#e6e6e6')
+    ax.plot([100, 1e5], [100, 1e5], lw = 2, color = 'k')
+    
+    if not log:
+        ax.plot([0, 6000], [0, 12000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([0, 12000], [0, 6000], lw = 1, ls = '--', color = 'gray')
+    else:
+        ax.plot([100, 1e5], [200, 2e5], lw = 1, ls = '--', color = 'gray')
+        ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
+    
+    msize = 7
+    
+    colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
+    colors[1] = 'xkcd:orange'
+    colors[2] = 'xkcd:green'
+    colors[3] = 'xkcd:sky blue'
+    strain_vals = [0.3, 0.4, 0.6, 1, 2, 3]
+    
+    dict_color = dict(zip(strain_vals, colors))
+    dict_marker = {0.001 : 'o', 0.0001: '^', 1e-5: 's'}
+    dict_shade = {850 : False, 950: True}
+    
+    for key, value in strain_data.items():
+        temp, strain, rate = key
+        color, marker, shade = dict_color[strain], dict_marker[rate], dict_shade[temp]
+        
+        if shade:
+            facecol = color
+        else:
+            facecol = 'None'
+        
+        x, y = zip(*value)
+        
+        ax.plot(x, y, marker = marker, markersize = msize, ls = 'None', \
+        markeredgecolor = color, markerfacecolor = facecol, markeredgewidth = 1.5)
+            
+    strain_elements = [Patch(facecolor= val, edgecolor=val, label='{:.1f}\%'.format(key))
+                       for key, val in dict_color.items()]
+    
+    rate_elements = [Line2D([0], [0], marker=val, color='k', label='{:.5f}'.format(key), ls = 'None', \
+                     markerfacecolor='None', markeredgewidth = 1.5, markersize=msize) for key, val in dict_marker.items()]
+        
+    temp_elements = []
+    
+    for key, val in dict_shade.items():
+        cl = 'None'
+        if val:
+            cl = 'k'
+        temp_elements.append(Line2D([0], [0], marker='h', color='k', label='\SI{%d}{\celsius}'%key, ls = 'None', \
+             markerfacecolor=cl, markeredgewidth = 1.3, markersize=msize))
+    
+    ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
+    
+    fs = 9
+    
+    l1 = ax.legend(title = 'Strain Range', 
+              handles=strain_elements,
+              loc='center right',
+              bbox_to_anchor=(1, 0.25),
+              edgecolor = 'None',
+              facecolor = '#e6e6e6',
+              framealpha = 1,
+              fontsize = fs)
+    
+    l2 = ax.legend(title = 'Strain Rate [s$^{-1}$]', 
+          handles=rate_elements,
+          loc='upper left',
+          bbox_to_anchor=(0.01, 0.77),
+          fontsize = fs,
+          framealpha = 1,
+          edgecolor = 'None')
+    
+    l3 = ax.legend(title = 'Temperature', 
+          handles=temp_elements,
+          loc='upper left',
+          bbox_to_anchor=(0.015, 1),
+          fontsize = fs,
+          framealpha = 1,
+          edgecolor = 'None')
+    
+    l2._legend_box.align = "left"
+    l3._legend_box.align = "left"
+    
+    ax.add_artist(l1)
+    ax.add_artist(l2)
+    ax.add_artist(l3)
+    
+    ax.set_title('$\chi^2 = %.3f$'%chi_ratio(y_pred, y_obs))
+    
+    ax.tick_params(axis = 'both', direction='in', which = 'both')
+    
+    a = ax.inset_axes([.8, .8, .25, .25], facecolor='#d1d1e0')
+    
+    y_diff = y_pred - y_obs
+    
+    (n, bins, patches) = a.hist(y_diff, bins = bins, color = 'k',edgecolor = '#d1d1e0')
+    
+    a.set_xlim(-2e3, 2e3)
+    
+    a.tick_params(axis='both', which='both', direction='in', bottom=False, left = False, labelleft=False,\
+                  labelbottom=False, labeltop=True)    
+    a.set_xticklabels([r'$-2\cdot10^3$', '0', r'$2\cdot10^3$'])
+
+    a.text(0.9, 0.9, '%d'%max(n), ha = 'right', va = 'top', transform = a.transAxes)
+    
+    if save:
+        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
+        plt.savefig(os.path.join(path, save))
+    
+    plt.show()
+
+def graph_nn_hist_only(data, bins = 10, load = True, save = '', which = 'both'):
+    if load:
+        print(data)
+        d = np.load(data)
+    else:
+        d = data
+    if which == 'test':
+        y_obs, y_pred = d['y_obs_test'].reshape(11,-1), d['y_pred_test'].reshape(11,-1)
+    elif which == 'train':
+        y_obs, y_pred = d['y_obs_train'].reshape(33,-1), d['y_pred_train'].reshape(33,-1)
+    elif which == 'both':
+        y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1), d['y_obs_test'].reshape(11,-1)), axis = 0)
+        y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1), d['y_pred_test'].reshape(11,-1)), axis = 0)
+
+    y_diff = y_pred - y_obs
+    
+    ax = plt.gca()
+    
+    # kde = st.gaussian_kde(y_diff)
+    # kde_xs = np.linspace(-5e3, 5e3, 300)
+    
+    # ax.plot(kde_xs, kde.pdf(kde_xs), lw = 0.8, color = 'k')
+    ax.hist(y_diff, bins = bins, color = 'k', alpha = 0.7)
+    
+    ax.set_xlim(-5e3, 5e3)
+
+
+def graph_nn_2_fold(data, log = False, load = True, save = '', which = 'both'):
+    if load:
+        print(data)
+        d = np.load(data)
+    else:
+        d = data
+    
+    if which == 'test':
+        y_obs, y_pred = d['y_obs_test'].reshape(11,-1), d['y_pred_test'].reshape(11,-1)
+    elif which == 'train':
+        y_obs, y_pred = d['y_obs_train'].reshape(33,-1), d['y_pred_train'].reshape(33,-1)
+    elif which == 'both':
+        y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1), d['y_obs_test'].reshape(11,-1)), axis = 0)
+        y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1), d['y_pred_test'].reshape(11,-1)), axis = 0)
+    
+    strain_data = {}
+    
+    for test in fatigue_data.data:
+        c = get_nf(test)
+        for j, el in enumerate(np.rint(y_obs.flatten()).astype('int')):
+            if c == el:
+                if el in np.rint(y_obs0):
+                    cross = 'train'
+                else:
+                    cross = 'test'
+                strain_data.setdefault((test.Temp, test.Strain, test.Rate, cross), [])
+                strain_data[(test.Temp, test.Strain, test.Rate, cross)].append((y_pred.flatten()[j], el))
+    
+    fig, ax = plt.subplots(figsize=(8,4))
+    fig.subplots_adjust(right=0.5)
+    
+    ax.set_xlabel('Predicted $N_f$')
+    ax.set_ylabel('Measured $N_f$')
+        
+    ax.set_ylim(100, 12000)
+    ax.set_xlim(100, 12000)
+    
+    if log:
+        ax.set_ylim(100, 20000)
+        ax.set_xlim(100, 20000)
+        ax.set_yscale('log')
+        ax.set_xscale('log')
+    
+    # ax.set_aspect('equal')
+    ax.fill_between([100, 20000], 20000, [100, 20000], color = '#ffffe6')
+    ax.fill_between([100, 20000], 100, [100, 20000], color = '#e6f3ff')
+    ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
+    
+    if not log:
+        ax.plot([0, 6000], [0, 12000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([0, 12000], [0, 6000], lw = 1, ls = '--', color = 'gray')
+    else:
+        ax.plot([100, 20000], [200, 40000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([200, 40000], [100, 20000], lw = 1, ls = '--', color = 'gray')
+    
+    msize = 9
+    
+    colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
+    colors[1] = 'xkcd:orange'
+    colors[2] = 'xkcd:green'
+    colors[3] = 'xkcd:sky blue'
+    colors[4] = '#0066ff'
+    strain_vals = [0.3, 0.4, 0.6, 1, 2, 3]
+    
+    dict_color = dict(zip(strain_vals, colors))
+    dict_marker = {0.001 : 'o', 0.0001: '^', 1e-5: 's'}
+    dict_shade = {850 : False, 950: True}
+    dict_cross = {'train' : False, 'test': True}
+    
+    for key, value in strain_data.items():
+        temp, strain, rate, cross = key
+        color, marker, shade, cross = dict_color[strain], dict_marker[rate], dict_shade[temp], dict_cross[cross]
+        
+        if shade:
+            facecol = color
+        else:
+            facecol = 'None'
+        
+        x, y = zip(*value)
+        
+        ax.plot(x, y, marker = marker, markersize = msize, ls = 'None', \
+        markeredgecolor = color, markerfacecolor = facecol, markeredgewidth = 1.5)
+        if cross:
+            ax.plot(x, y, marker = '.', markersize = 4, ls = 'None', color = 'k')
+            
+            
+    strain_elements = [Patch(facecolor= val, edgecolor=val, label='{:.1f}\%'.format(key))
+                       for key, val in dict_color.items()]
+    
+    rate_elements = [Line2D([0], [0], marker=val, color='k', label='{:.5f}'.format(key), ls = 'None', \
+                     markerfacecolor='None', markeredgewidth = 1.5, markersize=msize) for key, val in dict_marker.items()]
+        
+    temp_elements = []
+    
+    for key, val in dict_shade.items():
+        cl = 'None'
+        if val:
+            cl = 'k'
+        temp_elements.append(Line2D([0], [0], marker='h', color='k', label='\SI{%d}{\celsius}'%key, ls = 'None', \
+             markerfacecolor=cl, markeredgewidth = 1.5, markersize=msize))
+    
+    ax.grid(dashes = (1, 5), color = 'k', lw = 0.7)
+    
+    l1 = ax.legend(title = 'Strain Range', 
+              handles=strain_elements,
+              loc='center right',
+              bbox_to_anchor=(1.4, 0.525),
+              edgecolor = 'None')
+    
+    l2 = ax.legend(title = 'Strain Rate (/s)', 
+          handles=rate_elements,
+          loc='center right',
+          bbox_to_anchor=(1.45, 0.1),
+          edgecolor = 'None')
+    
+    ax.legend(title = 'Temperature', 
+          handles=temp_elements,
+          loc='center right',
+          bbox_to_anchor=(1.4, 0.9),
+          edgecolor = 'None')
+    
+    ax.add_artist(l1)
+    ax.add_artist(l2)
+    
+    ax.set_title('$\chi^2 = %.3f$'%chi_ratio(y_pred, y_obs))
+    
+    ax.tick_params(axis = 'both', direction='in', which = 'both')
+    
+    if save:
+        path = r'D:\WSL\ansto\figs'
+        plt.savefig(os.path.join(path, save))
+    
+    plt.show()
+    
+def get_meap(data, load = True, which = 'both'):
+    if load:
+        d = np.load(data)
+    else:
+        d = data
+    if which == 'test':
+        y_obs, y_pred = d['y_obs_test'].reshape(11,-1), d['y_pred_test'].reshape(11,-1)
+    elif which == 'train':
+        y_obs, y_pred = d['y_obs_train'].reshape(33,-1), d['y_pred_train'].reshape(33,-1)
+    elif which == 'both':
+        y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1), d['y_obs_test'].reshape(11,-1)), axis = 0)
+        y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1), d['y_pred_test'].reshape(11,-1)), axis = 0)
+    
+    return (abs(y_obs-y_pred)/y_obs).mean()*100
+    

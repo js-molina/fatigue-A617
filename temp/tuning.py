@@ -27,8 +27,8 @@ import keras_tuner as kt
 from keras import regularizers
 
 from fatigue.networks import vectorise_data
-from fatigue.neural.helper import preprocess_multi_input
-from get_folds import test_idx, train_idx
+from fatigue.neural.helper import preprocess_multi_input, preprocess_multi_input_dev
+from tdt import test_idx, dev_idx, train_idx
 
 metrics = [tf.keras.metrics.RootMeanSquaredError(), 'mean_absolute_percentage_error']
 
@@ -352,26 +352,28 @@ Xv, Xc, y = vectorise_data(tfeats = tfeats, cfeats = cfeats)
 
 y = np.log1p(y)
 
-train, test = train_idx['best'], test_idx['best']
+train, dev, test = train_idx['best'], dev_idx['best'], test_idx['best']
 
 Xv_train = Xv[train]
-y_train = y[train]
+Xv_dev = Xv[dev]
+Xv_test = Xv[test]
 
 Xc_train = Xc.iloc[train]
+Xc_dev = Xc.iloc[dev]
 Xc_test = Xc.iloc[test]
 
-Xv_test = Xv[test]
+y_train = y[train]
+y_dev = y[dev]
 y_test = y[test]
 
-Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 120)
-
+Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, scaler_y = \
+preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, 100)
 
 tuner = kt.Hyperband(lambda x: hmodel7(x, Xv_train.shape[1:], Xc_train.shape[1:]),
-                     objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
-                     max_epochs=150, factor=3, hyperband_iterations=1, directory='Tuners',
-                     project_name='m_lstm_r5',
-                     overwrite = False)
+                      objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
+                      max_epochs=150, factor=3, hyperband_iterations=1, directory='Tuners',
+                      project_name='m_lstm_r5',
+                      overwrite = False)
 
 # tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
 #                      objective=kt.Objective("mean_absolute_percentage_error", direction="min"),
@@ -381,7 +383,7 @@ tuner = kt.Hyperband(lambda x: hmodel7(x, Xv_train.shape[1:], Xc_train.shape[1:]
 stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
 # tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
-tuner.search((Xv_train, Xc_train), y_train, epochs = 200, validation_data = ((Xv_test, Xc_test), y_test), callbacks = [stop_early], batch_size = 33)
+tuner.search((Xv_train, Xc_train), y_train, epochs = 200, validation_data = ((Xv_dev, Xc_dev), y_dev), callbacks = [stop_early], batch_size = 33)
 
 best_hps=tuner.get_best_hyperparameters()[0]
 
@@ -389,7 +391,7 @@ for key, val in best_hps.values.items():
     print(key + f' = {val}')
 
 model = tuner.hypermodel.build(best_hps)
-history = model.fit((Xv_train, Xc_train), y_train, epochs=200, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0, batch_size = 33)
+history = model.fit((Xv_train, Xc_train), y_train, epochs=200, validation_data = ((Xv_dev, Xc_dev), y_dev), verbose = 0, batch_size = 33)
 
 val_meap_per_epoch = history.history['val_mean_absolute_percentage_error']
 val_rmse_per_epoch = history.history['val_root_mean_squared_error']
@@ -398,15 +400,25 @@ best_epoch = val_meap_per_epoch.index(min(val_meap_per_epoch)) + 1
 print('Best epoch: %d' % (best_epoch,))
 
 hypermodel = tuner.hypermodel.build(best_hps)
-hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_test, Xc_test), y_test), verbose = 0, batch_size = 33)
+hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_dev, Xc_dev), y_test), verbose = 0, batch_size = 33)
 
-hypermodel.save('models/m5.h5')
+hypermodel.save('models/xyz.h5')
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms, test mape]:", eval_result)
 
-y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
-y_pred1 = scaler_y.inverse_transform(hypermodel.predict((Xv_test, Xc_test))).reshape(-1)
+y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
+y_pred0 = scaler_y.inverse_transform(hypermodel.predict((Xv_train, Xc_train))).reshape(-1)
+
+y_true0, y_pred0 = map(np.expm1, [y_true0, y_pred0])
+
+err0 = abs(y_true0-y_pred0)/y_true0*100
+
+rmse0 = mean_squared_error(y_true0, y_pred0)
+
+
+y_true1 = scaler_y.inverse_transform(y_dev).reshape(-1)
+y_pred1 = scaler_y.inverse_transform(hypermodel.predict((Xv_dev, Xc_dev))).reshape(-1)
 
 y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])
 
@@ -414,8 +426,9 @@ err1 = abs(y_true1-y_pred1)/y_true1*100
 
 rmse1 = mean_squared_error(y_true1, y_pred1)
 
-y_true2 = scaler_y.inverse_transform(y_train).reshape(-1)
-y_pred2 = scaler_y.inverse_transform(hypermodel.predict((Xv_train, Xc_train))).reshape(-1)
+
+y_true2 = scaler_y.inverse_transform(y_test).reshape(-1)
+y_pred2 = scaler_y.inverse_transform(hypermodel.predict((Xv_test, Xc_test))).reshape(-1)
 
 y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
 
@@ -423,8 +436,12 @@ err2 = abs(y_true2-y_pred2)/y_true2*100
 
 rmse2 = mean_squared_error(y_true2, y_pred2)
 
-print(f"Training Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
-print(f"Testing Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
-print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse2))
-print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse1))
+
+print(f"Training Error: {min(err0):.2f}, {np.mean(err0):.2f}, {max(err0):.2f}")
+print(f"Development Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
+print(f"Testing Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
+
+print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse0))
+print("Development - {}: {:.2e}".format(model.metrics_names[1], rmse1))
+print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse2))
 

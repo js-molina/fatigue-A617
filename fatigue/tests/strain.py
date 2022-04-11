@@ -9,4 +9,3 @@ def test_strain_vals(data):
               'Plastic: %.3f'%pl, 'Elastic: %.3f'%el, sep = '  ', end = '  ')
         print('Error: %.3f'%(abs(pl+el-test.Strain)/test.Strain*100))
     
-

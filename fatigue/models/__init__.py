@@ -5,11 +5,11 @@ from .c_manson import *
 
 class model:
     def __init__(self, model_data, ntype):
-        self.values, self.fun, self.lc = model_data
+        self.values0, self.values1, self.fun, self.lc = model_data
         self.model_type = ntype
     
     def _get_plot_params(self):
-        return self.values, self.fun, self.lc
+        return self.values0, self.values1, self.fun, self.lc
     
     def _get_model_type(self):
         return self.model_type

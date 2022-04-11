@@ -86,8 +86,15 @@ def run_test_model(save_path = None, model_name = None, load_func = load_known_l
     return np.mean(err2), np.mean(err1), history
 
 def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, fold = 'best',
-                   tfeats = [], cfeats = [], l0 = 0, l1 = 0):
+                   tfeats = [], cfeats = [], l0 = 0, l1 = 0, loss = 'huber', cycles = 120):
 
+    if loss == 'meap':
+        lss = 'mean_absolute_percentage_error'
+    else:
+        lss = 'huber_loss'
+    
+    history = None
+    
     tf.keras.backend.clear_session()
     start = time.time()
     print("Starting timer...")
@@ -110,7 +117,7 @@ def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_
     y_test = y[test]
     
     Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
-    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 120) 
+    preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, cycles) 
     
     if l0 + l1 > 0:
         model = load_func(Xv_train.shape[1:], Xc_train.shape[1:], l0 = l0, l1 = l1)
@@ -118,14 +125,14 @@ def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_
         if model_name:
             model = load_model('models/' + model_name)
             opt = tf.keras.optimizers.Adam(learning_rate=0.05)
-            model.compile(loss='mean_absolute_percentage_error', optimizer=opt, \
+            model.compile(loss=lss, optimizer=opt, \
                           metrics=[tf.keras.metrics.RootMeanSquaredError(), 'mean_absolute_percentage_error'])
         else:
             model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
     history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, verbose = 0,
                     validation_data = ((Xv_test,  Xc_test), y_test), batch_size = 33)
-    
+        
     # Inverse normalise target data
     y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
     y_pred1 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)

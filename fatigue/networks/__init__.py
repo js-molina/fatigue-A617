@@ -68,7 +68,8 @@ def natural(data = fatigue_data.data, tfeats = [], cfeats = [], cycles = 10):
     y = np.array(y).reshape(-1, 1)
     
     if tfeats:
-        Xv = drop_time_feats(Xv, tfeats)
+        Xv_new = [x.drop(tfeats, axis = 1) for x in Xv]
+        Xv = Xv_new
     if cfeats:
         Xc = drop_const_feats(Xc, cfeats)
     return Xv, Xc, y

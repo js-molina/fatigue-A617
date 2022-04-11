@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from ..finder.cycle_path import cycle_path_from_test, peak_path_from_test
 
 def get_cycles_from_test(test):
@@ -31,4 +32,4 @@ def get_peak_data_from_test(test):
 
 
 def chi_ratio(pred, obs):
-    return sum((pred/obs-1)**2)    
+    return np.sum((pred/obs-1)**2, axis = 0).mean()   
