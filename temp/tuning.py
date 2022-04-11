@@ -260,6 +260,58 @@ def hmodel7(hp, time_input_shape, const_input_shape):
 
     return model
 
+def hmodel8(hp, time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    hp_lstm_kr1 = hp.Float('lstm_kr1', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr1 = hp.Float('lstm_rr1', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br1 = hp.Float('lstm_br1', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_kr2 = hp.Float('lstm_kr2', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_rr2 = hp.Float('lstm_rr2', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+    hp_lstm_br2 = hp.Float('lstm_br2', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(22, kernel_regularizer=regularizers.l1_l2(hp_lstm_kr1, hp_lstm_kr2),
+                             recurrent_regularizer=regularizers.l1_l2(hp_lstm_rr1, hp_lstm_rr2),
+                             bias_regularizer=regularizers.l1_l2(hp_lstm_br1, hp_lstm_br2))(time_mask)
+    # Concatenate the LSTM output with the constant input
+    temp_vector = layers.concatenate([time_feats, const_input])
+
+    hp_hidden_units = [35]
+    hp_hidden_kr1 = []
+    hp_hidden_br1 = []
+    hp_hidden_kr2 = []
+    hp_hidden_br2 = []
+
+    # Initialising regularisers
+    for i in range(1):
+        hp_hidden_kr1.append(hp.Float('hidden_kr1_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br1.append(hp.Float('hidden_br1_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_kr2.append(hp.Float('hidden_kr2_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
+        hp_hidden_br2.append(hp.Float('hidden_br2_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
+    
+    # Feed through Dense layers
+    for i in range(1):
+        temp_vector = layers.Dense(hp_hidden_units[i], kernel_regularizer=regularizers.l1_l2(hp_hidden_kr1[i], hp_hidden_kr2[i]),
+                             bias_regularizer=regularizers.l1_l2(hp_hidden_br1[i], hp_hidden_br2[i]), activation='relu')(temp_vector)
+
+    life_pred = layers.Dense(1)(temp_vector)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
+
+    return model
+
+
 def nrm(hp, n_lay, time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.05)
@@ -369,10 +421,10 @@ y_test = y[test]
 Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, scaler_y = \
 preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, 100)
 
-tuner = kt.Hyperband(lambda x: hmodel7(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+tuner = kt.Hyperband(lambda x: hmodel8(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                       objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
                       max_epochs=150, factor=3, hyperband_iterations=1, directory='Tuners',
-                      project_name='m_lstm_r5',
+                      project_name='m_lstm_dev2',
                       overwrite = False)
 
 # tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
@@ -402,7 +454,7 @@ print('Best epoch: %d' % (best_epoch,))
 hypermodel = tuner.hypermodel.build(best_hps)
 hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_dev, Xc_dev), y_test), verbose = 0, batch_size = 33)
 
-hypermodel.save('models/xyz.h5')
+hypermodel.save('models/xy.h5')
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms, test mape]:", eval_result)
