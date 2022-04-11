@@ -277,7 +277,7 @@ def hmodel8(hp, time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(22, kernel_regularizer=regularizers.l1_l2(hp_lstm_kr1, hp_lstm_kr2),
+    time_feats = layers.LSTM(23, kernel_regularizer=regularizers.l1_l2(hp_lstm_kr1, hp_lstm_kr2),
                              recurrent_regularizer=regularizers.l1_l2(hp_lstm_rr1, hp_lstm_rr2),
                              bias_regularizer=regularizers.l1_l2(hp_lstm_br1, hp_lstm_br2))(time_mask)
     # Concatenate the LSTM output with the constant input
@@ -310,7 +310,6 @@ def hmodel8(hp, time_input_shape, const_input_shape):
     model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
 
     return model
-
 
 def nrm(hp, n_lay, time_input_shape, const_input_shape):
     
@@ -478,7 +477,6 @@ err1 = abs(y_true1-y_pred1)/y_true1*100
 
 rmse1 = mean_squared_error(y_true1, y_pred1)
 
-
 y_true2 = scaler_y.inverse_transform(y_test).reshape(-1)
 y_pred2 = scaler_y.inverse_transform(hypermodel.predict((Xv_test, Xc_test))).reshape(-1)
 
@@ -497,3 +495,5 @@ print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse0))
 print("Development - {}: {:.2e}".format(model.metrics_names[1], rmse1))
 print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse2))
 
+
+# %%
