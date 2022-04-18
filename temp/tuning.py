@@ -486,7 +486,6 @@ err2 = abs(y_true2-y_pred2)/y_true2*100
 
 rmse2 = mean_squared_error(y_true2, y_pred2)
 
-
 print(f"Training Error: {min(err0):.2f}, {np.mean(err0):.2f}, {max(err0):.2f}")
 print(f"Development Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
 print(f"Testing Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")

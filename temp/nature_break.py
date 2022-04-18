@@ -163,7 +163,7 @@ path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
 ax.legend(framealpha = 1, edgecolor = 'None', loc = 0)
 
-plt.savefig(os.path.join(path, 'breaking_nat.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'breaking_nat.pdf'), bbox_inches = 'tight')
 
 plt.show()
 

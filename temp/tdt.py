@@ -88,7 +88,7 @@ def plot_all(cTrain, cTest, save = None):
     
     fig = plt.figure(figsize=(7,3))
     ax1 = fig.add_axes([0, 0, 3/7, 1])
-    ax2 = fig.add_axes([4/7, 0, 3/7, 1])
+    ax2 = fig.add_axes([3.8/7, 0, 3/7, 1])
     
     ax1.set_xlabel('$N_f$ - Observed')
 

@@ -33,11 +33,71 @@ def manson_coffin_grad(mp, ap, me, ae):
     return lambda x: np.exp(ap)*mp*2*(2*x)**(mp-1) + np.exp(ae)*me*2*(2*x)**(me-1)
 
 
+
+#%%
+
 fig = plt.figure(figsize=(7,3))
 ax = [fig.add_axes([0, 0, 3/7, 1]), fig.add_axes([3.8/7, 0, 3/7, 1])]
 mcs = []; mcsd = []
 
+ylims = [(1, 1e2), (1, 1e4)]
+
 E = [153e3, 144e3]
+
+for i, t in enumerate(TEMPS):
+    DATA = Data[Data.Temps == t]
+
+    cycle_times = []
+    cycles_to_failure = []
+    elastic_strain = []
+    plastic_strain = []
+    total_strain = []
+
+    for sample in DATA.Samples:
+        tmp = pd.read_csv(peak_path_from_sample(sample))
+        tx = tmp.iloc[tmp.Cycle.iloc[-1]//2]
+        max_s, min_s =  map(float, tx[['Max Stress Mpa', 'Min Stress Mpa']])
+        s_ratio = abs(max_s/min_s)
+        total = float(DATA[DATA.Samples == sample].Strains/100)
+        elastic = (max_s-min_s)/E[i]
+        plastic = total - elastic
+        cycles = int(DATA[DATA.Samples == sample].Cycles)
+    
+        plastic_strain.append(plastic)
+        total_strain.append(total)
+        cycles_to_failure.append(cycles)
+        cycle_times.append(total/float(DATA[DATA.Samples == sample].Rates))
+
+    ax[i].plot(np.log10(cycles_to_failure), np.log10(cycle_times), 'bo', markerfacecolor = 'None', markeredgewidth = 1)
+
+    line_fit = np.polyfit(np.log10(np.array(cycles_to_failure)), np.log10(cycle_times), 1)
+    
+    print(line_fit[0])
+    
+    xlim = np.array([min(cycles_to_failure), max(cycles_to_failure)])
+    x = np.linspace(*np.log10(xlim))
+    
+    ax[i].plot(x, np.poly1d(line_fit)(x), 'b--', lw = 1)
+    
+    # ax[i].set_xscale('log')
+    # ax[i].set_yscale('log')
+    
+    # ax[i].set_xlim(1e2, 2e4)
+    # ax[i].set_ylim(ylims[i])
+    
+    ax[i].set_ylabel(r'Cycle Time')
+    ax[i].set_xlabel(r'Cycles to Failure, $N_f$')
+
+    ax[i].grid(dashes = (1, 5), color = 'gray', lw = 0.7)
+    
+plt.show()
+
+#%%
+
+fig = plt.figure(figsize=(7,3))
+ax = [fig.add_axes([0, 0, 3/7, 1]), fig.add_axes([3.8/7, 0, 3/7, 1])]
+mcs = []; mcsd = []
+
 
 for i, t in enumerate(TEMPS):
     DATA = Data[Data.Temps == t]
@@ -106,7 +166,7 @@ for i, t in enumerate(TEMPS):
 
 path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
 
-plt.savefig(os.path.join(path, 'coffman.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'coffman.pdf'), bbox_inches = 'tight')
 
 plt.show()
 

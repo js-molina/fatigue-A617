@@ -15,7 +15,7 @@ import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import *
 from fatigue.neural.running import run_xval_model, run_xval_model_f, run_sval_model, run_rd_model
-from fatigue.neural.test import run_test_model, run_test_loading, run_test_fmodel
+from fatigue.neural.test import run_test_model, run_test_loading, run_test_fmodel, run_test_devmodel
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
 from temp.get_folds import test_idx, train_idx, Data
@@ -67,7 +67,7 @@ sys.path.append(os.path.dirname(__file__))
 
 # tfeats = ['plastic_d_m', 's_ratio_d_m']
 # cfeats = ['rate']
-# Xv, Xc, y = vectorise_data(fatigue_data.data)
+Xv, Xc, y = vectorise_data(fatigue_data.data)
 
 # train, test = train_idx['best'], test_idx['best']
 
@@ -143,14 +143,20 @@ sys.path.append(os.path.dirname(__file__))
 # random_state = np.random.randint(1000)
 
 # # # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', 'm2.h5', None, 100, 'best')
-_, _, history1 = run_test_fmodel('ydata-06-03-22-M1', None, m_lstm_best, 100, 'best', cycles=48700)
+# _, _, history1 = run_test_fmodel('ydata-11-04-22-M1', None, m_lstm_best, 100, 'best', cycles=4100)
+_, _, history1 = run_test_devmodel('ydata-12-04-22-M3', None, m_lstm_dev2, 100, 'best', cycles=100)
+# _, _, history2 = run_test_devmodel('ydata-11-04-22-M6', None, m_lstm_dev2, 100, 'best', cycles=4200)
 # # # # # # _, _, history1 = run_test_fmodel('ydata-16-02-22-M2', None, hyperx3, 500, 'best', cycles = 120)
 # # # # # _, _, history1 = run_test_fmodel('ydata-22-02-22-M2', 'm4.h5', None, 91, 'best', loss = 'meap', cycles=120)
 
-# gr.validation.plot_history_loss(history1, 'LOSS')
-# gr.validation.plot_history_mape(history1, 'MAPE')
-# gr.validation.plot_history_rmse(history1, 'RMSE')
+gr.validation.plot_history_loss(history1, 'LOSS')
+gr.validation.plot_history_mape(history1, 'MAPE')
+gr.validation.plot_history_rmse(history1, 'RMSE')
 
+
+# gr.validation.plot_history_loss(history2, 'LOSS')
+# gr.validation.plot_history_mape(history2, 'MAPE')
+# gr.validation.plot_history_rmse(history2, 'RMSE')
 
 # %%
 # gr.models2.graph_nn_prediction('mdata/ydata-24-01-22-ml1l2-120.npz', log=True, v2 = True)
@@ -187,21 +193,39 @@ _, _, history1 = run_test_fmodel('ydata-06-03-22-M1', None, m_lstm_best, 100, 'b
 
 # data = 'mdata/ydata-01-03-22-D-1000.npz'
 
-# data = 'mdata/ydata-17-02-22-M2.npz'
 
-# # # # # data = 'mdata/ydata-14-02-22-HD-10.npz'
+# # # # # # data = 'mdata/ydata-14-02-22-HD-10.npz'
 
-# log = False
+# # data = 'mdata/ydata-11-04-22-M1.npz'
 
-# gr.models2.graph_nn_2_fold(data, log = log, which = 'train')
-# gr.models2.graph_nn_1_fold(data, log = log, which = 'test')
-# gr.models2.graph_nn_1_fold(data, log = log, which = 'both')
-# gr.models2.graph_nn_hist(data, log = log, bins = 15, which = 'both')
+# log = True
 
-# gr.models2.graph_nn_hist_only(data, bins = 15, which = 'both')
+# # # gr.models2.graph_nn_2_fold(data, log = log, which = 'train')
+# # gr.models2.graph_nn_1_fold(data, log = log, which = 'test')
+# # gr.models2.graph_nn_hist(data, log = log, which = 'both')
+# # print(gr.models2.get_meap(data, v2 = False))
 
-# print(gr.models2.get_meap(data, which = 'train'))
-# print(gr.models2.get_meap(data, which =  'test'))
+# # # gr.models2.graph_nn_hist(data, log = log, bins = 15, which = 'both')
+
+# # # gr.models2.graph_nn_hist_only(data, bins = 15, which = 'both')
+
+# # # print(gr.models2.get_meap(data, which = 'train'))
+# # # print(gr.models2.get_meap(data, which =  'test'))
+# # print(gr.models2.get_meap(data))
+
+
+# # gr.models2.graph_nn_1_dev(data, log = log, which = 'train')
+# # gr.models2.graph_nn_1_dev(data, log = log, which = 'dev')
+# # gr.models2.graph_nn_1_dev(data, log = log, which = 'test')
+
+# # for i in [2]:
+# i = 2
+# data = f'mdata/ydata-12-04-22-M{i}.npz'
+# #     gr.models2.graph_nn_1_dev(data, log = log, which = 'all')
+# #     save = 'm3dlin.pdf'
+# save = 'm3.pdf'
+# gr.models2.graph_nn_11_dev(data, log = log, save = save)
 # print(gr.models2.get_meap(data))
+# print(gr.models2.get_chi(data))
 
-# %%
+# gr.models2.graph_nn_1_dev(data, log = log)
