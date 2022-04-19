@@ -14,7 +14,7 @@ import fatigue.graph as gr
 import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import *
-from fatigue.neural.running import run_xval_model, run_xval_model_f, run_sval_model, run_rd_model
+from fatigue.neural.running import run_xval_model, run_xval_model_f, run_sval_model, run_rd_model, run_rd_devmodel
 from fatigue.neural.test import run_test_model, run_test_loading, run_test_fmodel, run_test_devmodel
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
@@ -67,7 +67,7 @@ sys.path.append(os.path.dirname(__file__))
 
 # tfeats = ['plastic_d_m', 's_ratio_d_m']
 # cfeats = ['rate']
-Xv, Xc, y = vectorise_data(fatigue_data.data)
+# Xv, Xc, y = vectorise_data(fatigue_data.data)
 
 # train, test = train_idx['best'], test_idx['best']
 
@@ -131,8 +131,8 @@ Xv, Xc, y = vectorise_data(fatigue_data.data)
 # run_sval_model(s_lstm_deep_r_drop, ep = 40, save = True)
 # 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-# run_rd_model('d', m_lstm_best, 100, 'ydata-13-02-22-D', light = True)
-# run_rd_model('r', m_lstm_best, 100, 'ydata-13-02-22-R')
+# run_rd_devmodel('d', m_lstm_dev2, 12, 'ydata-18-04-22-D')
+run_rd_devmodel('r', m_lstm_dev2, 4, 'ydata-18-04-22-R')
 
 # random_state = np.random.randint(1000)
 # # random_state = 11
@@ -144,14 +144,14 @@ Xv, Xc, y = vectorise_data(fatigue_data.data)
 
 # # # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', 'm2.h5', None, 100, 'best')
 # _, _, history1 = run_test_fmodel('ydata-11-04-22-M1', None, m_lstm_best, 100, 'best', cycles=4100)
-_, _, history1 = run_test_devmodel('ydata-12-04-22-M3', None, m_lstm_dev2, 100, 'best', cycles=100)
+# _, _, history1 = run_test_devmodel('ydata-12-04-22-M3', None, m_lstm_dev2, 100, 'best', cycles=100)
 # _, _, history2 = run_test_devmodel('ydata-11-04-22-M6', None, m_lstm_dev2, 100, 'best', cycles=4200)
 # # # # # # _, _, history1 = run_test_fmodel('ydata-16-02-22-M2', None, hyperx3, 500, 'best', cycles = 120)
 # # # # # _, _, history1 = run_test_fmodel('ydata-22-02-22-M2', 'm4.h5', None, 91, 'best', loss = 'meap', cycles=120)
 
-gr.validation.plot_history_loss(history1, 'LOSS')
-gr.validation.plot_history_mape(history1, 'MAPE')
-gr.validation.plot_history_rmse(history1, 'RMSE')
+# gr.validation.plot_history_loss(history1, 'LOSS')
+# gr.validation.plot_history_mape(history1, 'MAPE')
+# gr.validation.plot_history_rmse(history1, 'RMSE')
 
 
 # gr.validation.plot_history_loss(history2, 'LOSS')
