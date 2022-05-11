@@ -132,7 +132,7 @@ sys.path.append(os.path.dirname(__file__))
 # 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 # run_rd_devmodel('d', m_lstm_dev2, 12, 'ydata-18-04-22-D')
-run_rd_devmodel('r', m_lstm_dev2, 4, 'ydata-18-04-22-R')
+# run_rd_devmodel('r', m_lstm_dev2, 4, 'ydata-18-04-22-R')
 
 # random_state = np.random.randint(1000)
 # # random_state = 11
@@ -144,14 +144,14 @@ run_rd_devmodel('r', m_lstm_dev2, 4, 'ydata-18-04-22-R')
 
 # # # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', 'm2.h5', None, 100, 'best')
 # _, _, history1 = run_test_fmodel('ydata-11-04-22-M1', None, m_lstm_best, 100, 'best', cycles=4100)
-# _, _, history1 = run_test_devmodel('ydata-12-04-22-M3', None, m_lstm_dev2, 100, 'best', cycles=100)
+_, _, history1 = run_test_devmodel('ydata-19-04-22-M1', None, m_lstm_dev2, 100, 'best', cycles=200)
 # _, _, history2 = run_test_devmodel('ydata-11-04-22-M6', None, m_lstm_dev2, 100, 'best', cycles=4200)
 # # # # # # _, _, history1 = run_test_fmodel('ydata-16-02-22-M2', None, hyperx3, 500, 'best', cycles = 120)
 # # # # # _, _, history1 = run_test_fmodel('ydata-22-02-22-M2', 'm4.h5', None, 91, 'best', loss = 'meap', cycles=120)
 
-# gr.validation.plot_history_loss(history1, 'LOSS')
-# gr.validation.plot_history_mape(history1, 'MAPE')
-# gr.validation.plot_history_rmse(history1, 'RMSE')
+gr.validation.plot_history_loss(history1, 'LOSS')
+gr.validation.plot_history_mape(history1, 'MAPE')
+gr.validation.plot_history_rmse(history1, 'RMSE')
 
 
 # gr.validation.plot_history_loss(history2, 'LOSS')
@@ -196,9 +196,9 @@ run_rd_devmodel('r', m_lstm_dev2, 4, 'ydata-18-04-22-R')
 
 # # # # # # data = 'mdata/ydata-14-02-22-HD-10.npz'
 
-# # data = 'mdata/ydata-11-04-22-M1.npz'
+data = 'mdata/ydata-19-04-22-M1.npz'
 
-# log = True
+log = False
 
 # # # gr.models2.graph_nn_2_fold(data, log = log, which = 'train')
 # # gr.models2.graph_nn_1_fold(data, log = log, which = 'test')
@@ -213,10 +213,9 @@ run_rd_devmodel('r', m_lstm_dev2, 4, 'ydata-18-04-22-R')
 # # # print(gr.models2.get_meap(data, which =  'test'))
 # # print(gr.models2.get_meap(data))
 
-
-# # gr.models2.graph_nn_1_dev(data, log = log, which = 'train')
-# # gr.models2.graph_nn_1_dev(data, log = log, which = 'dev')
-# # gr.models2.graph_nn_1_dev(data, log = log, which = 'test')
+gr.models2.graph_nn_1_dev(data, log = log, which = 'train')
+gr.models2.graph_nn_1_dev(data, log = log, which = 'dev')
+gr.models2.graph_nn_1_dev(data, log = log, which = 'test')
 
 # # for i in [2]:
 # i = 2
@@ -225,7 +224,7 @@ run_rd_devmodel('r', m_lstm_dev2, 4, 'ydata-18-04-22-R')
 # #     save = 'm3dlin.pdf'
 # save = 'm3.pdf'
 # gr.models2.graph_nn_11_dev(data, log = log, save = save)
-# print(gr.models2.get_meap(data))
-# print(gr.models2.get_chi(data))
+print(gr.models2.get_meap(data))
+print(gr.models2.get_chi(data))
 
 # gr.models2.graph_nn_1_dev(data, log = log)

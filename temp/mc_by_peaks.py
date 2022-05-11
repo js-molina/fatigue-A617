@@ -106,7 +106,7 @@ for i, t in enumerate(TEMPS):
 
 path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
 
-plt.savefig(os.path.join(path, 'coffman.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'coffman.pdf'), bbox_inches = 'tight')
 
 plt.show()
 
@@ -128,14 +128,15 @@ for i, x in enumerate(strains):
         fun = lambda y, x = x: mcs[1](y) - x
         grad = mcsd[1]
         x0 = tmp.Cycles.mean()
-        
+    
     sol = fsolve(fun, x0 = x0, fprime = grad)
     
     pred.append(*sol)
+    
     
 obs = obs.to_numpy()
 pred = np.array(pred)
 
 r_data = {'y_obs_train': obs[:33], 'y_pred_train': pred[:33], 'y_obs_test': obs[33:], 'y_pred_test': pred[33:]}
 
-graph_nn_1_fold(r_data, log = True, load = False, which = 'both', save = 'man_coff.pdf')
+graph_nn_1_fold(r_data, log = True, load = False, which = 'both')

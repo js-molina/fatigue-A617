@@ -249,8 +249,8 @@ def determinism_dev(load_func = load_known_lstm_model, clen = 120, n_try = 100, 
     
     y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
     
+    all_y_true_train += y_true0.tolist()
     all_y_pred_train += y_pred0.tolist()
-    all_y_pred_train += y_true0.tolist()
     
     all_y_true_dev += y_true1.tolist()
     all_y_pred_dev += y_pred1.tolist()
