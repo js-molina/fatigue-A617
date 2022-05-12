@@ -233,29 +233,28 @@ def determinism_dev(load_func = load_known_lstm_model, clen = 120, n_try = 100, 
     
         model.fit([Xv_train, Xc_train], y_train, epochs=40, batch_size=33, verbose = 0)
         
-            # Inverse normalise target data
-    y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
-    y_pred0 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
-    
-    y_true0, y_pred0 = map(np.expm1, [y_true0, y_pred0])
-       
-    y_true1 = scaler_y.inverse_transform(y_dev).reshape(-1)
-    y_pred1 = scaler_y.inverse_transform(model.predict((Xv_dev, Xc_dev))).reshape(-1)
-    
-    y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])    
-    
-    y_true2 = scaler_y.inverse_transform(y_test).reshape(-1)
-    y_pred2 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
-    
-    y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
-    
-    all_y_true_train += y_true0.tolist()
-    all_y_pred_train += y_pred0.tolist()
-    
-    all_y_true_dev += y_true1.tolist()
-    all_y_pred_dev += y_pred1.tolist()
-    
-    all_y_true_test += y_true2.tolist()
-    all_y_pred_test += y_pred2.tolist()
+        y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
+        y_pred0 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
+        
+        y_true0, y_pred0 = map(np.expm1, [y_true0, y_pred0])
+           
+        y_true1 = scaler_y.inverse_transform(y_dev).reshape(-1)
+        y_pred1 = scaler_y.inverse_transform(model.predict((Xv_dev, Xc_dev))).reshape(-1)
+        
+        y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])    
+        
+        y_true2 = scaler_y.inverse_transform(y_test).reshape(-1)
+        y_pred2 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
+        
+        y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
+        
+        all_y_true_train += y_true0.tolist()
+        all_y_pred_train += y_pred0.tolist()
+        
+        all_y_true_dev += y_true1.tolist()
+        all_y_pred_dev += y_pred1.tolist()
+        
+        all_y_true_test += y_true2.tolist()
+        all_y_pred_test += y_pred2.tolist()
     
     return all_y_true_train, all_y_pred_train, all_y_true_dev, all_y_pred_dev, all_y_true_test, all_y_pred_test

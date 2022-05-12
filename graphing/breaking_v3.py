@@ -8,7 +8,7 @@ vals = [1, 5, 10, 60, 120, 500, 1000, 5000, 10834]
 
 # vals = [1, 2, 3, 4, 5] + list(range(10, 10835, 5))
 
-vals = [5, 10, 50] + list(range(100, 10900, 100))
+vals = [5, 10, 50] + list(range(100, 1300, 100))
 
 # vals = [1, 10, 50, 100, 500] + list(range(1000, 12000, 1000))
 
@@ -18,7 +18,7 @@ err0 = []; err1= []
 for el in labels:
     # d = np.load('../mdata/ydata-03-02-22-%s.npz'%el)
     # d = np.load('../mdata/ydata-14-02-22-D-%s.npz'%el)
-    d = np.load('../mdata/ydata-18-04-22-R-%s.npz'%el)
+    d = np.load('../mdata/ydata-11-05-22-R-%s.npz'%el)
     x0, y0 = d['y_pred_train'], d['y_obs_train']
     x1, y1 = d['y_pred_test'], d['y_obs_test']
     er0 = abs(y0-x0)/y0*100
