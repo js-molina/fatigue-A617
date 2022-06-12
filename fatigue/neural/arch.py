@@ -738,15 +738,15 @@ def m_lstm_dev1(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(42, kernel_regularizer=regularizers.l1_l2(9.301e-7),
-                             recurrent_regularizer=regularizers.l1_l2(0.004248),
-                             bias_regularizer=regularizers.l1_l2(8.7213e-12))(time_mask)
+    time_feats = layers.LSTM(23, kernel_regularizer=regularizers.l1_l2(0.06761886179447174, 0.0033711339347064495),
+                             recurrent_regularizer=regularizers.l1_l2(0.0008350884891115129, 0.02994454838335514),
+                             bias_regularizer=regularizers.l1_l2(6.859552509341782e-11, 0.004843058530241251))(time_mask)
 
     # Concatenate the LSTM output with the constant input
     temp_vector = layers.concatenate([time_feats, const_input])
 
-    temp_vector = layers.Dense(23, kernel_regularizer=regularizers.l1_l2(0.0044339),
-                            bias_regularizer=regularizers.l1_l2(0.01275), activation='relu')(temp_vector)
+    temp_vector = layers.Dense(35, kernel_regularizer=regularizers.l1_l2(3.4403580678743495e-11, 0.00014214395196177065),
+                            bias_regularizer=regularizers.l1_l2(0.00010047776595456526, 2.113488761779081e-08), activation='relu')(temp_vector)
 
     life_pred = layers.Dense(1)(temp_vector)
 
@@ -777,6 +777,39 @@ def m_lstm_dev2(time_input_shape, const_input_shape):
 
     temp_vector = layers.Dense(35, kernel_regularizer=regularizers.l1_l2(3.4403580678743495e-11, 0.00014214395196177065),
                             bias_regularizer=regularizers.l1_l2(0.00010047776595456526, 2.113488761779081e-08), activation='relu')(temp_vector)
+
+    life_pred = layers.Dense(1)(temp_vector)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+
+    return model
+
+def m_lstm_dev22(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(23, kernel_regularizer=regularizers.l1_l2(4.456753854853446e-10, 2.0863347941629806e-12),
+                             recurrent_regularizer=regularizers.l1_l2(3.4960050925292308e-06, 0.040089476853609085),
+                             bias_regularizer=regularizers.l1_l2(1.7867653190339894e-10, 4.038190581923118e-08))(time_mask)
+
+    # Concatenate the LSTM output with the constant input
+    temp_vector = layers.concatenate([time_feats, const_input])
+
+    temp_vector = layers.Dense(34, kernel_regularizer=regularizers.l1_l2(4.0496755254748606e-11, 0.008097505196928978),
+                            bias_regularizer=regularizers.l1_l2(1.9550006145202525e-12, 4.176363432861763e-08), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(36, kernel_regularizer=regularizers.l1_l2(6.01820538577158e-05, 0.0030067265033721924),
+                            bias_regularizer=regularizers.l1_l2(3.972098691629178e-12, 1.8910617516354478e-10), activation='relu')(temp_vector)
 
     life_pred = layers.Dense(1)(temp_vector)
 

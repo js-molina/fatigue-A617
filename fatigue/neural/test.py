@@ -200,10 +200,11 @@ def run_test_devmodel(save_path = None, model_name = None, load_func = load_know
     
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
-    stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+    stop_early_loss = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+    # stop_early_rmse = tf.keras.callbacks.EarlyStopping(monitor='val_root_mean_squared_error', patience=20)
     
     history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, verbose = 0,
-                    validation_data = ((Xv_dev,  Xc_dev), y_dev), callbacks = [stop_early], batch_size = 33)
+                    validation_data = ((Xv_dev,  Xc_dev), y_dev), callbacks = [stop_early_loss], batch_size = 33)
         
     # Inverse normalise target data
     y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)

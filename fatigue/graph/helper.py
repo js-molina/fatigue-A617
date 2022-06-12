@@ -32,4 +32,7 @@ def get_peak_data_from_test(test):
 
 
 def chi_ratio(pred, obs):
-    return np.sum((pred/obs-1)**2, axis = 0).mean()   
+    return np.sum((pred/obs-1)**2, axis = 0).mean()  
+
+def meape(pred, obs):
+    return np.mean(abs((pred-obs)/obs)*100)
