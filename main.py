@@ -132,7 +132,7 @@ sys.path.append(os.path.dirname(__file__))
 # 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 # run_rd_devmodel('d', m_lstm_dev2, 100, 'ydata-11-05-22-D')
-# run_rd_devmodel('r', m_lstm_dev2, 50, 'ydata-11-05-22-R')
+run_rd_devmodel('d', m_lstm_dev22, 12, 'ydata-12-06-22-D')
 
 # random_state = np.random.randint(1000)
 # # random_state = 11
@@ -144,14 +144,14 @@ sys.path.append(os.path.dirname(__file__))
 
 # # # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', 'm2.h5', None, 100, 'best')
 # _, _, history1 = run_test_fmodel('ydata-10-06-22-M1', None, m_lstm_best, 100, 'best', cycles=4100)
-_, _, history1 = run_test_devmodel('ydata-10-06-22-M3', None, m_lstm_dev1, 100, 'best', cycles=4000)
+# _, _, history1 = run_test_devmodel('ydata-10-06-22-M3', None, m_lstm_dev1, 100, 'best', cycles=4000)
 # # _, _, history2 = run_test_devmodel('ydata-18-04-22-M6', None, m_lstm_dev2, 100, 'best', cycles=4200)
 # # # # # # # _, _, history1 = run_test_fmodel('ydata-16-02-22-M2', None, hyperx3, 500, 'best', cycles = 120)
 # # # # # # _, _, history1 = run_test_fmodel('ydata-22-02-22-M2', 'm4.h5', None, 91, 'best', loss = 'meap', cycles=120)
 
-gr.validation.plot_history_loss(history1, 'LOSS')
-gr.validation.plot_history_mape(history1, 'MAPE')
-gr.validation.plot_history_rmse(history1, 'RMSE')
+# gr.validation.plot_history_loss(history1, 'LOSS')
+# gr.validation.plot_history_mape(history1, 'MAPE')
+# gr.validation.plot_history_rmse(history1, 'RMSE')
 
 
 # gr.validation.plot_history_loss(history2, 'LOSS')
@@ -199,9 +199,9 @@ gr.validation.plot_history_rmse(history1, 'RMSE')
 
 # data = 'mdata/ydata-11-05-22-D-1900.npz'
 
-data = 'mdata/ydata-10-06-22-M3.npz'
+# data = 'mdata/ydata-10-06-22-M3.npz'
 
-log = True
+# log = True
 
 # # gr.models2.graph_nn_2_fold(data, log = log, which = 'train')
 # gr.models2.graph_nn_1_fold(data, log = log, save = 'r1900.pdf')
@@ -233,8 +233,8 @@ log = True
 
 # gr.models2.graph_nn_1_fold(data, log = log, save = '1900rdev.pdf')
 
-gr.models2.graph_nn_11_dev(data, log = log)
-# gr.models2.graph_nn_12_dev(data, log = log, save = '1900ddev.pdf')
+# gr.models2.graph_nn_11_dev(data, log = log)
+# # gr.models2.graph_nn_12_dev(data, log = log, save = '1900ddev.pdf')
 
-print(gr.models2.get_meap(data))
-print(gr.models2.get_chi(data))
+# print(gr.models2.get_meap(data))
+# print(gr.models2.get_chi(data))
