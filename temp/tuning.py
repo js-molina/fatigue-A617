@@ -475,7 +475,7 @@ y_test = y[test]
 Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, scaler_y = \
 preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, 10838)
 
-tuner = kt.Hyperband(lambda x: hmodel8(x, Xv_train.shape[1:], Xc_train.shape[1:]),
+tuner = kt.Hyperband(lambda x: hmodel9(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                       objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
                       max_epochs=150, factor=3, hyperband_iterations=1, directory='Tuners',
                       project_name='dev_10838_3',
