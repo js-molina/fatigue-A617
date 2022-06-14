@@ -12,9 +12,13 @@ from get_folds import Data
 from fatigue.finder import fatigue_data
 from fatigue.finder.cycle_path import peak_path_from_sample
 from fatigue.strain import cycle_plastic_strain_percent, cycle_elastic_strain_percent
-from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_1_fold, graph_nn_2_fold, graph_nn_hist, get_meap
+from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_1_fold, graph_nn_2_fold, graph_nn_12_dev, graph_nn_hist, get_meap, get_chi
 
 from sklearn.metrics import r2_score
+import tdt
+
+fold = 'best'
+train, dev, test = tdt.train_idx[fold], tdt.dev_idx[fold], tdt.test_idx[fold]
 
 matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx,amsmath, amssymb, amsfonts, amsthm}'
 
@@ -40,6 +44,10 @@ E = [153e3, 144e3]
 
 LF = []
 
+D_train = Data.iloc[train]
+D_dev = Data.iloc[dev]
+D_test = Data.iloc[test]
+
 for i, t in enumerate(TEMPS):
     DATA = Data[Data.Temps == t]
 
@@ -62,7 +70,7 @@ for i, t in enumerate(TEMPS):
         plastic_strain.append(plastic)
         total_strain.append(total)
         cycles_to_failure.append(cycles)
-        cycle_times.append(total/0.0001)
+        cycle_times.append(total/float(DATA[DATA.Samples == sample].Rates))
 
     ax[i].plot(np.log10(cycles_to_failure), np.log10(cycle_times), 'bo', markerfacecolor = 'None', markeredgewidth = 1)
 
@@ -103,6 +111,13 @@ for i, t in enumerate(TEMPS):
     cycles_to_failure = []
     strain_rate = []
     stress_range = []
+    
+    elastic_strain_model = []
+    plastic_strain_model = []
+    total_strain_model = []
+    cycles_to_failure_model = []
+    stress_range_model = []
+    strain_rate_model = []
 
     for sample in DATA.Samples:
         tmp = pd.read_csv(peak_path_from_sample(sample))
@@ -120,15 +135,29 @@ for i, t in enumerate(TEMPS):
         plastic_strain.append(plastic)
         total_strain.append(total)
         cycles_to_failure.append(cycles)
+        
+        if sample in D_train.Samples.values:
+            strain_rate_model.append(float(DATA[DATA.Samples == sample].Rates))
+            elastic_strain_model.append(elastic)
+            plastic_strain_model.append(plastic)
+            total_strain_model.append(total)
+            cycles_to_failure_model.append(cycles)
+            stress_range_model.append(max_s-min_s)
+    
+    pl = np.array(plastic_strain_model)
+    tl = np.array(total_strain_model)
+    sr = np.array(strain_rate_model)
+    ss = np.array(stress_range_model)
+    ra = (tl/sr)**LF[i]
+    params = np.array([pl, ra, ss])
+    
+    popt, pcov = curve_fit(func, params, np.log(cycles_to_failure_model))
     
     pl = np.array(plastic_strain)
     tl = np.array(total_strain)
     sr = np.array(strain_rate)
     ss = np.array(stress_range)
     ra = (tl/sr)**LF[i]
-    params = np.array([pl, ra, ss])
-    
-    popt, pcov = curve_fit(func, params, np.log(cycles_to_failure))
     
     pred += (popt[1]*(ra*pl**popt[0]/ss)).tolist()
     obs += cycles_to_failure
@@ -138,7 +167,31 @@ for i, t in enumerate(TEMPS):
 obs = np.array(obs)
 pred = np.array(pred)
 
-r_data = {'y_obs_train': obs[:33], 'y_pred_train': pred[:33], 'y_obs_test': obs[33:], 'y_pred_test': pred[33:]}
+r_data = {'y_obs_train': obs[train], 'y_pred_train': pred[train], 
+          'y_obs_dev': obs[dev], 'y_pred_dev': pred[dev], 
+          'y_obs_test': obs[test], 'y_pred_test': pred[test]}
 
-graph_nn_1_fold(r_data, log = True, load = False, which = 'both')
-print(get_meap(r_data, load = False, v2 = False))
+graph_nn_12_dev(r_data, log = True, load = False, which = 'all')
+print(get_meap(r_data, load = False))
+print(get_chi(r_data, load = False))
+
+d = r_data
+
+y_obs = np.concatenate((d['y_obs_train'].reshape(22,-1),
+            d['y_obs_dev'].reshape(11,-1),
+            d['y_obs_test'].reshape(11,-1)), axis = 0)
+y_pred = np.concatenate((d['y_pred_train'].reshape(22,-1),
+                         d['y_pred_dev'].reshape(11,-1),
+                         d['y_pred_test'].reshape(11,-1)), axis = 0)
+
+err850, err950 = [], []
+
+for i, c in enumerate(y_obs):
+    if c in Data[Data.Temps == 850].Cycles.values:
+        err850.append(abs(c-y_pred[i])/c)
+    else:
+        err950.append(abs(c-y_pred[i])/c)
+    
+
+err850 = np.array(err850)
+err950 = np.array(err950)

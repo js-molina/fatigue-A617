@@ -13,27 +13,28 @@ import matplotlib.pyplot as plt
 
 import sklearn
 from sklearn.model_selection import KFold
-from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_11_dev, graph_nn_22_dev, graph_nn_hist, get_meap, get_chi
+from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_11_dev, graph_nn_12_dev, graph_nn_22_dev, graph_nn_hist, get_meap, get_chi
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.preprocessing import StandardScaler, PowerTransformer
 from sklearn.model_selection import train_test_split, KFold
 
 from tdt import test_idx, dev_idx, train_idx, Data
 
-cycles = 100
+cycles = 2600
 drop_strain = False
 save = ''
 
 def report_coeff(names, coef, intercept):
     
-    fig, ax = plt.subplots(figsize=(12,3))
+    fig, ax = plt.subplots(figsize=(3,12))
     
     r = pd.DataFrame({'coef': coef, 'positive': coef >= 0}, index = names)
     r = r.sort_values(by = ['coef'])
-    r['coef'].plot(kind = 'bar', color = r['positive'].map({True: 'b', False: 'r'}))
+    r['coef'].plot(kind = 'barh', color = r['positive'].map({True: 'b', False: 'r'}))
     
-    # path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
-    # plt.savefig(os.path.join(path, 'natsel.pdf'), bbox_inches = 'tight')
+    path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
+    path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
+    plt.savefig(os.path.join(path, 'natsel.svg'), bbox_inches = 'tight')
     
     plt.show()
     return r
@@ -89,7 +90,6 @@ all_y_true_dev = []
 all_y_pred_dev = []
 all_y_true_test = []
 all_y_pred_test = []
-
 
 
 fold = KFold(n_splits=4, shuffle=True, random_state = 994) 
@@ -160,9 +160,11 @@ log = True
 # graph_nn_1_dev(r_data, log = log, load = False, which = 'train')
 # graph_nn_1_dev(r_data, log = log, load = False, which = 'dev')
 
-graph_nn_11_dev(r_data, log = log, load = False, which = 'all', save = 'nat.pdf')
-graph_nn_22_dev(r_data, log = log, load = False, save = 'natd.pdf')
+graph_nn_11_dev(r_data, log = log, load = False, which = 'all')
+graph_nn_22_dev(r_data, log = log, load = False)
 # graph_nn_hist(r_data, log = True, load = False, which = 'both', save = f'nat_{cycles}.pdf')
 
-print(get_meap(r_data, load = False))
+graph_nn_12_dev(r_data, log = log, load = False)
+
+print(get_meap(r_data, load = False, which = 'all'))
 print(get_chi(r_data, load = False))

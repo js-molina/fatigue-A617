@@ -2,6 +2,7 @@ from .helper import *
 from .morrow import *
 from .pl_manson import *
 from .c_manson import *
+from .goswami_mo import *
 
 class model:
     def __init__(self, model_data, ntype):
@@ -34,5 +35,12 @@ class coffin_manson(model):
         self.pred = []
         for li in self.lc:
             self.pred.append(lambda x, li = li : cmanson_pred(x, *li))
+    
+class goswami_m(model):
+    def __init__(self, fatigue_data):
+        model.__init__(self, goswami_construct(fatigue_data), 'goswami')
+        self.pred = []
+        for li in self.lc:
+            self.pred.append(lambda x, li = li : goswami_pred(x, *li))
 
               
