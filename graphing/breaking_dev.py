@@ -10,16 +10,19 @@ vals = [1, 5, 10, 60, 120, 500, 1000, 5000, 10834]
 
 vals = [5, 10, 50] + list(range(100, 10900, 100))
 
+vals = [5, 10, 50, 100] + list(range(500, 10900, 500))
+
 # vals = [1, 10, 50, 100, 500] + list(range(1000, 12000, 1000))
 
 labels = list(map(str, vals))
 
 err0 = []; err1= []; err2 = []
 for el in labels:
-    d = np.load('../mdata/ydata-18-04-22-D-%s.npz'%el)
+    # d = np.load('../mdata/ydata-18-04-22-D-%s.npz'%el)
+    d = np.load('../mdata/ydata-12-06-22-D-%s.npz'%el)
     # d = np.load('../mdata/ydata-11-05-22-D-%s.npz'%el)
-    x0, y0 = d['y_pred_train'][:22], d['y_pred_train'][22:]
-    # x0, y0 = d['y_pred_train'], d['y_obs_train']
+    # x0, y0 = d['y_pred_train'][:22], d['y_pred_train'][22:]
+    x0, y0 = d['y_pred_train'], d['y_obs_train']
     x1, y1 = d['y_pred_dev'], d['y_obs_dev']
     x2, y2 = d['y_pred_test'], d['y_obs_test']
     er0 = abs(y0-x0)/y0*100
@@ -44,16 +47,16 @@ fig, ax = plt.subplots(1, 1, figsize=(4,4))
 ax.set_xlabel('Number of Cycles Utilised')
 ax.set_ylabel('MAPE (\%)')
 
-ax.set_ylim(5, 40)
+ax.set_ylim(0, 40)
 
-ax.plot(vals, merr0, lw = 0.7, color = 'blue', alpha = 0.4)
-ax.plot(vals, merr1, lw = 0.7, color = 'xkcd:green', alpha = 0.4)
-ax.plot(vals, merr2, lw = 0.7, color = 'xkcd:red', alpha = 0.4)
+ax.plot(vals, merr0, lw = 0.7, color = 'blue')
+ax.plot(vals, merr1, lw = 0.7, color = 'xkcd:green')
+ax.plot(vals, merr2, lw = 0.7, color = 'xkcd:red')
 
 
-ax.plot(vals, avg_err.merr0, lw = 1.5, color = 'blue', label = 'Training Data')
-ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'xkcd:green', label = 'Development Data')
-ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Test Data')
+# ax.plot(vals, avg_err.merr0, lw = 1.5, color = 'blue', label = 'Training Data')
+# ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'xkcd:green', label = 'Development Data')
+# ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Test Data')
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
@@ -61,7 +64,7 @@ ax.legend(framealpha = 1, edgecolor = 'None', loc = 0)
 
 ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 
-plt.savefig(os.path.join(path, 'breaking_dev_d.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'breaking_dev_d.pdf'), bbox_inches = 'tight')
 
 plt.show()
 

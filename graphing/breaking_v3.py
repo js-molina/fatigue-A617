@@ -10,6 +10,7 @@ vals = [1, 5, 10, 60, 120, 500, 1000, 5000, 10834]
 
 vals = [5, 10, 50] + list(range(100, 10900, 100))
 
+vals = [5, 10, 50, 100] + list(range(500, 10900, 500))
 # vals = [1, 10, 50, 100, 500] + list(range(1000, 12000, 1000))
 
 labels = list(map(str, vals))
@@ -18,7 +19,8 @@ err0 = []; err1= []
 for el in labels:
     # d = np.load('../mdata/ydata-03-02-22-%s.npz'%el)
     # d = np.load('../mdata/ydata-14-02-22-D-%s.npz'%el)
-    d = np.load('../mdata/ydata-18-04-22-R-%s.npz'%el)
+    # d = np.load('../mdata/ydata-18-04-22-R-%s.npz'%el)
+    d = np.load('../mdata/ydata-12-06-22-R-%s.npz'%el)
     # d = np.load('../mdata/ydata-11-05-22-R-%s.npz'%el)
     x0, y0 = d['y_pred_train'], d['y_obs_train']
     x1, y1 = d['y_pred_test'], d['y_obs_test']
@@ -41,7 +43,7 @@ fig, ax = plt.subplots(1, 1, figsize=(4,4))
 ax.set_xlabel('Number of Cycles Utilised')
 ax.set_ylabel('MAPE (\%)')
 
-ax.set_ylim(5, 200)
+ax.set_ylim(5, 40)
 
 ax.plot(vals, merr0, lw = 0.7, color = 'blue', alpha = 0.4)
 ax.plot(vals, merr1, lw = 0.7, color = 'red', alpha = 0.4)
