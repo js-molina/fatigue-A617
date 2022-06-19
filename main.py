@@ -132,8 +132,8 @@ sys.path.append(os.path.dirname(__file__))
 # 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 # run_rd_devmodel('d', m_lstm_dev2, 100, 'ydata-11-05-22-D')
-# run_rd_devmodel('d', m_lstm_dev22, 100, 'ydata-16-06-22-R-2')
-# run_rd_devmodel('d', m_lstm_dev3, 100, 'ydata-16-06-22-R-1')
+run_rd_devmodel('d', m_lstm_dev22, 100, 'ydata-19-06-22-D-2')
+run_rd_devmodel('d', m_lstm_dev3, 100, 'ydata-19-06-22-D-1')
 
 # random_state = np.random.randint(1000)
 # # random_state = 11
@@ -145,14 +145,14 @@ sys.path.append(os.path.dirname(__file__))
 
 # # # _, _, history1 = run_test_fmodel('ydata-13-02-22-M1', 'm2.h5', None, 100, 'best')
 # _, _, history1 = run_test_fmodel('ydata-10-06-22-M1', None, m_lstm_best, 100, 'best', cycles=4100)
-_, _, history1 = run_test_devmodel('ydata-19-06-22-M3', None, m_lstm_dev3, 100, 'best', cycles=2000)
+# _, _, history1 = run_test_devmodel('ydata-19-06-22-M3', None, m_lstm_dev3, 100, 'best', cycles=2000)
 # _, _, history2 = run_test_devmodel('ydata-18-04-22-M6', None, m_lstm_dev2, 100, 'best', cycles=4200)
 # # # # # # # _, _, history1 = run_test_fmodel('ydata-16-02-22-M2', None, hyperx3, 500, 'best', cycles = 120)
 # # # # # # _, _, history1 = run_test_fmodel('ydata-22-02-22-M2', 'm4.h5', None, 91, 'best', loss = 'meap', cycles=120)
 
-gr.validation.plot_history_loss(history1, 'LOSS')
-gr.validation.plot_history_mape(history1, 'MAPE')
-gr.validation.plot_history_rmse(history1, 'RMSE')
+# gr.validation.plot_history_loss(history1, 'LOSS')
+# gr.validation.plot_history_mape(history1, 'MAPE')
+# gr.validation.plot_history_rmse(history1, 'RMSE')
 
 
 # gr.validation.plot_history_loss(history2, 'LOSS')
@@ -198,50 +198,50 @@ gr.validation.plot_history_rmse(history1, 'RMSE')
 
 # # # data = 'mdata/ydata-14-02-22-HD-10.npz'
 
-data = 'mdata/ydata-11-05-22-D-2000.npz'
-data = 'mdata/ydata-12-06-22-D-2000.npz'
+# data = 'mdata/ydata-11-05-22-D-2000.npz'
+# data = 'mdata/ydata-12-06-22-D-2000.npz'
 
 
 
-data = 'mdata/ydata-16-06-22-R-2-2000.npz'
+# data = 'mdata/ydata-16-06-22-R-2-2000.npz'
 
-data = 'mdata/ydata-19-06-22-M3.npz'
+# data = 'mdata/ydata-19-06-22-M3.npz'
 
-log = True
+# log = True
 
-# # gr.models2.graph_nn_2_fold(data, log = log, which = 'train')
-# gr.models2.graph_nn_1_fold(data, log = log, save = 'r1900.pdf')
-# gr.models2.graph_nn_hist_only(data, which = 'all', bins = 20, v2 = False , save = 'r1900hist.pdf')
-# gr.models2.graph_nn_hist(data, log = log, which = 'both')
-# print(gr.models2.get_meap(data, v2 = False))
+# # # gr.models2.graph_nn_2_fold(data, log = log, which = 'train')
+# # gr.models2.graph_nn_1_fold(data, log = log, save = 'r1900.pdf')
+# # gr.models2.graph_nn_hist_only(data, which = 'all', bins = 20, v2 = False , save = 'r1900hist.pdf')
+# # gr.models2.graph_nn_hist(data, log = log, which = 'both')
+# # print(gr.models2.get_meap(data, v2 = False))
 
-# # gr.models2.graph_nn_hist(data, log = log, bins = 15, which = 'both')
+# # # gr.models2.graph_nn_hist(data, log = log, bins = 15, which = 'both')
 
-# # gr.models2.graph_nn_hist_only(data, bins = 15, which = 'both')
+# # # gr.models2.graph_nn_hist_only(data, bins = 15, which = 'both')
 
-print(gr.models2.get_meap(data, which = 'train'))
-print(gr.models2.get_meap(data, which = 'dev'))
-print(gr.models2.get_meap(data, which = 'test'))
-# print(gr.models2.get_meap(data))
+# print(gr.models2.get_meap(data, which = 'train'))
+# print(gr.models2.get_meap(data, which = 'dev'))
+# print(gr.models2.get_meap(data, which = 'test'))
+# # print(gr.models2.get_meap(data))
 
-# gr.models2.graph_nn_1_dev(data, log = log, which = 'train')
-# gr.models2.graph_nn_1_dev(data, log = log, which = 'dev')
-# gr.models2.graph_nn_1_dev(data, log = log, which = 'test')
+# # gr.models2.graph_nn_1_dev(data, log = log, which = 'train')
+# # gr.models2.graph_nn_1_dev(data, log = log, which = 'dev')
+# # gr.models2.graph_nn_1_dev(data, log = log, which = 'test')
 
-# for i in [2]:
-# i = 2
-# data = f'mdata/ydata-12-04-22-M{i}.npz'
-# #     gr.models2.graph_nn_1_dev(data, log = log, which = 'all')
-# #     save = 'm3dlin.pdf'
-# # save = 'm3.pdf'
-# gr.models2.graph_nn_12_dev(data, log = log, save = '2000dev.pdf')
+# # for i in [2]:
+# # i = 2
+# # data = f'mdata/ydata-12-04-22-M{i}.npz'
+# # #     gr.models2.graph_nn_1_dev(data, log = log, which = 'all')
+# # #     save = 'm3dlin.pdf'
+# # # save = 'm3.pdf'
+# # gr.models2.graph_nn_12_dev(data, log = log, save = '2000dev.pdf')
+# # print(gr.models2.get_meap(data))
+# # print(gr.models2.get_chi(data))
+
+# # gr.models2.graph_nn_1_fold(data, log = log, save = '1900rdev.pdf')
+
+# gr.models2.graph_nn_11_dev(data, log = log)
+# # # gr.models2.graph_nn_12_dev(data, log = log, save = '1900ddev.pdf')
+
 # print(gr.models2.get_meap(data))
 # print(gr.models2.get_chi(data))
-
-# gr.models2.graph_nn_1_fold(data, log = log, save = '1900rdev.pdf')
-
-gr.models2.graph_nn_11_dev(data, log = log)
-# # gr.models2.graph_nn_12_dev(data, log = log, save = '1900ddev.pdf')
-
-print(gr.models2.get_meap(data))
-print(gr.models2.get_chi(data))
