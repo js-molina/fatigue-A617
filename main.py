@@ -132,8 +132,8 @@ sys.path.append(os.path.dirname(__file__))
 # 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 # run_rd_devmodel('d', m_lstm_dev2, 100, 'ydata-11-05-22-D')
-run_rd_devmodel('d', m_lstm_dev22, 100, 'ydata-16-06-22-R-2')
-# run_rd_devmodel('d', m_lstm_dev3, 100, 'ydata-16-06-22-R-3')
+# run_rd_devmodel('d', m_lstm_dev22, 100, 'ydata-16-06-22-R-2')
+run_rd_devmodel('d', m_lstm_dev3, 100, 'ydata-16-06-22-R-1')
 
 # random_state = np.random.randint(1000)
 # # random_state = 11
