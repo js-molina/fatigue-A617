@@ -230,8 +230,11 @@ def determinism_dev(load_func = load_known_lstm_model, clen = 120, n_try = 100, 
         preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, clen)
              
         model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
+        
+        stop_early_loss = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
     
-        model.fit([Xv_train, Xc_train], y_train, epochs=40, batch_size=33, verbose = 0)
+        model.fit([Xv_train, Xc_train], y_train, epochs=100, validation_data = ((Xv_dev,  Xc_dev), y_dev), \
+                  callbacks = [stop_early_loss], batch_size=33, verbose = 0)
         
         y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
         y_pred0 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
