@@ -9,18 +9,19 @@ from fatigue.networks import natural
 
 import matplotlib
 import matplotlib.pyplot as plt
-# matplotlib.rcParams['text.usetex'] = False
+matplotlib.rcParams['text.usetex'] = False
 
 import sklearn
 from sklearn.model_selection import KFold
 from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_11_dev, graph_nn_12_dev, graph_nn_22_dev, graph_nn_hist, get_meap, get_chi
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.preprocessing import StandardScaler, PowerTransformer
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.model_selection import train_test_split, KFold
 
 from tdt import test_idx, dev_idx, train_idx, Data
 
-cycles = 2600
+cycles = 10838
 drop_strain = False
 save = ''
 
@@ -43,7 +44,7 @@ Xv0, Xc, y = natural(cycles=cycles, tfeats=[], cfeats = [])
 
 Xv = Xv0[:]
 
-Xv = [cell.assign(mean_s = np.mean((cell.max_s, cell.min_s), axis = 0)) for cell in Xv]
+# Xv = [cell.assign(mean_s = np.mean((cell.max_s, cell.min_s), axis = 0)) for cell in Xv]
 
 # Xv = [cell.drop(['max_s', 'min_s', 'elastic'], axis = 1) for cell in Xv]
 
@@ -92,10 +93,6 @@ all_y_true_test = []
 all_y_pred_test = []
 
 
-fold = KFold(n_splits=4, shuffle=True, random_state = 994) 
-
-# for n_fold, (train, test) in enumerate(fold.split(x, y)):
-
 train, dev, test = train_idx['best'], dev_idx['best'], test_idx['best']    
 
 x_train, x_dev, x_test = x.iloc[train], x.iloc[dev], x.iloc[test]
@@ -110,8 +107,26 @@ yScaler.fit(y_train)
 X_train, X_dev, X_test = map(xScaler.transform, [x_train, x_dev, x_test])
 Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
 
-model = ElasticNet(alpha = 0.08, l1_ratio=0.08)
+# =============================================================================
+# Optimising Parameters
+# =============================================================================
 
+# params= dict()
+
+# params['alpha'] =  np.logspace(-5, 5, 1000, endpoint=True)
+# params['l1_ratio'] = np.arange(0, 1, 0.001)
+
+# regressor = ElasticNet()
+
+# model = RandomizedSearchCV(regressor, params, n_iter = 100, scoring='r2', cv=5, verbose=0, refit=True)
+# # model.fit(X_train, Y_train)
+
+# model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
+
+# print('Best Params:')
+# print(model.best_params_)
+
+model = ElasticNet(alpha = 0.010069386314760271, l1_ratio= 0.705)
 model.fit(X_train, Y_train)
 
 pred0 = model.predict(X_train).reshape(-1, 1)
@@ -150,7 +165,7 @@ all_y_pred_test += y_pred2.tolist()
 #     np.savez('../mdata/' + save + '-%d'%cycles , y_obs_train=all_y_true_train, y_pred_train=all_y_pred_train,
 #                                         y_obs_test=all_y_true_test, y_pred_test=all_y_pred_test)
 
-# r = report_coeff(x.columns, model.coef_, model.intercept_)
+r = report_coeff(x.columns, model.coef_, model.intercept_)
 
 r_data = {'y_obs_test': np.array(all_y_true_test), 'y_pred_test': np.array(all_y_pred_test),
           'y_obs_train': np.array(all_y_true_train), 'y_pred_train': np.array(all_y_pred_train),
@@ -166,5 +181,9 @@ graph_nn_22_dev(r_data, log = log, load = False)
 
 graph_nn_12_dev(r_data, log = log, load = False)
 
+print(get_meap(r_data, load = False, which = 'train'))
+print(get_meap(r_data, load = False, which = 'dev'))
+print(get_meap(r_data, load = False, which = 'test'))
+
 print(get_meap(r_data, load = False, which = 'all'))
-print(get_chi(r_data, load = False))
+# print(get_chi(r_data, load = False))

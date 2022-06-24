@@ -92,7 +92,8 @@ for cycles in CYC:
     X_train, X_dev, X_test = map(xScaler.transform, [x_train, x_dev, x_test])
     Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
     
-    model = ElasticNet(alpha = 0.08, l1_ratio=0.08)
+    model = ElasticNet(alpha = 0.00837380653526649, l1_ratio= 0.737)
+    # model = ElasticNet(alpha = 0.009839952296278227, l1_ratio=0.974)
     
     model.fit(X_train, Y_train)
     
@@ -113,7 +114,7 @@ for cycles in CYC:
     score2 = sklearn.metrics.mean_absolute_percentage_error(y_obs2, y_pred2)
     
 
-    print(f'Final MAPE: {score0:.3f}/{score1:.3f}')
+    print(f'Final MAPE: {score0:.3f}/{score1:.3f}/{score2:.3f}')
 
     err = abs(y_obs1-y_pred1)/y_obs1*100
 

@@ -103,7 +103,9 @@ def features(test, cycles = False):
     x = app_elastic_e(x, E)
     x = app_plastic_e(x, test.Strain)
     
-    x = app_diff(x)
+    x = x.assign(mean_s = np.mean((x.max_s, x.min_s), axis = 0))
+    
+    # x = app_diff(x)
     
     # cols = x.columns    
 
@@ -150,6 +152,10 @@ def features_nat(test, cycles = False):
     
     x = app_elastic_e(x, E)
     x = app_plastic_e(x, test.Strain)
+    
+    x = x.assign(mean_s = np.mean((x.max_s, x.min_s), axis = 0)) 
+    
+    # x = app_diff(x)
     
     app_const(x, test)
     

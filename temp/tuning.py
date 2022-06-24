@@ -366,90 +366,8 @@ def hmodel9(hp, time_input_shape, const_input_shape):
 
     return model
 
-def nrm(hp, n_lay, time_input_shape, const_input_shape):
-    
-    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
-    
-    # Create separate inputs for time series and constants
-    time_input = Input(shape=time_input_shape)
-    const_input = Input(shape=const_input_shape)
-
-    hp_lstm_units = hp.Int('lstm_units', min_value = 5, max_value = 25, step = 1)
-
-    # Feed time_input through Masking and LSTM layers
-    time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(hp_lstm_units)(time_mask)
-
-    # Concatenate the LSTM output with the constant input
-    temp_vector = layers.concatenate([time_feats, const_input])
-
-    hp_hidden_units = []
-
-    # Initialising regularisers
-    for i in range(n_lay):
-        hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 5, max_value = 25, step = 1))
-
-    # Feed through Dense layers
-    for i in range(n_lay):
-        temp_vector = layers.Dense(hp_hidden_units[i], activation='relu')(temp_vector)
-
-    life_pred = layers.Dense(1)(temp_vector)
-
-    # Instantiate model
-    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
-
-    # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
-
-    return model
-
-def rm(hp, time_input_shape, const_input_shape):
-    
-    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
-    
-    # Create separate inputs for time series and constants
-    time_input = Input(shape=time_input_shape)
-    const_input = Input(shape=const_input_shape)
-
-    hp_lstm_kr = hp.Float('lstm_kr', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
-    hp_lstm_rr = hp.Float('lstm_rr', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
-    hp_lstm_br = hp.Float('lstm_br', min_value = 1e-12, max_value = 1e-1, sampling = 'log')
-
-    # Feed time_input through Masking and LSTM layers
-    time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(15, kernel_regularizer=regularizers.l1_l2(hp_lstm_kr),
-                             recurrent_regularizer=regularizers.l1_l2(hp_lstm_rr),
-                             bias_regularizer=regularizers.l1_l2(hp_lstm_br))(time_mask)
-    # Concatenate the LSTM output with the constant input
-    temp_vector = layers.concatenate([time_feats, const_input])
-
-    hp_hidden_units = [10]
-    hp_hidden_kr = []
-    hp_hidden_br = []
-
-    # Initialising regularisers
-    for i in range(1):
-        hp_hidden_kr.append(hp.Float('hidden_kr_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
-        hp_hidden_br.append(hp.Float('hidden_br_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
-    
-    # Feed through Dense layers
-    for i in range(1):
-        temp_vector = layers.Dense(hp_hidden_units[i], kernel_regularizer=regularizers.l1_l2(hp_hidden_kr[i]),
-                             bias_regularizer=regularizers.l1_l2(hp_hidden_br[i]), activation='relu')(temp_vector)
-
-    life_pred = layers.Dense(1)(temp_vector)
-
-    # Instantiate model
-    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
-
-    # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
-
-    return model
 
 print('Loading Data...')
-tfeats = ['plastic_d_m', 's_ratio_m', 's_ratio_d_m', 'min_s_m', 'max_s_m']
-cfeats = ['rate']
 
 tfeats, cfeats = [], []
 Xv, Xc, y = vectorise_data(tfeats = tfeats, cfeats = cfeats)
@@ -478,8 +396,8 @@ preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test,
 tuner = kt.Hyperband(lambda x: hmodel9(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                       objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
                       max_epochs=150, factor=3, hyperband_iterations=1, directory='Tuners',
-                      project_name='dev_10838_3',
-                      overwrite = False)
+                      project_name='dev_10838_1',
+                      overwrite = True)
 
 # tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
 #                      objective=kt.Objective("mean_absolute_percentage_error", direction="min"),
