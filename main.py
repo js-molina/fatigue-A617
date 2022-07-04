@@ -67,7 +67,7 @@ sys.path.append(os.path.dirname(__file__))
 
 # tfeats = ['plastic_d_m', 's_ratio_d_m']
 # cfeats = ['rate']
-Xv, Xc, y = vectorise_data(fatigue_data.data)
+# Xv, Xc, y = vectorise_data(fatigue_data.data)
 
 # train, test = train_idx['best'], test_idx['best']
 
@@ -132,7 +132,7 @@ Xv, Xc, y = vectorise_data(fatigue_data.data)
 # 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 # run_rd_devmodel('d', m_lstm_dev2, 100, 'ydata-11-05-22-D')
-# run_rd_devmodel('d', m_lstm_dev22, 100, 'ydata-19-06-22-D-2')
+run_rd_devmodel('d', m_lstm_dev22, 10, 'ydata-25-06-22-D-2')
 # run_rd_devmodel('d', m_lstm_dev3, 100, 'ydata-19-06-22-D-1')
 
 # random_state = np.random.randint(1000)
