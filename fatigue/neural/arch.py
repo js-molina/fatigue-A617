@@ -738,15 +738,15 @@ def m_lstm_dev1(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(23, kernel_regularizer=regularizers.l1_l2(0.06761886179447174, 0.0033711339347064495),
-                             recurrent_regularizer=regularizers.l1_l2(0.0008350884891115129, 0.02994454838335514),
-                             bias_regularizer=regularizers.l1_l2(6.859552509341782e-11, 0.004843058530241251))(time_mask)
+    time_feats = layers.LSTM(31, kernel_regularizer=regularizers.l1_l2(7.994916813913733e-06, 7.82394504739159e-09),
+                             recurrent_regularizer=regularizers.l1_l2(2.5376031571183733e-12, 6.738253843785458e-10),
+                             bias_regularizer=regularizers.l1_l2(5.257866142471812e-09, 7.885594823164865e-05))(time_mask)
 
     # Concatenate the LSTM output with the constant input
     temp_vector = layers.concatenate([time_feats, const_input])
 
-    temp_vector = layers.Dense(35, kernel_regularizer=regularizers.l1_l2(3.4403580678743495e-11, 0.00014214395196177065),
-                            bias_regularizer=regularizers.l1_l2(0.00010047776595456526, 2.113488761779081e-08), activation='relu')(temp_vector)
+    temp_vector = layers.Dense(49, kernel_regularizer=regularizers.l1_l2(0.012506955303251743, 2.6765312188814505e-10),
+                            bias_regularizer=regularizers.l1_l2(0.00016050184785854071, 6.289545808613184e-07), activation='relu')(temp_vector)
 
     life_pred = layers.Dense(1)(temp_vector)
 
@@ -768,15 +768,18 @@ def m_lstm_dev2(time_input_shape, const_input_shape):
 
     # Feed time_input through Masking and LSTM layers
     time_mask = layers.Masking(mask_value=-999)(time_input)
-    time_feats = layers.LSTM(23, kernel_regularizer=regularizers.l1_l2(0.06761886179447174, 0.0033711339347064495),
-                             recurrent_regularizer=regularizers.l1_l2(0.0008350884891115129, 0.02994454838335514),
-                             bias_regularizer=regularizers.l1_l2(6.859552509341782e-11, 0.004843058530241251))(time_mask)
+    time_feats = layers.LSTM(46, kernel_regularizer=regularizers.l1_l2(3.171006568436496e-08, 1.369990232369389e-10),
+                             recurrent_regularizer=regularizers.l1_l2(0.01229761354625225, 6.910993732844872e-08),
+                             bias_regularizer=regularizers.l1_l2(2.2401343002798058e-08, 2.5950281853925894e-11))(time_mask)
 
     # Concatenate the LSTM output with the constant input
     temp_vector = layers.concatenate([time_feats, const_input])
 
-    temp_vector = layers.Dense(35, kernel_regularizer=regularizers.l1_l2(3.4403580678743495e-11, 0.00014214395196177065),
-                            bias_regularizer=regularizers.l1_l2(0.00010047776595456526, 2.113488761779081e-08), activation='relu')(temp_vector)
+    temp_vector = layers.Dense(38, kernel_regularizer=regularizers.l1_l2(0.024249326437711716, 5.0193196821091135e-11),
+                            bias_regularizer=regularizers.l1_l2(3.582382987588062e-06, 9.630478416511323e-06), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(20, kernel_regularizer=regularizers.l1_l2(5.417953374831086e-08, 0.0007285480387508869),
+                            bias_regularizer=regularizers.l1_l2(1.7092896108933386e-12, 2.514738116587978e-05), activation='relu')(temp_vector)
 
     life_pred = layers.Dense(1)(temp_vector)
 

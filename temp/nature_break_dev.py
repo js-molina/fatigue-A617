@@ -45,7 +45,7 @@ for cycles in CYC:
 
     stats = np.array(['mean', 'std', 'max', 'min', 'median', 'mm', 'ku', 'sk', 'var'])
     funs = np.array([np.mean, np.std, np.max, np.min, np.median, mm, \
-                     sp.stats.kurtosis, sp.stats.skew, logvar])
+                      sp.stats.kurtosis, sp.stats.skew, logvar])
 
     idx = [0,1,2,3,4,6,7,8]
     stats = stats[idx]; funs = funs[idx]
@@ -92,8 +92,8 @@ for cycles in CYC:
     X_train, X_dev, X_test = map(xScaler.transform, [x_train, x_dev, x_test])
     Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
     
-    model = ElasticNet(alpha = 0.00837380653526649, l1_ratio= 0.737)
-    # model = ElasticNet(alpha = 0.009839952296278227, l1_ratio=0.974)
+    # model = ElasticNet(alpha = 0.00837380653526649, l1_ratio= 0.737)
+    model = ElasticNet(alpha = 0.009839952296278227, l1_ratio=0.547)
     
     model.fit(X_train, Y_train)
     
@@ -176,7 +176,7 @@ ax.plot(vals, merr2, lw = 0.7, color = 'red', alpha = 0.4)
 
 ax.plot(vals, avg_err.merr0, lw = 1.5, color = 'blue', label = 'Training Data')
 ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'green', label = 'Development Data')
-ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Test Data')
+ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Testing Data')
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 

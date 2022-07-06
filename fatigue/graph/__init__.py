@@ -6,7 +6,7 @@ import matplotlib, os, sys
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['font.serif'] = 'Computer Modern'
 matplotlib.rcParams['font.family'] = 'serif'
-matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx}'
+matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{siunitx, amsmath, amssymb, amsfonts, amsthm}'
 
 from .funcs import *
 from .helper import *

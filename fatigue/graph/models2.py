@@ -67,12 +67,12 @@ def graph_prediction(model, save_path = None):
     
     model_type = model._get_model_type()
     
-    if model_type == 'morrow':
-        ax.set_title('Morrow Model')
-    elif model_type == 'pl_manson':
-        ax.set_title('Inelastic Coffin Manson Model')
-    elif model_type == 'c_manson':
-        ax.set_title('Elastic Coffin Manson Model')
+    # if model_type == 'morrow':
+    #     ax.set_title('Morrow Model')
+    # elif model_type == 'pl_manson':
+    #     ax.set_title('Inelastic Coffin Manson Model')
+    # elif model_type == 'c_manson':
+    #     ax.set_title('Elastic Coffin Manson Model')
     
     ax.set_aspect('equal')
     
@@ -89,8 +89,12 @@ def graph_prediction(model, save_path = None):
     
     for i in range(len(TEMPS)):
         s1 = '\SI{%d}{\celsius}'%TEMPS[i]
-        s2 = '%.3f'%chi_ratio(x_pred[i], x_obs[i])
-        labels.append(' -- $\chi^2 =\ $'.join([s1, s2]))
+        # s2 = '%.3f'%chi_ratio(x_pred[i], x_obs[i])
+        # labels.append(' -- $\chi^2 =\ $'.join([s1, s2]))
+        
+        s2 = '%.2f'%((abs(x_obs[i]-x_pred[i])/x_obs[i]).mean()*100) + '\%'
+        labels.append(' -- $\mathbb{E} =\ $'.join([s1, s2]))
+        
     
     ax = plt.gca()
     
@@ -98,13 +102,17 @@ def graph_prediction(model, save_path = None):
     ax.set_ylabel('Measured $N_f$')
     
     for i in range(2):
-        ax.loglog(x_pred[i], x_obs[i], marker = markers[i], markersize = 5, ls = 'None', \
+        ax.loglog(x_pred[i], x_obs[i], marker = markers[i], markersize = 6, ls = 'None', \
         markeredgecolor = colors[i], markerfacecolor = 'None', markeredgewidth = 1, label = labels[i])
     
     ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
+    
+    ax.plot([100, 1e5], [200, 2e5], lw = 1, ls = '--', color = 'gray')
+    ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
+    
     ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
 
-    ax.legend(framealpha = 1, edgecolor = 'None')
+    ax.legend(framealpha = 1, edgecolor = 'k')
     
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
@@ -112,6 +120,12 @@ def graph_prediction(model, save_path = None):
         plt.savefig(save_path)
     
     plt.show()
+    
+    x_obs = np.concatenate(x_obs)
+    x_pred = np.concatenate(x_pred)
+    
+    print((abs(x_obs-x_pred)/x_obs).mean()*100)
+    
     
 def graph_nn_prediction(data, log = False, v2 = False, load = True):
     if load:
@@ -677,7 +691,7 @@ def graph_nn_hist_only(data, bins = 10, load = True, save = '', which = 'both', 
     if not ax:
         _, ax = plt.subplots(figsize=(4,4))
     
-    ax.hist(y_diff, bins = bins, color = 'k', ec="white", alpha = 1)
+    ax.hist(y_diff, bins = bins, color = '#cc9900', ec="white", alpha = 1)
     
     ax.set_xlim(-100, 100)
     # if max(abs(y_diff)) > 100:
@@ -1280,12 +1294,19 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None):
     if not _plot:
         msize = 5
     
-    ax.plot(d['y_pred_train'], d['y_obs_train'], marker = 'o', markersize = msize, ls = 'None', \
-        markeredgecolor = '#ff6600', markerfacecolor = '#ff6600', markeredgewidth = 1.5, label = 'Train')
-    ax.plot(d['y_pred_dev'], d['y_obs_dev'], marker = 's', markersize = msize, ls = 'None', \
-        markeredgecolor = '#ff66ff', markerfacecolor = '#ff66ff', markeredgewidth = 1.5, label = 'Dev')
-    ax.plot(d['y_pred_test'], d['y_obs_test'], marker = '^', markersize = msize+2, ls = 'None', \
-        markeredgecolor = '#29a329', markerfacecolor = '#29a329', markeredgewidth = 1.5, label = 'Test')
+    # ax.plot(d['y_pred_train'], d['y_obs_train'], marker = 'o', markersize = msize, ls = 'None', \
+    #     markeredgecolor = '#ff6600', markerfacecolor = '#ff6600', markeredgewidth = 1.5, label = 'Train')
+    # ax.plot(d['y_pred_dev'], d['y_obs_dev'], marker = 's', markersize = msize, ls = 'None', \
+    #     markeredgecolor = '#ff66ff', markerfacecolor = '#ff66ff', markeredgewidth = 1.5, label = 'Dev')
+    # ax.plot(d['y_pred_test'], d['y_obs_test'], marker = '^', markersize = msize+2, ls = 'None', \
+    #     markeredgecolor = '#29a329', markerfacecolor = '#29a329', markeredgewidth = 1.5, label = 'Test')
+
+    ax.plot(d['y_pred_train'], d['y_obs_train'], marker = 'x', markersize = msize, ls = 'None', \
+        markeredgecolor = 'blue', markeredgewidth = 1.5, label = 'Train')
+    ax.plot(d['y_pred_dev'], d['y_obs_dev'], marker = '1', markersize = msize+2, ls = 'None', \
+       markeredgecolor = 'xkcd:green', markeredgewidth = 1.5, label = 'Dev')
+    ax.plot(d['y_pred_test'], d['y_obs_test'], marker = '+', markersize = msize+1, ls = 'None', \
+        markeredgecolor = 'red', markeredgewidth = 1.5, label = 'Test')
 
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
@@ -1297,7 +1318,7 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None):
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
+        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save))
     
     if _plot:

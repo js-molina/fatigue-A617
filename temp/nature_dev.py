@@ -9,33 +9,51 @@ from fatigue.networks import natural
 
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.rcParams['text.usetex'] = False
+# matplotlib.rcParams['text.usetex'] = False
 
 import sklearn
 from sklearn.model_selection import KFold
 from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_11_dev, graph_nn_12_dev, graph_nn_22_dev, graph_nn_hist, get_meap, get_chi
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.preprocessing import StandardScaler, PowerTransformer
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-from sklearn.model_selection import train_test_split, KFold
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split, KFold, PredefinedSplit
 
 from tdt import test_idx, dev_idx, train_idx, Data
 
-cycles = 10838
+np.random.seed(10)
+
+cycles = 10000
 drop_strain = False
 save = ''
 
 def report_coeff(names, coef, intercept):
     
-    fig, ax = plt.subplots(figsize=(3,12))
+    fig, ax = plt.subplots(figsize=(12,3))
     
     r = pd.DataFrame({'coef': coef, 'positive': coef >= 0}, index = names)
     r = r.sort_values(by = ['coef'])
-    r['coef'].plot(kind = 'barh', color = r['positive'].map({True: 'b', False: 'r'}))
+    
+    cols = r.index.to_list()
+    
+    rename = {'max_s' : r'$\sigma_{\max}$', 'min_s' : r'$\sigma_{\min}$',
+              's_ratio' : r'$\sigma_{r}$', 'mean_s' : r'$\sigma_{m}$', 
+              'elastic' : r'$\Delta\varepsilon_{el}$', 'plastic' : r'$\Delta\varepsilon_{pl}$',
+              'rate' : r'$\dot{\varepsilon}$', 'strain' : 'Strain Range', 'temp' : 'Temperature'}
+
+    ncols = []
+    for col in cols:
+        g = col.split('[')
+        if g[0] in rename:
+            g[0] = rename[g[0]]
+        ncols.append('['.join(g))
+    
+    r.index = ncols
+    
+    r['coef'].plot(kind = 'bar', color = r['positive'].map({True: 'b', False: 'r'}), ylabel = 'Coefficients')
     
     path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
     path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
-    plt.savefig(os.path.join(path, 'natsel.svg'), bbox_inches = 'tight')
+    # plt.savefig(os.path.join(path, 'natsel.pdf'), bbox_inches = 'tight')
     
     plt.show()
     return r
@@ -80,6 +98,13 @@ Xn = Xn.assign(c95max = cmax95)
 
 x = pd.concat([Xn, Xc], axis = 1)
 
+xx = pd.DataFrame()
+for i in [48, 14, 34, 33, 17, 28, 22, 4, 16, 50]:
+    arg = {x.columns[i] : x[x.columns[i]]}
+    xx = xx.assign(**arg)
+
+# x = xx
+
 if drop_strain:
     x = x.drop('strain', axis = 1)
     
@@ -104,6 +129,7 @@ xScaler.fit(x_train)
 yScaler = StandardScaler()
 yScaler.fit(y_train)
 
+
 X_train, X_dev, X_test = map(xScaler.transform, [x_train, x_dev, x_test])
 Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
 
@@ -111,23 +137,25 @@ Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
 # Optimising Parameters
 # =============================================================================
 
-# params= dict()
+params= dict()
 
-# params['alpha'] =  np.logspace(-5, 5, 1000, endpoint=True)
-# params['l1_ratio'] = np.arange(0, 1, 0.001)
+params['alpha'] =  np.logspace(-5, 5, 1000, endpoint=True)
+params['l1_ratio'] = np.arange(0, 1, 0.001)
 
-# regressor = ElasticNet()
+regressor = ElasticNet()
 
-# model = RandomizedSearchCV(regressor, params, n_iter = 100, scoring='r2', cv=5, verbose=0, refit=True)
-# # model.fit(X_train, Y_train)
+ps = PredefinedSplit([-1]*22+[0]*11)
 
-# model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
+model = RandomizedSearchCV(regressor, params, n_iter = 1000, scoring='r2', cv=ps, verbose=0, refit=True)
+# model.fit(X_train, Y_train)
 
-# print('Best Params:')
-# print(model.best_params_)
+model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
 
-model = ElasticNet(alpha = 0.010069386314760271, l1_ratio= 0.705)
-model.fit(X_train, Y_train)
+print('Best Params:')
+print(model.best_params_)
+
+# model = ElasticNet(alpha = 0.00010740661533334334, l1_ratio=0.952, max_iter=10000)
+# model.fit(X_train, Y_train)
 
 pred0 = model.predict(X_train).reshape(-1, 1)
 Y_obs0, Y_pred0 = map(yScaler.inverse_transform, [Y_train, pred0])
@@ -145,7 +173,7 @@ score0 = sklearn.metrics.mean_absolute_percentage_error(y_obs0, y_pred0)
 score1 = sklearn.metrics.mean_absolute_percentage_error(y_obs1, y_pred1)
 score2 = sklearn.metrics.mean_absolute_percentage_error(y_obs2, y_pred2)
 
-print(f'Final MAPE: {score0:.3f}/{score1:.3f}')
+print(f'Final MAPE: {score0:.3f}/{score1:.3f}/{score2:.3f}')
 
 err = abs(y_obs1-y_pred1)/y_obs1*100
 
@@ -165,7 +193,8 @@ all_y_pred_test += y_pred2.tolist()
 #     np.savez('../mdata/' + save + '-%d'%cycles , y_obs_train=all_y_true_train, y_pred_train=all_y_pred_train,
 #                                         y_obs_test=all_y_true_test, y_pred_test=all_y_pred_test)
 
-r = report_coeff(x.columns, model.coef_, model.intercept_)
+# r = report_coeff(x.columns, model.coef_, model.intercept_)
+
 
 r_data = {'y_obs_test': np.array(all_y_true_test), 'y_pred_test': np.array(all_y_pred_test),
           'y_obs_train': np.array(all_y_true_train), 'y_pred_train': np.array(all_y_pred_train),
@@ -187,3 +216,22 @@ print(get_meap(r_data, load = False, which = 'test'))
 
 print(get_meap(r_data, load = False, which = 'all'))
 # print(get_chi(r_data, load = False))
+
+#%%
+
+r_vals = []
+nx, ny = xScaler.transform(x), yScaler.transform(y)
+for i in range(10):
+
+# for i in [48, 14, 34, 33, 17, 28, 22, 4, 16, 50]:
+    
+    r_val = sp.stats.pearsonr(nx[:,i], ny.reshape(-1))[0]
+    
+    print(x.columns[i], r_val)
+    fig, ax = plt.subplots(figsize=(4,4))
+    ax.scatter(nx[:,i], ny)
+    plt.show()
+    
+    r_vals.append((i, abs(r_val)))
+    # plt.scatter(X_train[:,i], y_train)
+    # plt.cla()
