@@ -23,113 +23,10 @@ train_idx = {}
 
 plot = False
 
-def plot_test_train(cTrain, cTest, save = None):
-    
-    fig, ax = plt.subplots(1, 1,figsize=(4,4))
-    
-    ax.set_xlabel('$N_f$ - Observed')
-    
-    ax.set_ylim(0, 3)
-    ax.set_xlim(100, 20000)
-    ax.set_xscale('log')
-    
-    ax.set_yticks([1, 2])
-    ax.set_yticklabels(['Train', 'Test'])
-    
-    ax.plot(cTrain, np.ones(cTrain.shape), marker = 'o', markersize = 5, ls = 'None', \
-    color = 'blue', label = 'Train')  
-    
-    ax.plot(cTest, 2*np.ones(cTest.shape), marker = 'o', markersize = 5, ls = 'None', \
-    color = 'red', label = 'Test')
-    
-    if save:
-        path = r'D:\WSL\ansto\figs'
-        # plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
-        
-    plt.show()
+# np.random.seed(19)
 
 def f(x, S):
     return len(S[S <= x])/len(S)
-
-def plot_cum_prob(cTrain, cTest, save = None):
-    fig, ax = plt.subplots(1, 1,figsize=(4,4))
-    
-    ax.set_xlabel('$N_f$ - Observed')
-    ax.set_ylabel('Cumulative Probability')
-    
-    ax.set_ylim(0, 1.1)
-    ax.set_xlim(100, 20000)
-    ax.set_xscale('log')
-    
-    t = np.linspace(100, 20000, 20000)
-    
-    t_train = [100] + cTrain.tolist() + [20000]
-    t_test = [100] + cTest.tolist() + [20000]
-    
-    ax.step(t_train, [f(x, cTrain) for x in t_train], where = 'post', lw = 0.8, color = 'blue', label = 'Train')  
-    ax.step(t_test, [f(x, cTest) for x in t_test], where = 'post', lw = 0.8, color = 'red', label = 'Test')  
-    
-    gTrain = np.array([f(x, cTrain) for x in t])
-    gTest = np.array([f(x, cTest) for x in t])
-    ax.plot(t, gTrain, lw = 0.8, color = 'blue', label = 'Train')
-    ax.plot(t, gTest, lw = 0.8, color = 'red', label = 'Test')  
-    KS = max(abs(gTrain-gTest))
-    print(KS)
-    
-    ax.legend(framealpha = 1, edgecolor = 'None')
-    
-    if save:
-        path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
-        plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
-    
-    plt.show()
-    
-def plot_all(cTrain, cTest, save = None):
-    
-    fig = plt.figure(figsize=(7,3))
-    ax1 = fig.add_axes([0, 0, 3/7, 1])
-    ax2 = fig.add_axes([3.8/7, 0, 3/7, 1])
-    
-    ax1.set_xlabel('$N_f$ - Observed')
-
-    ax1.set_ylim(0, 4)
-    ax1.set_xlim(100, 20000)
-    ax1.set_xscale('log')
-    
-    ax1.set_yticks([1, 2, 3])
-    ax1.set_yticklabels(['Train', 'Dev', 'Test'])
-    
-    ax1.plot(cTrain, np.ones(cTrain.shape), marker = 'o', markersize = 5, ls = 'None', \
-    color = 'blue', label = 'Train')
-    
-    ax1.plot(cDev, 2*np.ones(cDev.shape), marker = 'o', markersize = 5, ls = 'None', \
-    color = 'xkcd:green', label = 'Train')  
-    
-    ax1.plot(cTest, 3*np.ones(cTest.shape), marker = 'o', markersize = 5, ls = 'None', \
-    color = 'red', label = 'Test')
-    
-    ax2.set_xlabel('$N_f$ - Observed')
-    ax2.set_ylabel('Cumulative Probability')
-    
-    ax2.set_ylim(0, 1.1)
-    ax2.set_xlim(100, 20000)
-    ax2.set_xscale('log')
-    
-    t_train = [100] + cTrain.tolist() + [20000]
-    t_dev = [100] + cDev.tolist() + [20000]
-    t_test = [100] + cTest.tolist() + [20000]
-    
-    ax2.step(t_train, [f(x, cTrain) for x in t_train], where = 'post', lw = 0.8, color = 'blue', label = 'Train')
-    ax2.step(t_dev, [f(x, cDev) for x in t_dev], where = 'post', lw = 0.8, color = 'xkcd:green', label = 'Dev')
-    ax2.step(t_test, [f(x, cTest) for x in t_test], where = 'post', lw = 0.8, color = 'red', label = 'Test')  
-    
-    ax2.legend(framealpha = 1, edgecolor = 'None')
-    
-    if save:
-        path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
-        plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
-    
-    plt.show()
 
 Data = fd_to_df(fatigue_data.data).sort_values(by=['Temps', 'Strains'])
 
@@ -173,7 +70,72 @@ if plot:
     print(f'Train Data:\t\t\t{cTrain.mean():.1f}\t{cTrain.median():.1f}\t{cTrain.std():.1f}\t{cTrain.min():.1f}\t{cTrain.max():.1f}')
     # plot_test_train(cTrain, cTest, save = 'best_data.svg')
     # plot_cum_prob(cTrain, cTest, save = 'best_prob.svg')
-    plot_all(cTrain, cTest, save = 'splits.pdf')
+    fig = plt.figure(figsize=(7,3))
+    ax1 = fig.add_axes([0, 0, 3/7, 1])
+    ax2 = fig.add_axes([3.8/7, 0, 3/7, 1])
+    
+    ax1.set_xlabel('$N_f$ - Observed')
+
+    ax1.set_ylim(0, 4)
+    ax1.set_xlim(100, 20000)
+    ax1.set_xscale('log')
+    
+    ax1.set_yticks([1, 2, 3])
+    ax1.set_yticklabels(['Training', 'Development', 'Testing'], rotation = 90, va = 'center')
+    
+    ax1.plot(cTrain, np.ones(cTrain.shape), marker = 'o', markersize = 5, ls = 'None', \
+    color = 'blue', label = 'Training')
+    
+    rated = {0.001 : '0.001', 0.0001 : '0.0001', 0.00001 : '0.00001'}
+    
+    cols = ['blue', 'xkcd:green', 'red']
+    dsets = [cTrain, cDev, cTest]
+    
+    for j, dset in enumerate(dsets):
+        
+        sp = Data.loc[dset.index]#.sample(5).sort_values(by = 'Cycles')
+    
+        for i, e in enumerate(sp.itertuples()):
+            # ax1.annotate(r'(%d, %.1f, %s)'%(e.Temps, e.Strains, rated[e.Rates]),
+            #              xy=(e.Cycles, 1), xytext=(e.Cycles, j+1.1), ha = 'left', rotation = 45, fontsize=7,
+            #              color = cols[j])
+            # ax1.annotate(r'$(\SI{%d}{\celsius}, %.1f\%%)$'%(e.Temps, e.Strains),
+            #              xy=(e.Cycles, 1), xytext=(e.Cycles, j+1.1), ha = 'center', rotation = 90, fontsize=7,
+            #              color = cols[j])
+            ax1.annotate(r'(%d, %.1f)'%(e.Temps, e.Strains),
+                          xy=(e.Cycles, 1), xytext=(e.Cycles*1.035, j+1.1), ha = 'center', rotation = 90, fontsize=6.5,
+                          color = cols[j])
+        
+    ax1.plot(cDev, 2*np.ones(cDev.shape), marker = 'o', markersize = 5, ls = 'None', \
+    color = 'xkcd:green', label = 'Development')  
+    
+    ax1.plot(cTest, 3*np.ones(cTest.shape), marker = 'o', markersize = 5, ls = 'None', \
+    color = 'red', label = 'Testing')
+    
+    ax2.set_xlabel('$N_f$ - Observed')
+    ax2.set_ylabel('Cumulative Probability')
+    
+    ax2.set_ylim(0, 1)
+    ax2.set_xlim(100, 20000)
+    ax2.set_xscale('log')
+    
+    t_train = [100] + cTrain.tolist() + [20000]
+    t_dev = [100] + cDev.tolist() + [20000]
+    t_test = [100] + cTest.tolist() + [20000]
+    
+    ax2.step(t_train, [f(x, cTrain) for x in t_train], where = 'post', lw = 0.8, color = 'blue', label = 'Training')
+    ax2.step(t_dev, [f(x, cDev) for x in t_dev], where = 'post', lw = 0.8, color = 'xkcd:green', label = 'Development')
+    ax2.step(t_test, [f(x, cTest) for x in t_test], where = 'post', lw = 0.8, color = 'red', label = 'Testing')  
+    
+    ax2.legend(framealpha = 1, edgecolor = 'None')
+    
+    ax1.grid(color = '#f2f2f2', lw = 0.5, which = 'both')
+    ax2.grid(color = '#f2f2f2', lw = 0.5)
+    
+    path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
+    plt.savefig(os.path.join(path, 'splits.pdf'), bbox_inches = 'tight')
+    
+    plt.show()
 
 test_idx['best'] = cTest.index
 dev_idx['best'] = cDev.index

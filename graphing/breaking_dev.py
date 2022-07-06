@@ -8,7 +8,7 @@ vals = [1, 5, 10, 60, 120, 500, 1000, 5000, 10834]
 
 # vals = [1, 2, 3, 4, 5] + list(range(10, 10835, 5))
 
-vals = [5, 10, 50] + list(range(100, 1300, 100))
+vals = [5, 10, 50] + list(range(100, 8900, 100))
 
 # vals = [5, 10, 50, 100] + list(range(500, 10900, 500))
 
@@ -19,7 +19,7 @@ labels = list(map(str, vals))
 err0 = []; err1= []; err2 = []
 for el in labels:
     # d = np.load('../mdata/ydata-18-04-22-D-%s.npz'%el)
-    d = np.load('../mdata/ydata-19-06-22-D-1-%s.npz'%el)
+    d = np.load('../mdata/ydata-25-06-22-D-2-%s.npz'%el)
     # d = np.load('../mdata/ydata-16-06-22-R-2-%s.npz'%el)
     # d = np.load('../mdata/ydata-11-05-22-D-%s.npz'%el)
     # x0, y0 = d['y_pred_train'][:22], d['y_pred_train'][22:]

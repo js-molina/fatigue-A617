@@ -164,6 +164,7 @@ def run_rd_devmodel(test = 'r', load_func = load_known_lstm_model, n_try = 100, 
             if save_:
                 np.savez('mdata/' + save_ + '-%d'%c_len , y_obs_train=y_true0, y_pred_train=y_pred0,
                     y_obs_dev=y_true1, y_pred_dev=y_pred1, y_obs_test=y_true2, y_pred_test=y_pred2)
+        tf.keras.backend.clear_session()
 
     end = time.time()
     print("Total time: {:.2f} minutes".format((end - start)/60))

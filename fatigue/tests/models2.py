@@ -22,12 +22,12 @@ def test_morrow2(data):
     
 
 def test_empirical(data):
-    model = morrow2(data)
-    graph_prediction(model)
+    # model = morrow2(data)
+    # graph_prediction(model)
     
     model = plastic_manson(data)
-    graph_prediction(model)
+    graph_prediction(model, save_path=r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures\lcm.pdf')
     
-    model = coffin_manson(data)
-    graph_prediction(model)
+    # model = coffin_manson(data)
+    # graph_prediction(model)
     
