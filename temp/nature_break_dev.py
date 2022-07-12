@@ -66,6 +66,13 @@ for cycles in CYC:
 
     x = pd.concat([Xn, Xc], axis = 1)
 
+    xx = pd.DataFrame()
+    for i in [48, 14, 34, 33, 17, 28, 22, 4, 16, 50]:
+        arg = {x.columns[i] : x[x.columns[i]]}
+        xx = xx.assign(**arg)
+    
+    x = xx
+
     if drop_strain:
         x = x.drop('strain', axis = 1)
         
@@ -92,8 +99,11 @@ for cycles in CYC:
     X_train, X_dev, X_test = map(xScaler.transform, [x_train, x_dev, x_test])
     Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
     
-    # model = ElasticNet(alpha = 0.00837380653526649, l1_ratio= 0.737)
-    model = ElasticNet(alpha = 0.009839952296278227, l1_ratio=0.547)
+    # Full Cycles
+    model = ElasticNet(alpha = 1.148312414543511e-05, l1_ratio= 0.137, max_iter=10000)
+    
+    # Best Cycles (1900)
+    # model = ElasticNet(alpha = 1.1750871309048075e-05, l1_ratio=0.955, max_iter=10000)
     
     model.fit(X_train, Y_train)
     
@@ -168,15 +178,15 @@ fig, ax = plt.subplots(1, 1, figsize=(4,4))
 ax.set_xlabel('Number of Cycles Utilised')
 ax.set_ylabel('MAPE (\%)')
 
-ax.set_ylim(5, 40)
+ax.set_ylim(10, 50)
+ax.set_xlim(0, 11e3)
 
-ax.plot(vals, merr0, lw = 0.7, color = 'blue', alpha = 0.4)
-ax.plot(vals, merr1, lw = 0.7, color = 'green', alpha = 0.4)
-ax.plot(vals, merr2, lw = 0.7, color = 'red', alpha = 0.4)
+# ax.set_xscale('log')
 
-ax.plot(vals, avg_err.merr0, lw = 1.5, color = 'blue', label = 'Training Data')
-ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'green', label = 'Development Data')
-ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Testing Data')
+ax.plot(vals, merr0, lw = 1, color = 'blue', label = 'Training Data')
+ax.plot(vals, merr1, lw = 1, color = 'xkcd:green', label = 'Development Data')
+ax.plot(vals, merr2, lw = 1, color = 'red', label = 'Testing Data')
+ax.plot(vals, np.mean((merr0, merr1, merr2), axis = 0), lw = 1.5, color = 'k', label = 'All Data')
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
@@ -184,7 +194,7 @@ ax.legend(framealpha = 1, edgecolor = 'None', loc = 0)
 
 ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 
-plt.savefig(os.path.join(path, 'breaking_nat_dev.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'breaking_nat_dev2.pdf'), bbox_inches = 'tight')
 
 plt.show()
 

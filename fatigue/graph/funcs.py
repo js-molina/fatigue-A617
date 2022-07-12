@@ -9,7 +9,7 @@ def graph_cycle(c, color = 'gray', ax = None, flush = False):
         ax = plt.gca()
         ax.set_xlabel("Strain (mm/mm)")
         ax.set_ylabel("Stress (MPa)")
-        ax.set_title(c['Cycle'])
+        ax.set_title(c['Cycle'].iloc[0])
         
     ax.plot(strain, stress, lw = 0.8, color = color)
     

@@ -22,9 +22,21 @@ from tdt import test_idx, dev_idx, train_idx, Data
 
 np.random.seed(10)
 
-cycles = 10000
+cycles = 1900
 drop_strain = False
 save = ''
+
+rename = {'max_s' : r'$\sigma_{\max}$', 'min_s' : r'$\sigma_{\min}$',
+              's_ratio' : r'$\sigma_{r}$', 'mean_s' : r'$\sigma_{m}$', 
+              'elastic' : r'$\Delta\varepsilon_{el}$', 'plastic' : r'$\Delta\varepsilon_{pl}$',
+              'rate' : r'$\dot{\varepsilon}$', 'strain' : 'Strain Range', 'temp' : 'Temperature'}
+
+def frname(col):
+    g = col.split('[')
+    if g[0] in rename:
+        g[0] = rename[g[0]]
+    return '['.join(g)
+
 
 def report_coeff(names, coef, intercept):
     
@@ -35,25 +47,16 @@ def report_coeff(names, coef, intercept):
     
     cols = r.index.to_list()
     
-    rename = {'max_s' : r'$\sigma_{\max}$', 'min_s' : r'$\sigma_{\min}$',
-              's_ratio' : r'$\sigma_{r}$', 'mean_s' : r'$\sigma_{m}$', 
-              'elastic' : r'$\Delta\varepsilon_{el}$', 'plastic' : r'$\Delta\varepsilon_{pl}$',
-              'rate' : r'$\dot{\varepsilon}$', 'strain' : 'Strain Range', 'temp' : 'Temperature'}
-
-    ncols = []
-    for col in cols:
-        g = col.split('[')
-        if g[0] in rename:
-            g[0] = rename[g[0]]
-        ncols.append('['.join(g))
+    ncols = [frname(col) for col in cols]
     
     r.index = ncols
     
-    r['coef'].plot(kind = 'bar', color = r['positive'].map({True: 'b', False: 'r'}), ylabel = 'Coefficients')
+    r['coef'].plot(kind = 'bar', color = r['positive'].map({True: 'b', False: 'r'}),
+                   ylabel = 'Coefficients', ylim = (-0.25, 0.25))
     
     path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
     path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
-    # plt.savefig(os.path.join(path, 'natsel.pdf'), bbox_inches = 'tight')
+    plt.savefig(os.path.join(path, 'natsel.pdf'), bbox_inches = 'tight')
     
     plt.show()
     return r
@@ -103,7 +106,7 @@ for i in [48, 14, 34, 33, 17, 28, 22, 4, 16, 50]:
     arg = {x.columns[i] : x[x.columns[i]]}
     xx = xx.assign(**arg)
 
-# x = xx
+x = xx
 
 if drop_strain:
     x = x.drop('strain', axis = 1)
@@ -137,25 +140,31 @@ Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
 # Optimising Parameters
 # =============================================================================
 
-params= dict()
+# params= dict()
+ 
+# params['alpha'] =  np.logspace(-5, 5, 1000, endpoint=True)
+# params['l1_ratio'] = np.arange(0, 1, 0.001)
 
-params['alpha'] =  np.logspace(-5, 5, 1000, endpoint=True)
-params['l1_ratio'] = np.arange(0, 1, 0.001)
+# regressor = ElasticNet()
 
-regressor = ElasticNet()
+# ps = PredefinedSplit([-1]*22+[0]*11)
 
-ps = PredefinedSplit([-1]*22+[0]*11)
+# model = RandomizedSearchCV(regressor, params, n_iter = 1000, scoring='r2', cv=ps, verbose=-1, refit=True)
+# # model.fit(X_train, Y_train)
 
-model = RandomizedSearchCV(regressor, params, n_iter = 1000, scoring='r2', cv=ps, verbose=0, refit=True)
-# model.fit(X_train, Y_train)
+# model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
 
-model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
+# print('Best Params:')
+# print(model.best_params_)
 
-print('Best Params:')
-print(model.best_params_)
+# All features
+# model = ElasticNet(alpha = 0.06820776732865685, l1_ratio=0.005)
 
-# model = ElasticNet(alpha = 0.00010740661533334334, l1_ratio=0.952, max_iter=10000)
-# model.fit(X_train, Y_train)
+
+# Linear features only
+model = ElasticNet(alpha = 1.148312414543511e-05, l1_ratio=0.137, fit_intercept = True)
+
+model.fit(X_train, Y_train)
 
 pred0 = model.predict(X_train).reshape(-1, 1)
 Y_obs0, Y_pred0 = map(yScaler.inverse_transform, [Y_train, pred0])
@@ -177,11 +186,6 @@ print(f'Final MAPE: {score0:.3f}/{score1:.3f}/{score2:.3f}')
 
 err = abs(y_obs1-y_pred1)/y_obs1*100
 
-# if save:
-#     path = '../mdata/break/' + save + '-%d'%cycles
-#     os.makedirs(path, exist_ok = True)
-#     np.savez(os.path.join(path, '%d'%(n_fold+1)), x1 = y_pred1, y1 = y_obs1, x0 = y_pred0, y0 = y_obs0)
-    
 all_y_true_train += y_obs0.tolist()
 all_y_pred_train += y_pred0.tolist()
 all_y_true_dev += y_obs1.tolist()
@@ -189,11 +193,8 @@ all_y_pred_dev += y_pred1.tolist()
 all_y_true_test += y_obs2.tolist()
 all_y_pred_test += y_pred2.tolist()
     
-# if save:
-#     np.savez('../mdata/' + save + '-%d'%cycles , y_obs_train=all_y_true_train, y_pred_train=all_y_pred_train,
-#                                         y_obs_test=all_y_true_test, y_pred_test=all_y_pred_test)
 
-# r = report_coeff(x.columns, model.coef_, model.intercept_)
+r = report_coeff(x.columns, model.coef_, model.intercept_)
 
 
 r_data = {'y_obs_test': np.array(all_y_true_test), 'y_pred_test': np.array(all_y_pred_test),
@@ -208,7 +209,7 @@ graph_nn_11_dev(r_data, log = log, load = False, which = 'all')
 graph_nn_22_dev(r_data, log = log, load = False)
 # graph_nn_hist(r_data, log = True, load = False, which = 'both', save = f'nat_{cycles}.pdf')
 
-graph_nn_12_dev(r_data, log = log, load = False)
+graph_nn_12_dev(r_data, log = log, load = False, save = '1900cnat.pdf')
 
 print(get_meap(r_data, load = False, which = 'train'))
 print(get_meap(r_data, load = False, which = 'dev'))
@@ -219,19 +220,41 @@ print(get_meap(r_data, load = False, which = 'all'))
 
 #%%
 
-r_vals = []
-nx, ny = xScaler.transform(x), yScaler.transform(y)
-for i in range(10):
+# r_vals = []
+# nx, ny = xScaler.transform(x), yScaler.transform(y)
+# for i in range(10):
 
-# for i in [48, 14, 34, 33, 17, 28, 22, 4, 16, 50]:
+# # for i in [48, 14, 34, 33, 17, 28, 22, 4, 16, 50]:
     
-    r_val = sp.stats.pearsonr(nx[:,i], ny.reshape(-1))[0]
+#     r_val = sp.stats.pearsonr(nx[:,i], ny.reshape(-1))[0]
     
-    print(x.columns[i], r_val)
-    fig, ax = plt.subplots(figsize=(4,4))
-    ax.scatter(nx[:,i], ny)
-    plt.show()
+#     print(x.columns[i], r_val)
+#     fig, ax = plt.subplots(figsize=(4,4))
+#     ax.plot(nx[:,i], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
+#     plt.show()
     
-    r_vals.append((i, abs(r_val)))
-    # plt.scatter(X_train[:,i], y_train)
-    # plt.cla()
+#     r_vals.append((i, abs(r_val)))
+
+# np.random.seed(13)
+
+# rm = np.random.choice(list(range(52)), 9, replace = False)
+
+# nx, ny = xScaler.transform(x), yScaler.transform(y)
+
+# fig, taxes = plt.subplots(3, 3, figsize=(9,9), sharey = True)
+
+# fig.add_subplot(111, frameon=False)
+# plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+# plt.ylabel("Measured $N_f$", fontsize=13)
+# # plt.xlabel("Pullying Mass (g)", fontsize=13)
+
+# ax = [taxes[i][j] for i in range(3) for j in range(3)]
+
+# for i, j in enumerate(rm):
+#     # ax[i].set_xlabel(frname(x.columns[j]), labelpad = -10)
+#     ax[i].set_xlabel(frname(x.columns[j]) + ', $\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j], ny.reshape(-1))[0], labelpad = -10)
+#     ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
+
+# plt.savefig(os.path.join(r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures', 'linear_feats.pdf'), bbox_inches = 'tight')
+# plt.show()

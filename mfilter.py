@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from ..fatigue.finder import fatigue_data
-import ..fatigue.graph as gr
+from fatigue.finder import fatigue_data
+import fatigue.graph as gr
 
 import numpy as np
 from scipy.optimize import curve_fit

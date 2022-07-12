@@ -166,8 +166,8 @@ def run_test_fmodel(save_path = None, model_name = None, load_func = load_known_
     return np.mean(err2), np.mean(err1), history
 
 
-def run_test_devmodel(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, fold = 'best',
-                   tfeats = [], cfeats = [], cycles = 100):
+def run_test_devmodel(save_path = None, load_func = load_known_lstm_model, epochs = 40, fold = 'best',
+                   tfeats = [], cfeats = [], cycles = 100, callback = None):
 
     history = None
     
@@ -200,11 +200,11 @@ def run_test_devmodel(save_path = None, model_name = None, load_func = load_know
     
     model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
     
-    stop_early_loss = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+    callbacks = [tf.keras.callbacks.EarlyStopping(monitor='val_mean_absolute_percentage_error', patience=100)] if callback else None
     # stop_early_rmse = tf.keras.callbacks.EarlyStopping(monitor='val_root_mean_squared_error', patience=20)
     
     history = model.fit((Xv_train,  Xc_train), y_train.reshape(-1), epochs=epochs, verbose = 0,
-                    validation_data = ((Xv_dev,  Xc_dev), y_dev), callbacks = [stop_early_loss], batch_size = 33)
+                    validation_data = ((Xv_dev,  Xc_dev), y_dev), callbacks = callbacks, batch_size = 33)
         
     # Inverse normalise target data
     y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)

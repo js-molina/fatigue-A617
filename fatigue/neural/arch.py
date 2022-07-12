@@ -758,9 +758,9 @@ def m_lstm_dev1(time_input_shape, const_input_shape):
 
     return model
 
-def m_lstm_dev2(time_input_shape, const_input_shape):
+def s_lstm_dev2(time_input_shape, const_input_shape):
     
-    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
     
     # Create separate inputs for time series and constants
     time_input = Input(shape=time_input_shape)
@@ -820,6 +820,37 @@ def m_lstm_dev3(time_input_shape, const_input_shape):
     model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
+
+def s_lstm_dev1(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
+    # Create separate inputs for time series and constants
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    # Feed time_input through Masking and LSTM layers
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+    time_feats = layers.LSTM(57, kernel_regularizer=regularizers.l1_l2(0.00010112956078955904, 6.242420624857914e-08),
+                             recurrent_regularizer=regularizers.l1_l2(0.009874645620584488, 4.4626954909254835e-11),
+                             bias_regularizer=regularizers.l1_l2(9.781341535342047e-12, 0.0049304114654660225))(time_mask)
+
+    # Concatenate the LSTM output with the constant input
+    temp_vector = layers.concatenate([time_feats, const_input])
+
+    temp_vector = layers.Dense(54, kernel_regularizer=regularizers.l1_l2(0.010746859014034271, 0.00151325692422688),
+                            bias_regularizer=regularizers.l1_l2(1.722696833894588e-05, 2.137088943310328e-11), activation='relu')(temp_vector)
+
+    life_pred = layers.Dense(1)(temp_vector)
+
+    # Instantiate model
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    # Compile
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+
+    return model
+
 
 def m_lstm_dev22(time_input_shape, const_input_shape):
     
