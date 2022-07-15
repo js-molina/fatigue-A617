@@ -67,7 +67,7 @@ for cycles in CYC:
     x = pd.concat([Xn, Xc], axis = 1)
 
     xx = pd.DataFrame()
-    for i in [48, 14, 34, 33, 17, 28, 22, 4, 16, 50]:
+    for i in [48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]:
         arg = {x.columns[i] : x[x.columns[i]]}
         xx = xx.assign(**arg)
     
@@ -100,7 +100,7 @@ for cycles in CYC:
     Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
     
     # Full Cycles
-    model = ElasticNet(alpha = 1.148312414543511e-05, l1_ratio= 0.137, max_iter=10000)
+    model = ElasticNet(alpha = 0.0003400411932703706, l1_ratio= 0.684, max_iter=10000)
     
     # Best Cycles (1900)
     # model = ElasticNet(alpha = 1.1750871309048075e-05, l1_ratio=0.955, max_iter=10000)
@@ -176,17 +176,17 @@ vals = CYC
 fig, ax = plt.subplots(1, 1, figsize=(4,4))
 
 ax.set_xlabel('Number of Cycles Utilised')
-ax.set_ylabel('MAPE (\%)')
+ax.set_ylabel('Mean Absolute Percentage Error (MEAP) [\%]')
 
-ax.set_ylim(10, 50)
+ax.set_ylim(5, 50)
 ax.set_xlim(0, 11e3)
 
 # ax.set_xscale('log')
 
-ax.plot(vals, merr0, lw = 1, color = 'blue', label = 'Training Data')
-ax.plot(vals, merr1, lw = 1, color = 'xkcd:green', label = 'Development Data')
-ax.plot(vals, merr2, lw = 1, color = 'red', label = 'Testing Data')
-ax.plot(vals, np.mean((merr0, merr1, merr2), axis = 0), lw = 1.5, color = 'k', label = 'All Data')
+ax.plot(vals, merr0, lw = 0.8, alpha = 0.6, color = 'blue', label = 'MEAP Training Data')
+ax.plot(vals, merr1, lw = 0.8, alpha = 0.6, color = 'xkcd:green', label = 'MEAP Development Data')
+ax.plot(vals, merr2, lw = 0.8, alpha = 0.6, color = 'red', label = 'MEAP Testing Data')
+ax.plot(vals, np.mean((merr0, merr1, merr2), axis = 0), lw = 2, color = 'k', label = 'MEAP Overall')
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
@@ -194,7 +194,7 @@ ax.legend(framealpha = 1, edgecolor = 'None', loc = 0)
 
 ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 
-# plt.savefig(os.path.join(path, 'breaking_nat_dev2.pdf'), bbox_inches = 'tight')
+plt.savefig(os.path.join(path, 'breaking_nat_dev.pdf'), bbox_inches = 'tight')
 
 plt.show()
 

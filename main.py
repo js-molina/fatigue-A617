@@ -44,38 +44,35 @@ sys.path.append(os.path.dirname(__file__))
 #%%
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-run_rd_devmodel('d', s_lstm_dev1, 10, 'ydata-12-07-22-D-1')
-run_rd_devmodel('d', s_lstm_dev2, 10, 'ydata-12-07-22-D-2')
+# run_rd_devmodel('d', m_lstm_dev1, 10, 'ydata-15-07-22-D-1')
+# run_rd_devmodel('d', m_lstm_dev2, 10, 'ydata-15-07-22-D-2')
 
 
 #%%
 
 # tf.keras.backend.clear_session()
-# _, _, history1 = run_test_devmodel('ydata-11-07-22-M4', s_lstm_dev2, 400, 'best', cycles=2000, callback = True)
+# _, _, history1 = run_test_devmodel('ydata-15-07-22-M2', m_lstm_dev2, 400, 'best', cycles=1000, callback = True)
 
 # gr.validation.plot_history_loss(history1, 'LOSS')
 # gr.validation.plot_history_mape(history1, 'MAPE')
 # gr.validation.plot_history_rmse(history1, 'RMSE')
 
 
-# gr.validation.plot_history_loss(history2, 'LOSS')
-# gr.validation.plot_history_mape(history2, 'MAPE')
-# gr.validation.plot_history_rmse(history2, 'RMSE')
-
 # %%
-# # data = 'mdata/ydata-16-06-22-R-2-2000.npz'
 
-# data = 'mdata/ydata-11-07-22-M4.npz'
+# data = 'mdata/ydata-11-07-22-M2.npz'
+
+# data = 'mdata/ydata-15-07-22-M2.npz'
 
 # log = True
 
 # gr.models2.graph_nn_11_dev(data, log = log)
 # gr.models2.graph_nn_22_dev(data, log = log)
-# # gr.models2.graph_nn_12_dev(data, log = log)
+# gr.models2.graph_nn_12_dev(data, log = log)
 
 # print(gr.models2.get_meap(data, which = 'train'))
 # print(gr.models2.get_meap(data, which = 'dev'))
 # print(gr.models2.get_meap(data, which = 'test'), '\n')
 
 # print(gr.models2.get_meap(data))
-# # print(gr.models2.get_chi(data))
+# print(gr.models2.get_chi(data))
