@@ -13,6 +13,8 @@ from ..models import TEMPS
 from ..finder import fatigue_data
 from ..models2 import get_nf
 
+path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
+
 def graph_model(model, save_path = None):
         
     tdata, f, lc = model._get_plot_params()
@@ -360,7 +362,6 @@ def graph_nn_pred_all(data, log = False, v2 = True, load = True, save = ''):
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        path = r'D:\WSL\ansto\figs'
         plt.savefig(os.path.join(path, save))
     
     plt.show()
@@ -503,8 +504,6 @@ def graph_nn_1_fold(data, log = False, load = True, save = '', which = 'both'):
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        # path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
-        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save))
     
     plt.show()
@@ -655,7 +654,6 @@ def graph_nn_hist(data, log = False, load = True, save = '', which = 'both', bin
     a.text(0.9, 0.9, '%d'%max(n), ha = 'right', va = 'top', transform = a.transAxes)
     
     if save:
-        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save))
     
     plt.show()
@@ -703,7 +701,6 @@ def graph_nn_hist_only(data, bins = 10, load = True, save = '', which = 'both', 
     ax.set_ylabel('Frequency')
     
     if save:
-        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
     
     
@@ -837,7 +834,6 @@ def graph_nn_2_fold(data, log = False, load = True, save = '', which = 'both'):
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        path = r'D:\WSL\ansto\figs'
         plt.savefig(os.path.join(path, save))
     
     plt.show()
@@ -1022,7 +1018,6 @@ def graph_nn_1_dev(data, log = False, load = True, save = '', which = 'all'):
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
         plt.savefig(os.path.join(path, save))
     
     plt.show()
@@ -1175,7 +1170,6 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save))
     
     if _plot:
@@ -1241,7 +1235,6 @@ def graph_nn_2_dev(data, log = False, load = True, save = ''):
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
         plt.savefig(os.path.join(path, save))
     
     plt.show()
@@ -1314,11 +1307,13 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None):
         ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1, fontsize = 8)
     else:
         ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1)
+        props = dict(boxstyle='round', facecolor= (0.9, 0.9, 0.9), lw = 1)
+        ax.text(0.95, 0.05, r'\textit{Non-Conservative Region}', transform=ax.transAxes,\
+                va='bottom', ha = 'right', bbox=props)
     
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
     if save:
-        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save))
     
     if _plot:
@@ -1370,7 +1365,6 @@ def graph_nn_12_dev(data, log = False, load = True, save = '', which = 'all'):
     graph_nn_hist_only(data, bins, load, '', which, ax_hist)
 
     if save:
-        path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
         plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
 
     plt.show()       
