@@ -57,8 +57,10 @@ def robustness(load_func = load_known_lstm_model, clen = 60, n_try = 100, tfeats
             preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, clen)
             
             model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
-        
-            model.fit([Xv_train, Xc_train], y_train, epochs=40, batch_size=33, verbose = 0)
+            
+            stop_early_loss = tf.keras.callbacks.EarlyStopping(monitor='mean_absolute_percentage_error', patience=100)
+    
+            model.fit([Xv_train, Xc_train], y_train, epochs=400, callbacks = [stop_early_loss], batch_size=33, verbose = 0)
             
             y_true1 = scaler_y.inverse_transform(y_test).reshape(-1)
             y_pred1 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)

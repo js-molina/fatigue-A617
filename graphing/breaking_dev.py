@@ -8,7 +8,7 @@ vals = [1, 5, 10, 60, 120, 500, 1000, 5000, 10834]
 
 # vals = [1, 2, 3, 4, 5] + list(range(10, 10835, 5))
 
-vals = [5, 10, 50] + list(range(100, 3400, 100))
+vals = [5, 10, 50] + list(range(100, 8200, 100))
 
 # vals = [5, 10, 50, 100] + list(range(500, 10900, 500))
 
@@ -19,6 +19,7 @@ labels = list(map(str, vals))
 err0 = []; err1= []; err2 = []
 for el in labels:
     # d = np.load('../mdata/ydata-06-07-22-D-%s.npz'%el)
+    # d = np.load('../mdata/ydata-15-07-22-D-1-%s.npz'%el)
     d = np.load('../mdata/ydata-12-07-22-D-1-%s.npz'%el)
     x0, y0 = d['y_pred_train'], d['y_obs_train']
     x1, y1 = d['y_pred_dev'], d['y_obs_dev']
@@ -58,9 +59,19 @@ ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Test Data')
 
 ax.plot(vals, np.mean((avg_err.merr0, avg_err.merr1, avg_err.merr2), axis = 0), lw = 1.5, color = 'k', label = 'All Data')
 
+# msize = 5
+
+# ax.plot(vals, merr0, 'x', markersize = msize+2, ls = 'None', \
+#         markerfacecolor = 'None', markeredgecolor = '#8000ff', markeredgewidth = 2, label = 'Train')
+# ax.plot(vals, merr1, 'o', markersize = msize+2, ls = 'None', \
+#    markerfacecolor = 'None', markeredgecolor = '#ff1ac6', markeredgewidth = 2, label = 'Dev')
+# ax.plot(vals, merr2, 's', markersize = msize+2, ls = 'None', \
+#     markerfacecolor = 'None', markeredgecolor = '#00b300', markeredgewidth = 2, label = 'Test')
+
+
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
-ax.legend(framealpha = 1, edgecolor = 'None', loc = 0)
+ax.legend(framealpha = 1, edgecolor = 'k', loc = 0)
 
 ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 

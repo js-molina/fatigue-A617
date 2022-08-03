@@ -9,6 +9,7 @@ from fatigue.networks import natural
 
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
 # matplotlib.rcParams['text.usetex'] = False
 
 import sklearn
@@ -17,6 +18,8 @@ from sklearn.linear_model import ElasticNet
 from sklearn.preprocessing import StandardScaler, PowerTransformer
 
 from tdt import test_idx, dev_idx, train_idx, Data
+
+#%%
 
 CYC = [5, 10, 50] + list(range(100, 10900, 100))
 drop_strain = False
@@ -70,11 +73,13 @@ for cycles in CYC:
     for i in [48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]:
         arg = {x.columns[i] : x[x.columns[i]]}
         xx = xx.assign(**arg)
-    
     x = xx
-
-    if drop_strain:
-        x = x.drop('strain', axis = 1)
+    
+    xx = pd.DataFrame()
+    for i in [13, 11, 1, 5, 12, 2, 0, 9]:
+        arg = {x.columns[i] : x[x.columns[i]]}
+        xx = xx.assign(**arg)
+    x = xx
         
     y = np.log1p(y) 
 
@@ -175,26 +180,50 @@ vals = CYC
 
 fig, ax = plt.subplots(1, 1, figsize=(4,4))
 
-ax.set_xlabel('Number of Cycles Utilised')
-ax.set_ylabel('Mean Absolute Percentage Error (MEAP) [\%]')
+ax.set_xlabel('Number of Utilised Cycles [-]')
+ax.set_ylabel('Mean Absolute Percentage Error (MAPE) [\%]')
 
-ax.set_ylim(5, 50)
-ax.set_xlim(0, 11e3)
+ax.set_ylim(5, 40)
+ax.set_xlim(0, 12e3)
+
+ax.xaxis.set_minor_locator(MultipleLocator(1000))
+
+ax.xaxis.set_tick_params(which='minor', bottom=True, direction = 'inout', length = 3)
+
 
 # ax.set_xscale('log')
 
-ax.plot(vals, merr0, lw = 0.8, alpha = 0.6, color = 'blue', label = 'MEAP Training Data')
-ax.plot(vals, merr1, lw = 0.8, alpha = 0.6, color = 'xkcd:green', label = 'MEAP Development Data')
-ax.plot(vals, merr2, lw = 0.8, alpha = 0.6, color = 'red', label = 'MEAP Testing Data')
-ax.plot(vals, np.mean((merr0, merr1, merr2), axis = 0), lw = 2, color = 'k', label = 'MEAP Overall')
+msize = 5
+
+# ax.plot(vals, merr0, 'o', alpha = 0.4, markerfacecolor = 'None', markeredgewidth = 1, markersize = ms, 
+#         markeredgecolor = 'blue', label = 'MEAP Training Data')
+# ax.plot(vals, merr1, 's', alpha = 0.4, markerfacecolor = 'None', markeredgewidth = 1, markersize = ms, 
+#         markeredgecolor = 'xkcd:green', label = 'MEAP Development Data')
+# ax.plot(vals, merr2, 'D', alpha = 0.4, markerfacecolor = 'None', markeredgewidth = 1, markersize = ms, 
+#         markeredgecolor = 'red', label = 'MEAP Testing Data')
+# ax.plot(vals, np.mean((merr0, merr0, merr1, merr2), axis = 0), 'x', markeredgewidth = 2, color = 'k', markersize = ms+1, label = 'MEAP Overall')
+
+
+ax.plot(vals, merr0, 'x', markersize = msize+2, ls = 'None', \
+        markerfacecolor = 'None', markeredgecolor = '#8000ff', markeredgewidth = 2, label = 'Train')
+ax.plot(vals, merr1, 'o', markersize = msize+2, ls = 'None', \
+   markerfacecolor = 'None', markeredgecolor = '#ff1ac6', markeredgewidth = 2, label = 'Dev')
+ax.plot(vals, merr2, 's', markersize = msize+2, ls = 'None', \
+    markerfacecolor = 'None', markeredgecolor = '#00b300', markeredgewidth = 2, label = 'Test')
+
+
+# ax.plot(vals, merr0, 'o', markerfacecolor = 'None', markeredgewidth = 1, markersize = ms,
+#         markeredgecolor = 'blue', label = 'MEAP Training Data')
+# ax.plot(vals, np.mean((merr1, merr2), axis = 0), '.', markeredgewidth = 1,
+#         color = 'k', markersize = msize+3, label = 'Dev/\nTest')
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
-ax.legend(framealpha = 1, edgecolor = 'None', loc = 0)
+ax.legend(framealpha = 1, edgecolor = 'black', loc = 0)
 
 ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 
-plt.savefig(os.path.join(path, 'breaking_nat_dev.pdf'), bbox_inches = 'tight')
+plt.savefig(os.path.join(path, 'breaking_nat_dev2.pdf'), bbox_inches = 'tight')
 
 plt.show()
 

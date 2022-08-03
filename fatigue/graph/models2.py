@@ -5,15 +5,17 @@ import os
 
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
+from matplotlib.ticker import PercentFormatter
 import matplotlib.path as mpath
 import matplotlib.gridspec as gridspec
 
-from .helper import chi_ratio
+from .helper import chi_ratio, meape
 from ..models import TEMPS
 from ..finder import fatigue_data
 from ..models2 import get_nf
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
+# path = r'D:\INDEX\Notes\Semester_15\MMAN4952\Thesis B\figs'
 
 def graph_model(model, save_path = None):
         
@@ -365,7 +367,7 @@ def graph_nn_pred_all(data, log = False, v2 = True, load = True, save = ''):
         plt.savefig(os.path.join(path, save))
     
     plt.show()
-    
+        
 def graph_nn_1_fold(data, log = False, load = True, save = '', which = 'both'):
     if load:
         print(data)
@@ -658,7 +660,7 @@ def graph_nn_hist(data, log = False, load = True, save = '', which = 'both', bin
     
     plt.show()
 
-def graph_nn_hist_only(data, bins = 10, load = True, save = '', which = 'both', ax = None, v2 = True):
+def graph_nn_hist_only(data, bin_width = 5, load = True, save = '', which = 'both', ax = None, v2 = True):
     
     if load:
         print(data)
@@ -689,9 +691,12 @@ def graph_nn_hist_only(data, bins = 10, load = True, save = '', which = 'both', 
     if not ax:
         _, ax = plt.subplots(figsize=(4,4))
     
-    ax.hist(y_diff, bins = bins, color = '#cc9900', ec="white", alpha = 1)
+    bins = range(-100, 100+bin_width, bin_width)
+    
+    ax.hist(np.clip(y_diff, -100, 99), bins = bins, color = '#ff7733', ec="black", alpha = 1, weights=np.ones(len(y_diff)) / len(y_diff))
     
     ax.set_xlim(-100, 100)
+    ax.set_ylim(0, 0.4)
     # if max(abs(y_diff)) > 100:
     #     ax.set_xlim(-200, 200)
     # if max(abs(y_diff)) > 200:
@@ -699,6 +704,8 @@ def graph_nn_hist_only(data, bins = 10, load = True, save = '', which = 'both', 
     
     ax.set_xlabel('Percentage Error (\%)')
     ax.set_ylabel('Frequency')
+    
+    ax.yaxis.set_major_formatter(PercentFormatter(1))
     
     if save:
         plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
@@ -1087,9 +1094,15 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
         msize = 10
     
     colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
+    
+    
     colors[1] = 'xkcd:orange'
-    colors[2] = 'xkcd:green'
-    colors[3] = 'xkcd:sky blue'
+    colors[2] = '#7AC108'
+    colors[4] = 'b'
+    colors[3] = '#009DFF'
+    colors[-1] = '#C108BA'
+    
+    
     strain_vals = [0.3, 0.4, 0.6, 1, 2, 3]
     
     dict_color = dict(zip(strain_vals, colors))
@@ -1108,13 +1121,13 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
         x, y = zip(*value)
         
         ax.plot(x, y, marker = marker, markersize = msize, ls = 'None', \
-        markeredgecolor = color, markerfacecolor = facecol, markeredgewidth = 1.5)
+        markeredgecolor = color, markerfacecolor = facecol, markeredgewidth = 2)
             
     strain_elements = [Patch(facecolor= val, edgecolor=val, label='{:.1f}\%'.format(key))
                        for key, val in dict_color.items()]
     
     rate_elements = [Line2D([0], [0], marker=val, color='k', label='{:.5f}'.format(key), ls = 'None', \
-                     markerfacecolor='None', markeredgewidth = 1.5, markersize=msize) for key, val in dict_marker.items()]
+                     markerfacecolor='None', markeredgewidth = 2, markersize=msize) for key, val in dict_marker.items()]
         
     temp_elements = []
     
@@ -1123,12 +1136,12 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
         if val:
             cl = 'k'
         temp_elements.append(Line2D([0], [0], marker='h', color='k', label='\SI{%d}{\celsius}'%key, ls = 'None', \
-             markerfacecolor=cl, markeredgewidth = 1.5, markersize=msize))
+             markerfacecolor=cl, markeredgewidth = 2, markersize=msize))
     
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
     fs = 11
-    bta = [(1, 0.2), (0.01, 0.83), (0.01, 1)]
+    bta = [(1, 0.2), (0.01, 0.73), (0.01, 0.9)]
     if _plot:
         fs = 9
         bta = [(1, 0.25), (0.01, 1), (0.01, 0.73)]
@@ -1218,11 +1231,14 @@ def graph_nn_2_dev(data, log = False, load = True, save = ''):
     msize = 7
     
     ax.plot(d['y_pred_train'], d['y_obs_train'], marker = 'o', markersize = msize, ls = 'None', \
-        markeredgecolor = '#ff6600', markerfacecolor = '#ff6600', markeredgewidth = 1.5, label = 'Train')
+        markeredgecolor = '#ff6600', markerfacecolor = '#ff6600', markeredgewidth = 1.5, label = 'Train'
+        + '%.1f'%get_meap(data, load, 'train') + r'\%')
     ax.plot(d['y_pred_dev'], d['y_obs_dev'], marker = 's', markersize = msize, ls = 'None', \
-        markeredgecolor = '#ff66ff', markerfacecolor = '#ff66ff', markeredgewidth = 1.5, label = 'Dev')
+        markeredgecolor = '#ff66ff', markerfacecolor = '#ff66ff', markeredgewidth = 1.5, label = 'Dev'
+        + '%.1f'%get_meap(data, load, 'dev') + r'\%')
     ax.plot(d['y_pred_test'], d['y_obs_test'], marker = '^', markersize = msize+2, ls = 'None', \
-        markeredgecolor = '#29a329', markerfacecolor = '#29a329', markeredgewidth = 1.5, label = 'Test')
+        markeredgecolor = '#29a329', markerfacecolor = '#29a329', markeredgewidth = 1.5, label = 'Test'
+        + '%.1f'%get_meap(data, load, 'test') + r'\%')
 
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
@@ -1239,7 +1255,7 @@ def graph_nn_2_dev(data, log = False, load = True, save = ''):
     
     plt.show()
 
-def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None):
+def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None, title = None):
     if load:
         print(data)
         d = np.load(data)
@@ -1282,24 +1298,17 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None):
         ax.plot([100, 1e5], [200, 2e5], lw = 1, ls = '--', color = 'gray')
         ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
     
-    msize = 7
+    msize = 5
     
     if not _plot:
-        msize = 5
-    
-    # ax.plot(d['y_pred_train'], d['y_obs_train'], marker = 'o', markersize = msize, ls = 'None', \
-    #     markeredgecolor = '#ff6600', markerfacecolor = '#ff6600', markeredgewidth = 1.5, label = 'Train')
-    # ax.plot(d['y_pred_dev'], d['y_obs_dev'], marker = 's', markersize = msize, ls = 'None', \
-    #     markeredgecolor = '#ff66ff', markerfacecolor = '#ff66ff', markeredgewidth = 1.5, label = 'Dev')
-    # ax.plot(d['y_pred_test'], d['y_obs_test'], marker = '^', markersize = msize+2, ls = 'None', \
-    #     markeredgecolor = '#29a329', markerfacecolor = '#29a329', markeredgewidth = 1.5, label = 'Test')
+        msize = 3
 
-    ax.plot(d['y_pred_train'], d['y_obs_train'], marker = 'x', markersize = msize, ls = 'None', \
-        markeredgecolor = 'blue', markeredgewidth = 1.5, label = 'Train')
-    ax.plot(d['y_pred_dev'], d['y_obs_dev'], marker = '1', markersize = msize+2, ls = 'None', \
-       markeredgecolor = 'xkcd:green', markeredgewidth = 1.5, label = 'Dev')
-    ax.plot(d['y_pred_test'], d['y_obs_test'], marker = '+', markersize = msize+1, ls = 'None', \
-        markeredgecolor = 'red', markeredgewidth = 1.5, label = 'Test')
+    ax.plot(d['y_pred_train'], d['y_obs_train'], 'x', markersize = msize+2, ls = 'None', \
+        markerfacecolor = 'None', markeredgecolor = '#8000ff', markeredgewidth = 2, label = 'Train -- %.1f'%get_meap(data, load, 'train') + r'\%')
+    ax.plot(d['y_pred_dev'], d['y_obs_dev'], 'o', markersize = msize+2, ls = 'None', \
+       markerfacecolor = 'None', markeredgecolor = '#ff1ac6', markeredgewidth = 2, label = 'Dev -- %.1f'%get_meap(data, load, 'dev') + r'\%')
+    ax.plot(d['y_pred_test'], d['y_obs_test'], 's', markersize = msize+2, ls = 'None', \
+        markerfacecolor = 'None', markeredgecolor = '#00b300', markeredgewidth = 2, label = 'Test -- %.1f'%get_meap(data, load, 'test') + r'\%')
 
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
@@ -1310,6 +1319,9 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None):
         props = dict(boxstyle='round', facecolor= (0.9, 0.9, 0.9), lw = 1)
         ax.text(0.95, 0.05, r'\textit{Non-Conservative Region}', transform=ax.transAxes,\
                 va='bottom', ha = 'right', bbox=props)
+    
+    if title:
+        ax.set_title(r'\textbf{%s}'%title)
     
     ax.tick_params(axis = 'both', direction='in', which = 'both')
     
@@ -1358,13 +1370,186 @@ def graph_nn_12_dev(data, log = False, load = True, save = '', which = 'all'):
     ax_hist = fig.add_axes([0, 0, H/X, H/Y])
     ax_data = fig.add_axes([(H+S2)/X, 0, H/X, H/Y])
     
-    bins = 10 if len(y_obs.flatten()) <= 44 else 40
+    # bins = 10 if len(y_obs.flatten()) <= 44 else 40
+    bw = 10
     
     graph_nn_11_dev(data, log, load, '', which, ax_main)
     graph_nn_22_dev(data, log, load, '', ax_data)
-    graph_nn_hist_only(data, bins, load, '', which, ax_hist)
+    graph_nn_hist_only(data, bw, load, '', which, ax_hist)
 
     if save:
         plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
 
-    plt.show()       
+    plt.show()
+    
+def graph_test_train(data, log = False, load = True, save = '', which = 'all'):
+    
+    if load:
+        print(data)
+        d = np.load(data)
+    else:
+        d = data
+    if which == 'test':
+        y_obs, y_pred = d['y_obs_test'].reshape(11,-1), d['y_pred_test'].reshape(11,-1)
+    elif which == 'train':
+        y_obs, y_pred = d['y_obs_train'].reshape(33,-1), d['y_pred_train'].reshape(33,-1)
+    elif which == 'all':
+        y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1),
+                                d['y_obs_test'].reshape(11,-1)), axis = 0)
+        y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1),
+                                 d['y_pred_test'].reshape(11,-1)), axis = 0)
+   
+    strain_data = {}
+    
+    for test in fatigue_data.data:
+        c = get_nf(test)
+        for j, el in enumerate(np.rint(y_obs.flatten()).astype('int')):
+            if c == el:
+                strain_data.setdefault((test.Temp, test.Strain, test.Rate), [])
+                strain_data[(test.Temp, test.Strain, test.Rate)].append((y_pred.flatten()[j], el))
+                # break
+    
+    fig, ax = plt.subplots(figsize=(8,4))
+    fig.subplots_adjust(right=0.5)
+    
+    ax.set_xlabel('Predicted $N_f$')
+    ax.set_ylabel('Measured $N_f$')
+        
+    ax.set_ylim(100, 12000)
+    ax.set_xlim(100, 12000)
+    
+    if log:
+        ax.set_ylim(100, 2e4)
+        ax.set_xlim(100, 2e4)
+        ax.set_yscale('log')
+        ax.set_xscale('log')
+    
+    # ax.set_aspect('equal')
+    ax.fill_between([100, 1e5], 100, [100, 1e5], color = 'k', alpha = 0.1)
+    ax.plot([100, 1e5], [100, 1e5], lw = 2, color = 'k')
+    
+    if not log:
+        ax.plot([0, 6000], [0, 12000], lw = 1, ls = '--', color = 'gray')
+        ax.plot([0, 12000], [0, 6000], lw = 1, ls = '--', color = 'gray')
+    else:
+        ax.plot([100, 1e5], [200, 2e5], lw = 1, ls = '--', color = 'gray')
+        ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
+    
+    msize = 7
+    
+    colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
+    
+    colors[1] = 'xkcd:orange'
+    colors[2] = '#7AC108'
+    colors[4] = 'b'
+    colors[3] = '#009DFF'
+    colors[-1] = '#C108BA'
+    
+    strain_vals = [0.3, 0.4, 0.6, 1, 2, 3]
+    
+    dict_color = dict(zip(strain_vals, colors))
+    dict_marker = {0.001 : 'o', 0.0001: '^', 1e-5: 's'}
+    dict_shade = {850 : False, 950: True}
+    
+    for key, value in strain_data.items():
+        temp, strain, rate = key
+        color, marker, shade = dict_color[strain], dict_marker[rate], dict_shade[temp]
+        
+        if shade:
+            facecol = color
+        else:
+            facecol = 'None'
+        
+        x, y = zip(*value)
+        
+        ax.plot(x, y, marker = 'o', markersize = msize, ls = 'None', \
+        markeredgecolor = color, markerfacecolor = color, markeredgewidth = 1)
+            
+    strain_elements = [Patch(facecolor= val, edgecolor=val, label='{:.1f}\%'.format(key))
+                       for key, val in dict_color.items()]
+    
+    rate_elements = [Line2D([0], [0], marker=val, color='k', label='{:.5f}'.format(key), ls = 'None', \
+                     markerfacecolor='None', markeredgewidth = 2, markersize=msize) for key, val in dict_marker.items()]
+        
+    temp_elements = []
+    
+    for key, val in dict_shade.items():
+        cl = 'None'
+        if val:
+            cl = 'k'
+        temp_elements.append(Line2D([0], [0], marker='h', color='k', label='\SI{%d}{\celsius}'%key, ls = 'None', \
+             markerfacecolor=cl, markeredgewidth = 2, markersize=msize))
+    
+    ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
+    
+    fs = 9
+    bta = [(1, 0.25), (0.01, 1), (0.01, 0.73)]
+    
+    l1 = ax.legend(title = 'Strain Range', 
+              handles=strain_elements,
+              loc='upper left',
+              bbox_to_anchor=bta[1],
+              edgecolor = 'k',
+              facecolor = 'w',
+              framealpha = 1,
+              fontsize = fs)
+    
+    ax.add_artist(l1)
+    
+    ax.tick_params(axis = 'both', direction='in', which = 'both')
+    
+    if save:
+        plt.savefig(os.path.join(path, save))
+    
+    plt.show()
+    
+def graph_test_train_hists(data, bin_width = 10, load = True, save = '', ax = None):
+    
+    if load:
+        print(data)
+        d = np.load(data)
+    else:
+        d = data
+        
+    y_obs1, y_pred1 = d['y_obs_test'].reshape(11,-1), d['y_pred_test'].reshape(11,-1)
+    y_obs0, y_pred0 = d['y_obs_train'].reshape(33,-1), d['y_pred_train'].reshape(33,-1)
+
+    ex_ax = False
+    if ax:
+        ex_ax = True
+    else:
+        fig, ax = plt.subplots(figsize=(4,4))
+    
+    y_diff0 = (y_pred0 - y_obs0)/y_obs0*100
+    y_diff0 = y_diff0.flatten()
+    
+    y_diff1 = (y_pred1 - y_obs1)/y_obs1*100
+    y_diff1 = y_diff1.flatten()
+    
+    bins = range(-200, 200+bin_width, bin_width)
+    
+    ax.hist(y_diff1, bins = bins, color = '#00b300', ec="k", alpha = 0.4, weights=np.ones(len(y_diff1))/len(y_diff1), label = 'Train')
+    ax.hist(y_diff0, bins = bins, color = '#8000ff', ec="k", alpha = 0.4, weights=np.ones(len(y_diff0))/len(y_diff0), label = 'Test')
+    
+    ax.set_xlim(-200, 200)
+    ax.set_ylim(0, 0.4)
+    # if max(abs(y_diff1)) > 100:
+    #     ax.set_xlim(-200, 200)
+    # if max(abs(y_diff1)) > 200:
+    #     ax.set_xlim(-300, 300)
+    
+    ax.set_xlabel('Percentage Error (\%)')
+    ax.set_ylabel('Frequency')
+    
+    ax.yaxis.set_major_formatter(PercentFormatter(1))
+    ax.yaxis.set_ticks(np.arange(0, 0.5, 0.1))
+    
+    ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1)
+    
+    if save:
+        plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
+        
+    if not ex_ax:
+        plt.show()
+    
+    return max(abs(y_diff0)), max(abs(y_diff1))

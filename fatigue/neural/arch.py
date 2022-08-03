@@ -887,7 +887,7 @@ def s_lstm_dev1(time_input_shape, const_input_shape):
 
 def m_lstm_dev22(time_input_shape, const_input_shape):
     
-    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
     
     # Create separate inputs for time series and constants
     time_input = Input(shape=time_input_shape)

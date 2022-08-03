@@ -17,7 +17,7 @@ n = 120
 
 print(f'Plotting prediction with {n} cycles!')
 
-log = False
+log = True
 
 fig, taxes = plt.subplots(2, 2, sharex=False, sharey = False, figsize=(8,8))
 fig.add_subplot(111, frameon=False)

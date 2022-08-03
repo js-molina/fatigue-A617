@@ -14,7 +14,8 @@ import fatigue.graph as gr
 import fatigue.strain as st
 from fatigue.filter import test_filter
 from fatigue.networks import *
-from fatigue.neural.running import run_xval_model, run_xval_model_f, run_sval_model, run_rd_model, run_rd_devmodel
+from fatigue.neural.running import run_xval_model, run_xval_model_f, run_sval_model, run_rd_model, run_rd_devmodel, \
+                                    run_rob_dev
 from fatigue.neural.test import run_test_model, run_test_loading, run_test_fmodel, run_test_devmodel
 from fatigue.neural.helper import *
 from fatigue.neural.arch import *
@@ -47,11 +48,14 @@ sys.path.append(os.path.dirname(__file__))
 # run_rd_devmodel('d', m_lstm_dev1, 10, 'ydata-15-07-22-D-1')
 # run_rd_devmodel('d', m_lstm_dev2, 10, 'ydata-15-07-22-D-2')
 
+run_rob_dev(s_lstm_dev1, 100, 'ydata-03-08-22-R-1')
+# run_rob_dev(s_lstm_dev2, 100, 'ydata-03-08-22-R-2')
+
 
 #%%
 
 # tf.keras.backend.clear_session()
-# _, _, history1 = run_test_devmodel('ydata-15-07-22-M2', m_lstm_dev2, 400, 'best', cycles=1000, callback = True)
+# _, _, history1 = run_test_devmodel('ydata-21-07-22-M1', s_lstm_dev1, 400, 'best', cycles=1800, callback = True)
 
 # gr.validation.plot_history_loss(history1, 'LOSS')
 # gr.validation.plot_history_mape(history1, 'MAPE')
@@ -60,11 +64,9 @@ sys.path.append(os.path.dirname(__file__))
 
 # %%
 
-# data = 'mdata/ydata-11-07-22-M2.npz'
+# data = 'mdata/ydata-12-07-22-D-1-7600.npz'
 
-# data = 'mdata/ydata-15-07-22-M2.npz'
-
-# log = True
+# # data = 'mdata/ydata-21-07-22-M1.npz'
 
 # gr.models2.graph_nn_11_dev(data, log = log)
 # gr.models2.graph_nn_22_dev(data, log = log)

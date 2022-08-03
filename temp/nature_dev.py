@@ -13,23 +13,29 @@ import matplotlib.pyplot as plt
 
 import sklearn
 from sklearn.model_selection import KFold
-from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_11_dev, graph_nn_12_dev, graph_nn_22_dev, graph_nn_hist, get_meap, get_chi
+from fatigue.graph.models2 import graph_nn_pred_all, graph_nn_11_dev, \
+    graph_nn_12_dev, graph_nn_22_dev, graph_nn_hist, get_meap, get_chi
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.preprocessing import StandardScaler, PowerTransformer
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split, KFold, PredefinedSplit
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, \
+    train_test_split, KFold, PredefinedSplit
 
 from tdt import test_idx, dev_idx, train_idx, Data
 
 np.random.seed(10)
 
 cycles = 10838
+# cycles = 2800
 drop_strain = False
 save = ''
+
+cnats = ['full', 'lin', 'slim']
+cnat = cnats[2]
 
 rename = {'max_s' : r'$\sigma_{\max}$', 'min_s' : r'$\sigma_{\min}$',
               's_ratio' : r'$\sigma_{r}$', 'mean_s' : r'$\sigma_{m}$', 
               'elastic' : r'$\Delta\varepsilon_{el}$', 'plastic' : r'$\Delta\varepsilon_{pl}$',
-              'rate' : r'$\dot{\varepsilon}$', 'strain' : r'$\Delta\varepsilon$', 'temp' : 'Temperature'}
+              'rate' : r'$\dot{\varepsilon}$', 'strain' : r'$\Delta\varepsilon$\,[range]', 'temp' : 'Temperature'}
 
 def frname(col):
     g = col.split('[')
@@ -46,6 +52,10 @@ def report_coeff(names, coef, intercept):
     
     r = r.sort_values(by = ['coef'])
     
+    ax.plot((-20, 20), (0, 0), 'k-', lw = 0.5)
+    
+    new_names = r.index
+    
     cols = r.index.to_list()
     
     ncols = [frname(col) for col in cols]
@@ -53,24 +63,24 @@ def report_coeff(names, coef, intercept):
     r.index = ncols
     
     r['coef'].plot(kind = 'bar', color = r['positive'].map({True: 'b', False: 'r'}),
-                   ylabel = 'Coefficients', ylim = (-3.5, 3.5))
+                   ylabel = 'Linear Coefficients', ylim = (-4.5, 4.5))
+    
+    plt.xticks(rotation=45, ha='center', fontsize = 13)
+    plt.ylabel('Linear Coefficients', fontsize = 13)
     
     path = r'D:\INDEX\Notes\Semester_14\MMAN9451\Thesis A\figs'
     path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
     # plt.savefig(os.path.join(path, 'natsel2.pdf'), bbox_inches = 'tight')
     
     plt.show()
-    r.index = names
+    
+    r.index = new_names
     
     return r
 
 Xv0, Xc, y = natural(cycles=cycles, tfeats=[], cfeats = [])
 
 Xv = Xv0[:]
-
-# Xv = [cell.assign(mean_s = np.mean((cell.max_s, cell.min_s), axis = 0)) for cell in Xv]
-
-# Xv = [cell.drop(['max_s', 'min_s', 'elastic'], axis = 1) for cell in Xv]
 
 cols = []
 
@@ -103,7 +113,17 @@ for i in [48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]:
     arg = {x.columns[i] : x[x.columns[i]]}
     xx = xx.assign(**arg)
 
-# x = xx
+if cnat != 'full':
+    x = xx
+
+xx = pd.DataFrame()
+for i in [13, 11, 1, 5, 12, 2, 0, 9]:
+    arg = {x.columns[i] : x[x.columns[i]]}
+    xx = xx.assign(**arg)
+
+if cnat == 'slim':
+    x = xx
+    
 
 if drop_strain:
     x = x.drop('strain', axis = 1)
@@ -137,29 +157,31 @@ Y_train, Y_dev, Y_test = map(yScaler.transform, [y_train, y_dev, y_test])
 # Optimising Parameters
 # =============================================================================
 
-params= dict()
+# params= dict()
  
-params['alpha'] =  np.logspace(-5, 5, 1000, endpoint=True)
-params['l1_ratio'] = np.arange(0, 1, 0.001)
+# params['alpha'] =  np.logspace(-5, 5, 1000, endpoint=True)
+# params['l1_ratio'] = np.arange(0, 1, 0.001)
 
-regressor = ElasticNet()
+# regressor = ElasticNet()
 
-ps = PredefinedSplit([-1]*22+[0]*11)
+# ps = PredefinedSplit([-1]*22+[0]*11)
 
-model = RandomizedSearchCV(regressor, params, n_iter = 1000, scoring='r2', cv=ps, verbose=0, refit = True)
-# model.fit(X_train, Y_train)
+# model = RandomizedSearchCV(regressor, params, n_iter = 1000, scoring='r2', cv=ps, verbose=0, refit = True)
+# # model.fit(X_train, Y_train)
 
-model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
+# model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
 
-print('Best Params:')
-print(model.best_params_)
-model = ElasticNet(**model.best_params_)
+# print('Best Params:')
+# print(model.best_params_)
+# model = ElasticNet(**model.best_params_)
 
 # All features {'l1_ratio': 0.012, 'alpha': 0.12708787092020596}
 # Linear features only {'l1_ratio': 0.684, 'alpha': 0.0003400411932703706}
-# params = {'l1_ratio': 0.684, 'alpha': 0.0003400411932703706}
+# Slim features only {'l1_ratio': 0.684, 'alpha': 0.0003400411932703706}
 
-# model = ElasticNet(**params)
+params = {'l1_ratio': 0.684, 'alpha': 0.0003400411932703706}
+
+model = ElasticNet(**params)
 
 model.fit(X_train, Y_train)
 
@@ -191,7 +213,7 @@ all_y_true_test += y_obs2.tolist()
 all_y_pred_test += y_pred2.tolist()
     
 
-r = report_coeff(x.columns, model.coef_, model.intercept_)
+r = report_coeff(x.columns, model.coef_.squeeze(), model.intercept_)
 
 
 r_data = {'y_obs_test': np.array(all_y_true_test), 'y_pred_test': np.array(all_y_pred_test),
@@ -204,7 +226,9 @@ graph_nn_11_dev(r_data, log = log, load = False, which = 'all')
 graph_nn_22_dev(r_data, log = log, load = False)
 # graph_nn_hist(r_data, log = True, load = False, which = 'both', save = f'nat_{cycles}.pdf')
 
-graph_nn_12_dev(r_data, log = log, load = False)
+sv = 'rlr1.pdf'
+
+graph_nn_12_dev(r_data, log = log, load = False, save = sv)
 
 print(get_meap(r_data, load = False, which = 'train'))
 print(get_meap(r_data, load = False, which = 'dev'))
@@ -214,39 +238,40 @@ print(get_meap(r_data, load = False, which = 'all'))
 
 #%%
 
-max_coeff = np.abs(r.coef).max()
+# max_coeff = np.abs(r.coef).max()
 
-important_feats = r[np.abs(r.coef) >= max_coeff*0.1]
+# important_feats = r[np.abs(r.coef) >= max_coeff*0.1]
 
-r_vals = []
-nx, ny = xScaler.transform(x), yScaler.transform(y)
-for i in range(52):
+# r_vals = []
+# nx, ny = xScaler.transform(x), yScaler.transform(y)
+# for i in range(52):
 
-# for feat in important_feats.index:
-#     i = x.columns.to_list().index(feat)
-    feat = x.columns[i]
+# # for feat in important_feats.index:
+# #     i = x.columns.to_list().index(feat)
+#     feat = x.columns[i]
     
-    r_val = sp.stats.pearsonr(nx[:,i], ny.reshape(-1))[0]
-    # print(feat, r_val)
-#     fig, ax = plt.subplots(figsize=(4,4))
-#     ax.plot(nx[:,i], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
-#     plt.show()
+#     r_val = sp.stats.pearsonr(nx[:,i], ny.reshape(-1))[0]
+#     # print(feat, r_val)
+# #     fig, ax = plt.subplots(figsize=(4,4))
+# #     ax.plot(nx[:,i], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
+# #     plt.show()
     
-    r_vals.append((i, abs(r_val), feat))
+#     r_vals.append((i, abs(r_val), feat))
 
-r_vals.sort(key = lambda x: x[1])
-print([r[0] for r in r_vals if r[1] >= 0.65])
+# r_vals.sort(key = lambda x: x[1])
+# print([r[0] for r in r_vals if r[1] >= 0.65])
 
 # # np.random.seed(13)
 
 # rm = np.random.choice(list(range(52)), 9, replace = False)
 
+#%%
 
 # fig, taxes = plt.subplots(9, 6, figsize=(12,18), sharey = True)
 
 # fig.add_subplot(111, frameon=False)
 # plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-# plt.ylabel("Measured $N_f$", fontsize=13)
+# plt.ylabel("Measured $N_f$", fontsize=15)
 # # plt.xlabel("Pullying Mass (g)", fontsize=13)
 
 # ax = [taxes[i][j] for i in range(9) for j in range(6)]
@@ -258,46 +283,52 @@ print([r[0] for r in r_vals if r[1] >= 0.65])
 #     # ax[i].set_xlabel(frname(x.columns[j]), labelpad = -10)
 #     if i >= 48:
 #         i += 1
-#     ax[i].set_xlabel(frname(feat), labelpad = -14)
+        
+#     if j in [48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]:
+#         ax[i].set_facecolor('#b3ffb3')
+#     else:
+#         ax[i].set_facecolor('#ffb3b3')
+    
+#     ax[i].set_xlabel(frname(feat), labelpad = -14, fontsize = 13)
 #     ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 #     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
-#     ax[i].text(0.5, 0.95, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
-#             ny.reshape(-1))[0], transform=ax[i].transAxes, va='top', ha = 'center', bbox=props)
+#     ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
+#             ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props, fontsize = 13)
     
 # for i in [48, 53]:
 #     ax[i].axis('off')
 
-# plt.savefig(os.path.join(r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures', 'linear_feats2.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures', 'linear_feats3.pdf'), bbox_inches = 'tight')
 # plt.show()
 
 
 #%%
 
-fig, taxes = plt.subplots(3, 6, figsize=(12,6), sharey = True)
+# fig, taxes = plt.subplots(3, 6, figsize=(12,6), sharey = True)
 
-fig.add_subplot(111, frameon=False)
-plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-plt.ylabel("Measured $N_f$", fontsize=13, labelpad = -15)
-# plt.xlabel("Pullying Mass (g)", fontsize=13)
+# fig.add_subplot(111, frameon=False)
+# plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+# plt.ylabel("Measured $N_f$", fontsize=13, labelpad = -15)
+# # plt.xlabel("Pullying Mass (g)", fontsize=13)
 
-ax = [taxes[i][j] for i in range(3) for j in range(6)]
+# ax = [taxes[i][j] for i in range(3) for j in range(6)]
 
-props = dict(boxstyle='round', facecolor='wheat', alpha=1)
+# props = dict(boxstyle='round', facecolor='wheat', alpha=1)
 
-for i, j in enumerate([48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]):
-    if i >= 12:
-        i += 2
-    ax[i].set_xlabel(frname(x.columns[j]), labelpad = -11)
-    ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-    ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
-    ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
-            ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props)
+# for i, j in enumerate([48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]):
+#     if i >= 12:
+#         i += 2
+#     ax[i].set_xlabel(frname(x.columns[j]), labelpad = -11)
+#     ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
+#     ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
+#             ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props)
 
-for i in [12, 13, 16, 17]:
-    ax[i].axis('off')    
+# for i in [12, 13, 16, 17]:
+#     ax[i].axis('off')    
 
-plt.savefig(os.path.join(r'D:\INDEX\Notes\Semester_15\MMAN4952\Thesis B\figs', 'lfeats.pdf'), bbox_inches = 'tight')
-plt.show()
+# # plt.savefig(os.path.join(r'D:\INDEX\Notes\Semester_15\MMAN4952\Thesis B\figs', 'lfeats.pdf'), bbox_inches = 'tight')
+# plt.show()
 
 
 #

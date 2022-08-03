@@ -4,6 +4,8 @@ import datetime
 import tensorflow as tf
 import numpy as np
 
+from sklearn.model_selection import KFold
+
 from ..networks import vectorise_data, single_input_data
 from .helper import preprocess_multi_input, preprocess_single_input
 from .arch import load_known_lstm_model, s_lstm_shallow
@@ -168,3 +170,67 @@ def run_rd_devmodel(test = 'r', load_func = load_known_lstm_model, n_try = 100, 
 
     end = time.time()
     print("Total time: {:.2f} minutes".format((end - start)/60))
+
+def run_rob_dev(load_func, n_try = 100, save = ''):
+        
+        Xv, Xc, y = vectorise_data()
+        
+        # Target Scaling
+        y = np.log1p(y)
+        
+        # Fold and score init
+        
+        all_y_true_train = []
+        all_y_pred_train = []
+        all_y_true_test = []
+        all_y_pred_test = []
+        
+        for i in range(n_try):
+            
+            tf.keras.backend.clear_session()
+            
+            rs = np.random.randint(10000)
+            
+            fold = KFold(n_splits=4, shuffle=True, random_state = rs) 
+            
+            for train, test in fold.split(Xv, y):
+                
+                Xv_train = Xv[train]
+                y_train = y[train]
+                
+                Xc_train = Xc.iloc[train]
+                Xc_test = Xc.iloc[test]
+                
+                Xv_test = Xv[test]
+                y_test = y[test]
+                
+                Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, scaler_y = \
+                preprocess_multi_input(Xv_train, Xv_test, Xc_train, Xc_test, y_train, y_test, 10838)
+                
+                model = load_func(Xv_train.shape[1:], Xc_train.shape[1:])
+                
+                stop_early_loss = tf.keras.callbacks.EarlyStopping(monitor='mean_absolute_percentage_error', patience=100)
+        
+                model.fit([Xv_train, Xc_train], y_train, epochs=400, callbacks = [stop_early_loss], batch_size=33, verbose = 0)
+                
+                y_true2 = scaler_y.inverse_transform(y_test).reshape(-1)
+                y_pred2 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
+                
+                y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
+                
+                all_y_true_test += y_true2.tolist()
+                all_y_pred_test += y_pred2.tolist()
+                
+                y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
+                y_pred0 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
+                
+                y_true0, y_pred0 = map(np.expm1, [y_true0, y_pred0])
+                
+                all_y_true_train += y_true0.tolist()
+                all_y_pred_train += y_pred0.tolist()
+                
+                np.savez('mdata/' + save, y_obs_train=all_y_true_train, y_pred_train=all_y_pred_train,
+                         y_obs_test=all_y_true_test, y_pred_test=all_y_pred_test)
+        
+                with open('curr.txt', 'w') as f:
+                    f.write(f'Current Try: {i+1}')
