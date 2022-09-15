@@ -1,3 +1,4 @@
+#%%
 import os, sys
 
 p = os.path.abspath('.')
@@ -16,6 +17,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.preprocessing import StandardScaler
 from fatigue.models2.helper import get_nf
+
+matplotlib.rcParams['text.usetex'] = False
 
 test_idx = {}
 dev_idx = {}
@@ -169,7 +172,7 @@ Data_dev = Data[Data.Samples.isin(dev_samples)].sort_values(by=['Cycles'])
 Data_train = Data[~((Data.Samples.isin(test_samples)) | (Data.Samples.isin(dev_samples)))].sort_values(by='Cycles')
 
 cTest = Data_test.Cycles
-cDest = Data_dev.Cycles
+cDev = Data_dev.Cycles
 cTrain = Data_train.Cycles
     
 test_idx['high'] = cTest.index
@@ -194,14 +197,51 @@ for i in range(6):
     dev_samples.append(Data_950_samples.pop())
     test_samples.append(Data_950_samples.pop())
 
-Data_test = Data[Data.Samples.isin(test_samples)].sort_values(by=['Cycles'])
+Data_train = Data[Data.Samples.isin(test_samples)].sort_values(by=['Cycles'])
 Data_dev = Data[Data.Samples.isin(dev_samples)].sort_values(by=['Cycles'])
 Data_train = Data[~((Data.Samples.isin(test_samples)) | (Data.Samples.isin(dev_samples)))].sort_values(by='Cycles')
 
 cTest = Data_test.Cycles
-cDest = Data_dev.Cycles
+cDev = Data_dev.Cycles
 cTrain = Data_train.Cycles
     
 test_idx['low'] = cTest.index
 dev_idx['low'] = cDev.index
 train_idx['low'] = cTrain.index
+
+# =============================================================================
+# LowN Training Data
+# =============================================================================
+
+Data_850_samples = Data_850.sort_values(by=['Cycles'], ascending = False).Samples.to_list()
+Data_950_samples = Data_950.sort_values(by=['Cycles'], ascending = False).Samples.to_list()
+
+train_samples = []
+dev_samples = []
+
+for i in range(14):
+    if (i+1)%3 == 0:
+        dev_samples.append(Data_850_samples.pop())
+    else:
+        train_samples.append(Data_850_samples.pop())
+
+for i in range(19):
+    if i%3 == 0:
+        dev_samples.append(Data_950_samples.pop())
+    else:
+        train_samples.append(Data_950_samples.pop())
+
+Data_train = Data[Data.Samples.isin(train_samples)].sort_values(by=['Cycles'])
+Data_dev = Data[Data.Samples.isin(dev_samples)].sort_values(by=['Cycles'])
+Data_test = Data[~((Data.Samples.isin(train_samples)) | (Data.Samples.isin(dev_samples)))].sort_values(by='Cycles')
+
+cTest = Data_test.Cycles
+cDev = Data_dev.Cycles
+cTrain = Data_train.Cycles
+    
+test_idx['lowN'] = cTest.index
+dev_idx['lowN'] = cDev.index
+train_idx['lowN'] = cTrain.index
+
+
+# %%

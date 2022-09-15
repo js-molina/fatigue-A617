@@ -46,9 +46,9 @@ sys.path.append(os.path.dirname(__file__))
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 # run_rd_devmodel('d', m_lstm_dev1, 10, 'ydata-15-07-22-D-1')
-# run_rd_devmodel('d', m_lstm_dev2, 10, 'ydata-15-07-22-D-2')
+run_rd_devmodel('d', s_lstm_dev1, 10, 'ydata-12-07-22-D-1')
 
-run_rob_dev(s_lstm_dev1, 100, 'ydata-03-08-22-R-1')
+# run_rob_dev(s_lstm_dev1, 100, 'ydata-03-08-22-R-1')
 # run_rob_dev(s_lstm_dev2, 100, 'ydata-03-08-22-R-2')
 
 

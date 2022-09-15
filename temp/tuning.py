@@ -376,7 +376,8 @@ Xv, Xc, y = vectorise_data(tfeats = tfeats, cfeats = cfeats)
 
 y = np.log1p(y)
 
-train, dev, test = train_idx['best'], dev_idx['best'], test_idx['best']
+split = 'lowN'
+train, dev, test = train_idx[split], dev_idx[split], test_idx[split]
 
 Xv_train = Xv[train]
 Xv_dev = Xv[dev]
@@ -396,8 +397,8 @@ preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test,
 tuner = kt.Hyperband(lambda x: hmodel9(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                       objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
                       max_epochs=151, factor=3, hyperband_iterations=5, directory='Tuners',
-                      project_name='dev_10838_1',
-                      overwrite = True)
+                      project_name='dev_10838_lowN',
+                      overwrite = False)
 
 # tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
 #                      objective=kt.Objective("mean_absolute_percentage_error", direction="min"),
@@ -426,7 +427,7 @@ print('Best epoch: %d' % (best_epoch,))
 hypermodel = tuner.hypermodel.build(best_hps)
 hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_dev, Xc_dev), y_test), verbose = 0, batch_size = 33)
 
-hypermodel.save('models/tt1.h5')
+hypermodel.save('models/lowN.h5')
 
 eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
 print("[test loss, test rms, test mape]:", eval_result)
