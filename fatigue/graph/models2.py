@@ -696,7 +696,7 @@ def graph_nn_hist_only(data, bin_width = 5, load = True, save = '', which = 'bot
     ax.fill_between([0, 100], 5, color = 'k', alpha = 0.1)
     ax.plot([0, 0], [0, 5], lw = 2, color = 'k')
     
-    ax.plot([50, 50], [0, 5], lw = 1, ls = '--', color = 'gray')
+    # ax.plot([50, 50], [0, 5], lw = 1, ls = '--', color = 'gray')
      
     bins = range(-100, 100+bin_width, bin_width)
     
@@ -1105,8 +1105,16 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
     
     msize = 7
     
+    fs = 13
+    bta = [(0.99, 0.01), (0.01, 0.75), (0.01, 0.95)]
+    if _plot:
+        fs = 9
+        bta = [(0.99, 0.01), (0.01, 0.99), (0.01, 0.72)]
+    
     if not _plot:
-        msize = 10
+        msize = 14
+        ax.xaxis.label.set_size(fs)
+        ax.yaxis.label.set_size(fs)
     
     colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
     
@@ -1154,12 +1162,6 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
     
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
-    fs = 13
-    bta = [(0.99, 0.01), (0.01, 0.75), (0.01, 0.95)]
-    if _plot:
-        fs = 9
-        bta = [(0.99, 0.01), (0.01, 0.99), (0.01, 0.72)]
-    
     l1 = ax.legend(title = 'Strain Range', 
               handles=strain_elements,
               loc='lower right',
@@ -1206,7 +1208,7 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
         plt.show()
 
 
-def graph_nn_1m_dev(data, log = False, load = True, save = '', which = 'all', ax = None, ax_loc = 'major', v2 = True, ver = False):
+def graph_nn_1m_dev(data, log = False, load = True, save = '', which = 'all', ax = None, ax_loc = 'normal', v2 = True, ver = False):
     if load:
         print(data)
         d = np.load(data)
@@ -1272,8 +1274,13 @@ def graph_nn_1m_dev(data, log = False, load = True, save = '', which = 'all', ax
             ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
     
     msize = 7
+    fs = 10
     if ax_loc == 'minor':
-            msize = 3
+            msize = 4
+            fs = 8
+    elif ax_loc == 'major':
+        msize = 10
+        fs = 13
     
     for key, value in trial_data.items():
         if key in np.rint(d['y_obs_train']).astype('int'):
@@ -1293,6 +1300,21 @@ def graph_nn_1m_dev(data, log = False, load = True, save = '', which = 'all', ax
     markeredgecolor = 'k', markerfacecolor = '#595959', markeredgewidth = 2)
             
     ax.tick_params(axis = 'both', direction='in', which = 'both')
+    
+    bta = (0.72, 0.01) if ax_loc == 'major' else (0.99, 0.01)
+    
+    LEG = [Line2D([0], [0], marker = 'o', markersize = msize, ls = 'None', \
+    markeredgecolor = 'k', markerfacecolor = '#595959', markeredgewidth = 2, label = 'Averaged\nPredictions')]
+        
+    l1 = ax.legend(handles=LEG,
+              loc='lower right',
+              bbox_to_anchor=bta,
+              edgecolor = 'k',
+              facecolor = '#e6e6e6',
+              framealpha = 1,
+              fontsize = fs)
+    
+    ax.add_artist(l1)
     
     if save:
         plt.savefig(os.path.join(path, save))
@@ -1447,12 +1469,14 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None, title 
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
     if not _plot:
-        ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1, fontsize = 8)
+        l = ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1, fontsize = 8)
     else:
-        ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1)
+        l = ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1)
         props = dict(boxstyle='round', facecolor= (0.9, 0.9, 0.9), lw = 1)
         ax.text(0.95, 0.05, r'\textit{Non-Conservative Region}', transform=ax.transAxes,\
                 va='bottom', ha = 'right', bbox=props)
+    
+    ax.add_artist(l)
     
     if title:
         ax.set_title(r'\textbf{%s}'%title)
@@ -1479,7 +1503,7 @@ def graph_nn_12_dev(data, log = False, load = True, save = '', which = 'all'):
     bw = 10
     
     graph_nn_11_dev(data, log, load, '', which, ax_main)
-    _, h_data = graph_nn_1m_dev(data, log, load, '', which, ax_main)
+    _, h_data = graph_nn_1m_dev(data, log, load, '', which, ax_main, 'major')
     graph_nn_22_dev(data, log, load, '', ax_data)
     graph_nn_1m_dev(data, log, load, '', which, ax_data, 'minor')
     graph_nn_hist_only(h_data, bw, False, '', which, ax_hist)
