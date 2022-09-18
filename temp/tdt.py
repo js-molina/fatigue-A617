@@ -1,4 +1,3 @@
-#%%
 import os, sys
 
 p = os.path.abspath('.')
@@ -18,7 +17,7 @@ from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.preprocessing import StandardScaler
 from fatigue.models2.helper import get_nf
 
-matplotlib.rcParams['text.usetex'] = False
+# matplotlib.rcParams['text.usetex'] = False
 
 test_idx = {}
 dev_idx = {}
@@ -244,4 +243,3 @@ dev_idx['lowN'] = cDev.index
 train_idx['lowN'] = cTrain.index
 
 
-# %%

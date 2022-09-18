@@ -8,7 +8,7 @@ vals = [1, 5, 10, 60, 120, 500, 1000, 5000, 10834]
 
 # vals = [1, 2, 3, 4, 5] + list(range(10, 10835, 5))
 
-vals = [5, 10, 50] + list(range(100, 8200, 100))
+vals = [5, 10, 50] + list(range(100, 10800, 100))
 
 # vals = [5, 10, 50, 100] + list(range(500, 10900, 500))
 
@@ -20,7 +20,7 @@ err0 = []; err1= []; err2 = []
 for el in labels:
     # d = np.load('../mdata/ydata-06-07-22-D-%s.npz'%el)
     # d = np.load('../mdata/ydata-15-07-22-D-1-%s.npz'%el)
-    d = np.load('../mdata/ydata-12-07-22-D-1-%s.npz'%el)
+    d = np.load('../mdata/ydata-12-07-22-D-2-%s.npz'%el)
     x0, y0 = d['y_pred_train'], d['y_obs_train']
     x1, y1 = d['y_pred_dev'], d['y_obs_dev']
     x2, y2 = d['y_pred_test'], d['y_obs_test']
@@ -46,18 +46,18 @@ fig, ax = plt.subplots(1, 1, figsize=(4,4))
 ax.set_xlabel('Number of Cycles Utilised')
 ax.set_ylabel('MAPE (\%)')
 
-ax.set_ylim(0, 40)
+ax.set_ylim(0, 30)
 ax.set_xlim(0, 10000)
 
-ax.plot(vals, merr0, lw = 0.7, color = 'blue', alpha = 0.5)
-ax.plot(vals, merr1, lw = 0.7, color = 'xkcd:green', alpha = 0.5)
-ax.plot(vals, merr2, lw = 0.7, color = 'xkcd:red', alpha = 0.5)
+# ax.plot(vals, merr0, lw = 0.7, color = 'blue', alpha = 0.5)
+# ax.plot(vals, merr1, lw = 0.7, color = 'xkcd:green', alpha = 0.5)
+# ax.plot(vals, merr2, lw = 0.7, color = 'xkcd:red', alpha = 0.5)
 
-ax.plot(vals, avg_err.merr0, lw = 1.5, color = 'blue', label = 'Training Data')
-ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'xkcd:green', label = 'Development Data')
-ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Test Data')
+ax.plot(vals, avg_err.merr0, lw = 1.5, color = 'blue', label = 'Train')
+# ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'xkcd:green', label = 'Development Data')
+ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Test')
 
-ax.plot(vals, np.mean((avg_err.merr0, avg_err.merr1, avg_err.merr2), axis = 0), lw = 1.5, color = 'k', label = 'All Data')
+# ax.plot(vals, np.mean((avg_err.merr0, avg_err.merr1, avg_err.merr2), axis = 0), lw = 1.5, color = 'k', label = 'All Data')
 
 # msize = 5
 

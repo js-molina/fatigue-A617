@@ -1,4 +1,3 @@
-#%%
 # =============================================================================
 # Importing Modules
 # =============================================================================
@@ -46,7 +45,7 @@ sys.path.append(os.path.dirname(__file__))
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 # run_rd_devmodel('d', m_lstm_dev1, 10, 'ydata-15-07-22-D-1')
-run_rd_devmodel('d', s_lstm_dev1, 10, 'ydata-12-07-22-D-1')
+# run_rd_devmodel('d', s_lstm_dev1, 10, 'ydata-12-07-22-D-1')
 
 # run_rob_dev(s_lstm_dev1, 100, 'ydata-03-08-22-R-1')
 # run_rob_dev(s_lstm_dev2, 100, 'ydata-03-08-22-R-2')
@@ -64,17 +63,22 @@ run_rd_devmodel('d', s_lstm_dev1, 10, 'ydata-12-07-22-D-1')
 
 # %%
 
-# data = 'mdata/ydata-12-07-22-D-1-7600.npz'
+data = 'mdata/ydata-03-08-22-R-2.npz'
 
-# # data = 'mdata/ydata-21-07-22-M1.npz'
+data = 'mdata/ydata-12-07-22-D-2-10838.npz'
 
-# gr.models2.graph_nn_11_dev(data, log = log)
-# gr.models2.graph_nn_22_dev(data, log = log)
-# gr.models2.graph_nn_12_dev(data, log = log)
+log = True
 
-# print(gr.models2.get_meap(data, which = 'train'))
-# print(gr.models2.get_meap(data, which = 'dev'))
-# print(gr.models2.get_meap(data, which = 'test'), '\n')
+gr.models2.graph_nn_11_dev(data, log = log)
+# gr.models2.graph_nn_22_dev(data, log = log, v1 = True)
+gr.models2.graph_nn_12_dev(data, log = log)
 
-# print(gr.models2.get_meap(data))
-# print(gr.models2.get_chi(data))
+
+c, m = gr.models2.graph_nn_1m_dev(data, log = log, ver = True)
+
+
+print(gr.models2.get_meap(data, which = 'train'))
+print(gr.models2.get_meap(data, which = 'dev'))
+print(gr.models2.get_meap(data, which = 'test'), '\n')
+
+print(gr.models2.get_meap(data))

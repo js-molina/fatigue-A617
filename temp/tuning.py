@@ -344,7 +344,7 @@ def hmodel9(hp, time_input_shape, const_input_shape):
     hp_hidden_br2 = []
 
     # Initialising regularisers
-    for i in range(1):
+    for i in range(2):
         hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 16, max_value = 64, sampling = 'linear'))
         hp_hidden_kr1.append(hp.Float('hidden_kr1_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
         hp_hidden_br1.append(hp.Float('hidden_br1_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
@@ -352,7 +352,7 @@ def hmodel9(hp, time_input_shape, const_input_shape):
         hp_hidden_br2.append(hp.Float('hidden_br2_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
     
     # Feed through Dense layers
-    for i in range(1):
+    for i in range(2):
         temp_vector = layers.Dense(hp_hidden_units[i], kernel_regularizer=regularizers.l1_l2(hp_hidden_kr1[i], hp_hidden_kr2[i]),
                              bias_regularizer=regularizers.l1_l2(hp_hidden_br1[i], hp_hidden_br2[i]), activation='relu')(temp_vector)
 
@@ -397,7 +397,7 @@ preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test,
 tuner = kt.Hyperband(lambda x: hmodel9(x, Xv_train.shape[1:], Xc_train.shape[1:]),
                       objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
                       max_epochs=151, factor=3, hyperband_iterations=5, directory='Tuners',
-                      project_name='dev_10838_lowN',
+                      project_name='dev_10838_lowN2',
                       overwrite = False)
 
 # tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
