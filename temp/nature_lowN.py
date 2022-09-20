@@ -127,11 +127,11 @@ if cnat == 'slim':
 if drop_strain:
     x = x.drop('strain', axis = 1)
 
-# xx = pd.DataFrame()
-# for i in [1, -1]:
-#     arg = {x.columns[i] : x[x.columns[i]]}
-#     xx = xx.assign(**arg)
-# x = xx
+xx = pd.DataFrame()
+for i in [1, -1]:
+    arg = {x.columns[i] : x[x.columns[i]]}
+    xx = xx.assign(**arg)
+x = xx
 
 y = np.log1p(y) 
 
@@ -175,8 +175,7 @@ model = RandomizedSearchCV(regressor, params, n_iter = 1000, scoring='r2', cv=ps
 # model = RandomizedSearchCV(regressor, params, n_iter = 1000, scoring='r2', cv=4, verbose=0, refit = True)
 # model.fit(X_train, Y_train)
 
-model.fit(np.concatenate((X_train, X_test)), np.concatenate((Y_train, Y_test)))
-
+model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
 
 
 print('Best Params:')
@@ -374,36 +373,39 @@ print(get_meap(r_data, load = False, which = 'all'))
 
 #%%
 
+colors = ['#8000ff', '#ff1ac6', '#00b300']
 
-# x1 = np.concatenate([X_train[:,0], X_dev[:,0], X_test[:,0]])
-# x2 = np.concatenate([X_train[:,1], X_dev[:,1], X_test[:,1]])
+X = [X_train, X_dev, X_test]
+Y = [Y_train, Y_dev, Y_test]
 
-# y2 = np.concatenate([Y_train, Y_dev, Y_test])
 
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
+x1 = np.concatenate([X_train[:,0], X_dev[:,0], X_test[:,0]])
+x2 = np.concatenate([X_train[:,1], X_dev[:,1], X_test[:,1]])
+y2 = np.concatenate([Y_train, Y_dev, Y_test])
 
-# xt = np.linspace(-4, 4, 30)
-# yt = np.linspace(-4, 4, 30)
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
 
-# Xt, Yt = np.meshgrid(xt, yt)
+xt = np.linspace(-4, 4, 30)
+yt = np.linspace(-4, 4, 30)
+Xt, Yt = np.meshgrid(xt, yt)
+Zt = model.predict(np.concatenate([Xt.reshape(-1,1), Yt.reshape(-1,1)], axis = 1)).reshape(30, 30)
 
-# Zt = model.predict(np.concatenate([Xt.reshape(-1,1), Yt.reshape(-1,1)], axis = 1)).reshape(30, 30)
-
-# for i, x in enumerate(x1):
+for i, x in enumerate(x1):
     
-#     z = model.predict(np.reshape((x, x2[i]), (1,-1)))
-#     ax.plot3D((x, x), (x2[i], x2[i]), (y2[i][0], z[0]), 'r-')
+    z = model.predict(np.reshape((x, x2[i]), (1,-1)))
+    ax.plot3D((x, x), (x2[i], x2[i]), (y2[i][0], z[0]), 'r-')
 
-# ax.scatter(x1, x2, y2, marker = 'o', s = 60, color = 'red', alpha= 1)
+for i, col in enumerate(colors):
+    ax.scatter(X[i][:,0], X[i][:,1], Y[i], marker = 'o', s = 60, color = col, alpha= 1)
 
-# ax.plot_surface(Xt, Yt, Zt, color='steelblue', alpha = 0.3, edgecolor = 'None')
+ax.plot_surface(Xt, Yt, Zt, color='steelblue', alpha = 0.3, edgecolor = 'None')
 
-# ax.set_xlabel(rename['mean_s']+'[max]')
-# ax.set_ylabel(rename['strain'])
-# ax.set_zlabel('Fatigue Life')
+ax.set_xlabel(rename['mean_s']+'[max]')
+ax.set_ylabel(rename['strain'])
+ax.set_zlabel('Fatigue Life')
 
-# plt.show()
+plt.show()
 
 #%%
 

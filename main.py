@@ -53,12 +53,13 @@ sys.path.append(os.path.dirname(__file__))
 
 #%%
 
-# tf.keras.backend.clear_session()
-# _, _, history1 = run_test_devmodel('ydata-21-07-22-M1', s_lstm_dev1, 400, 'best', cycles=1800, callback = True)
+tf.keras.backend.clear_session()
+# _, _, history1 = run_test_devmodel('ydata-20-09-22-N', s_lstm_dev2, 400, 'lowN', cycles=200, callback = True)
+_, _, history1 = run_test_devmodel('ydata-20-09-22-N', s_lstm_lowN2, 400, 'lowN', cycles=1000, callback = True)
 
-# gr.validation.plot_history_loss(history1, 'LOSS')
-# gr.validation.plot_history_mape(history1, 'MAPE')
-# gr.validation.plot_history_rmse(history1, 'RMSE')
+gr.validation.plot_history_loss(history1, 'LOSS')
+gr.validation.plot_history_mape(history1, 'MAPE')
+gr.validation.plot_history_rmse(history1, 'RMSE')
 
 
 # %%
@@ -67,15 +68,17 @@ data = 'mdata/ydata-03-08-22-R-2.npz'
 
 data = 'mdata/ydata-12-07-22-D-2-10838.npz'
 
+data = 'mdata/ydata-19-09-22-N-10838.npz'
+
+data = 'mdata/ydata-20-09-22-N.npz'
+
 log = True
 
 gr.models2.graph_nn_11_dev(data, log = log)
-# gr.models2.graph_nn_22_dev(data, log = log, v1 = True)
+gr.models2.graph_nn_22_dev(data, log = log)
 gr.models2.graph_nn_12_dev(data, log = log)
 
-
-c, m = gr.models2.graph_nn_1m_dev(data, log = log, ver = True)
-
+# c, m = gr.models2.graph_nn_1m_dev(data, log = log)
 
 print(gr.models2.get_meap(data, which = 'train'))
 print(gr.models2.get_meap(data, which = 'dev'))

@@ -1489,7 +1489,7 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None, title 
     if _plot:
         plt.show()
     
-def graph_nn_12_dev(data, log = False, load = True, save = '', which = 'all'):
+def graph_nn_12_dev(data, log = False, load = True, save = '', which = 'all', avg = False):
     X = 4.5; S1 = 0.5; S2 = 0.6; 
     H = (X-S2)/2
     Y = (3*X+S1)/2
@@ -1502,11 +1502,16 @@ def graph_nn_12_dev(data, log = False, load = True, save = '', which = 'all'):
     # bins = 10 if len(y_obs.flatten()) <= 44 else 40
     bw = 10
     
-    graph_nn_11_dev(data, log, load, '', which, ax_main)
-    _, h_data = graph_nn_1m_dev(data, log, load, '', which, ax_main, 'major')
-    graph_nn_22_dev(data, log, load, '', ax_data)
-    graph_nn_1m_dev(data, log, load, '', which, ax_data, 'minor')
-    graph_nn_hist_only(h_data, bw, False, '', which, ax_hist)
+    if avg:
+        graph_nn_11_dev(data, log, load, '', which, ax_main)
+        _, h_data = graph_nn_1m_dev(data, log, load, '', which, ax_main, 'major')
+        graph_nn_22_dev(data, log, load, '', ax_data)
+        graph_nn_1m_dev(data, log, load, '', which, ax_data, 'minor')
+        graph_nn_hist_only(h_data, bw, False, '', which, ax_hist)
+    else:
+        graph_nn_11_dev(data, log, load, '', which, ax_main)
+        graph_nn_22_dev(data, log, load, '', ax_data)
+        graph_nn_hist_only(data, bw, load, '', which, ax_hist)
 
     if save:
         plt.savefig(os.path.join(path, save), bbox_inches = 'tight')
