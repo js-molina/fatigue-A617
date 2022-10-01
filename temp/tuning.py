@@ -311,7 +311,7 @@ def hmodel8(hp, time_input_shape, const_input_shape):
 
     return model
 
-def hmodel9(hp, time_input_shape, const_input_shape):
+def hmodel9(hp, time_input_shape, const_input_shape, nlayer):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.05)
     
@@ -344,7 +344,7 @@ def hmodel9(hp, time_input_shape, const_input_shape):
     hp_hidden_br2 = []
 
     # Initialising regularisers
-    for i in range(2):
+    for i in range(nlayer):
         hp_hidden_units.append(hp.Int('hidden_units_%d'%i, min_value = 16, max_value = 64, sampling = 'linear'))
         hp_hidden_kr1.append(hp.Float('hidden_kr1_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
         hp_hidden_br1.append(hp.Float('hidden_br1_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
@@ -352,7 +352,7 @@ def hmodel9(hp, time_input_shape, const_input_shape):
         hp_hidden_br2.append(hp.Float('hidden_br2_%d'%i, min_value = 1e-12, max_value = 1e-1, sampling = 'log'))
     
     # Feed through Dense layers
-    for i in range(2):
+    for i in range(nlayer):
         temp_vector = layers.Dense(hp_hidden_units[i], kernel_regularizer=regularizers.l1_l2(hp_hidden_kr1[i], hp_hidden_kr2[i]),
                              bias_regularizer=regularizers.l1_l2(hp_hidden_br1[i], hp_hidden_br2[i]), activation='relu')(temp_vector)
 
@@ -376,7 +376,7 @@ Xv, Xc, y = vectorise_data(tfeats = tfeats, cfeats = cfeats)
 
 y = np.log1p(y)
 
-split = 'lowN'
+split = 'best'
 train, dev, test = train_idx[split], dev_idx[split], test_idx[split]
 
 Xv_train = Xv[train]
@@ -394,79 +394,42 @@ y_test = y[test]
 Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, scaler_y = \
 preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test, y_train, y_dev, y_test, 10838)
 
-tuner = kt.Hyperband(lambda x: hmodel9(x, Xv_train.shape[1:], Xc_train.shape[1:]),
-                      objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
-                      max_epochs=151, factor=3, hyperband_iterations=5, directory='Tuners',
-                      project_name='dev_10838_lowN2',
-                      overwrite = False)
+for nlayer in range(1, 11):
+	tf.keras.backend.clear_session()
+	tf.random.set_seed(10)
+	tuner = kt.Hyperband(lambda x: hmodel9(x, Xv_train.shape[1:], Xc_train.shape[1:], nlayer),
+						  objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
+						  max_epochs=151, factor=3, hyperband_iterations=5, directory='Tuners',
+						  project_name='dev_10838_b_%d'%nlayer,
+						  overwrite = False)
 
-# tuner = kt.BayesianOptimization(lambda x: nrm(x, nr_lay, Xv_train.shape[1:], Xc_train.shape[1:]),
-#                      objective=kt.Objective("mean_absolute_percentage_error", direction="min"),
-#                      directory='Tuners', project_name='m_lstm_nr1',
-#                      overwrite = True)
+	stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+	# tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
+	tuner.search((Xv_train, Xc_train), y_train, epochs = 200, validation_data = ((Xv_dev, Xc_dev), y_dev), callbacks = [stop_early], batch_size = 33)
 
-stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+	best_hps=tuner.get_best_hyperparameters()[0]
 
-# tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
-tuner.search((Xv_train, Xc_train), y_train, epochs = 200, validation_data = ((Xv_dev, Xc_dev), y_dev), callbacks = [stop_early], batch_size = 33)
+	model = tuner.hypermodel.build(best_hps)
+	stop_early_loss = tf.keras.callbacks.EarlyStopping(monitor='val_mean_absolute_percentage_error', patience=100)
+	model.fit((Xv_train, Xc_train), y_train, epochs=400, validation_data = ((Xv_dev, Xc_dev), y_dev),
+	callbacks = [stop_early_loss], verbose = 0, batch_size = 33)
 
-best_hps=tuner.get_best_hyperparameters()[0]
+	hypermodel.save('models/best_%d.h5'%nlayer)
 
-for key, val in best_hps.values.items():
-    print(key + f' = {val}')
+	y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
+	y_pred0 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
+	
+	y_true0, y_pred0 = map(np.expm1, [y_true0, y_pred0])
+	   
+	y_true1 = scaler_y.inverse_transform(y_dev).reshape(-1)
+	y_pred1 = scaler_y.inverse_transform(model.predict((Xv_dev, Xc_dev))).reshape(-1)
+	
+	y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])    
+	
+	y_true2 = scaler_y.inverse_transform(y_test).reshape(-1)
+	y_pred2 = scaler_y.inverse_transform(model.predict((Xv_test, Xc_test))).reshape(-1)
+	
+	y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
 
-model = tuner.hypermodel.build(best_hps)
-history = model.fit((Xv_train, Xc_train), y_train, epochs=200, validation_data = ((Xv_dev, Xc_dev), y_dev), verbose = 0, batch_size = 33)
-
-val_meap_per_epoch = history.history['val_mean_absolute_percentage_error']
-val_rmse_per_epoch = history.history['val_root_mean_squared_error']
-best_epoch = val_meap_per_epoch.index(min(val_meap_per_epoch)) + 1
-# best_epoch = val_rmse_per_epoch.index(min(val_rmse_per_epoch)) + 1
-print('Best epoch: %d' % (best_epoch,))
-
-hypermodel = tuner.hypermodel.build(best_hps)
-hypermodel.fit((Xv_train, Xc_train), y_train, epochs=best_epoch, validation_data = ((Xv_dev, Xc_dev), y_test), verbose = 0, batch_size = 33)
-
-hypermodel.save('models/lowN.h5')
-
-eval_result = hypermodel.evaluate((Xv_test, Xc_test), y_test)
-print("[test loss, test rms, test mape]:", eval_result)
-
-y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
-y_pred0 = scaler_y.inverse_transform(hypermodel.predict((Xv_train, Xc_train))).reshape(-1)
-
-y_true0, y_pred0 = map(np.expm1, [y_true0, y_pred0])
-
-err0 = abs(y_true0-y_pred0)/y_true0*100
-
-rmse0 = mean_squared_error(y_true0, y_pred0)
-
-
-y_true1 = scaler_y.inverse_transform(y_dev).reshape(-1)
-y_pred1 = scaler_y.inverse_transform(hypermodel.predict((Xv_dev, Xc_dev))).reshape(-1)
-
-y_true1, y_pred1 = map(np.expm1, [y_true1, y_pred1])
-
-err1 = abs(y_true1-y_pred1)/y_true1*100
-
-rmse1 = mean_squared_error(y_true1, y_pred1)
-
-y_true2 = scaler_y.inverse_transform(y_test).reshape(-1)
-y_pred2 = scaler_y.inverse_transform(hypermodel.predict((Xv_test, Xc_test))).reshape(-1)
-
-y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
-
-err2 = abs(y_true2-y_pred2)/y_true2*100
-
-rmse2 = mean_squared_error(y_true2, y_pred2)
-
-print(f"Training Error: {min(err0):.2f}, {np.mean(err0):.2f}, {max(err0):.2f}")
-print(f"Development Error: {min(err1):.2f}, {np.mean(err1):.2f}, {max(err1):.2f}")
-print(f"Testing Error: {min(err2):.2f}, {np.mean(err2):.2f}, {max(err2):.2f}")
-
-print("Training - {}: {:.2e}".format(model.metrics_names[1], rmse0))
-print("Development - {}: {:.2e}".format(model.metrics_names[1], rmse1))
-print("Testing - {}: {:.2e}".format(model.metrics_names[1], rmse2))
-
-
-# %%
+	np.savez('../mdata/ydata-29-09-22-B%d'%nlayer, y_obs_train=y_true0, y_pred_train=y_pred0,
+                    y_obs_dev=y_true1, y_pred_dev=y_pred1, y_obs_test=y_true2, y_pred_test=y_pred2)
