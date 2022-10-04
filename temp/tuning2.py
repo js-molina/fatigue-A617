@@ -115,9 +115,17 @@ preprocess_multi_input_dev(Xv_train, Xv_dev, Xv_test, Xc_train, Xc_dev, Xc_test,
 for nlayer in range(1, 11):
 	tf.keras.backend.clear_session()
     
-	config = tf.ConfigProto()
-	config.gpu_options.allow_growth = True
-	session = tf.Session(config=config)
+	gpus = tf.config.list_physical_devices('GPU')
+	if gpus:
+	  try:
+	    # Currently, memory growth needs to be the same across GPUs
+	    for gpu in gpus:
+	      tf.config.experimental.set_memory_growth(gpu, True)
+	    logical_gpus = tf.config.list_logical_devices('GPU')
+	    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+	  except RuntimeError as e:
+	    # Memory growth must be set before GPUs have been initialized
+	    print(e)
     
 	tf.random.set_seed(10)
 	tuner = kt.Hyperband(lambda x: nmodel(x, Xv_train.shape[1:], Xc_train.shape[1:], nlayer),
