@@ -27,8 +27,6 @@ from fatigue.networks import vectorise_data
 from fatigue.neural.helper import preprocess_multi_input, preprocess_multi_input_dev
 from tdt import test_idx, dev_idx, train_idx
 
-metrics = [tf.keras.metrics.RootMeanSquaredError(), 'mean_absolute_percentage_error']
-
 def nmodel(hp, time_input_shape, const_input_shape, nlayer):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.05)
@@ -78,9 +76,9 @@ def nmodel(hp, time_input_shape, const_input_shape, nlayer):
 
     # Instantiate model
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
-
+ 
     # Compile
-    model.compile(loss='huber_loss', optimizer=opt, metrics = metrics)
+    model.compile(loss='huber_loss', optimizer=opt, metrics = 'mean_absolute_percentage_error')
 
     return model
 
@@ -132,8 +130,8 @@ for nlayer in range(1, 11):
 						  objective=kt.Objective("val_mean_absolute_percentage_error", direction="min"),
 						  max_epochs=151, factor=3, hyperband_iterations=3, directory='Tuners',
 						  distribution_strategy=tf.distribute.MirroredStrategy(),
-						  project_name='dev_10838_b_%d'%nlayer,
-						  overwrite = True)
+						  project_name='dev_100_b_%d'%nlayer,
+						  overwrite = False)
 
 	stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 	# tuner.search((Xv_train, Xc_train), y_train, epochs = 50, validation_split = 0.2, callbacks = [stop_early])
@@ -146,7 +144,7 @@ for nlayer in range(1, 11):
 	model.fit((Xv_train, Xc_train), y_train, epochs=400, validation_data = ((Xv_dev, Xc_dev), y_dev),
 	callbacks = [stop_early_loss], verbose = 0, batch_size = 33)
 
-	model.save('models/best_%d.h5'%nlayer)
+	model.save('models/best_100_%d.h5'%nlayer)
 
 	y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
 	y_pred0 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
@@ -163,5 +161,5 @@ for nlayer in range(1, 11):
 	
 	y_true2, y_pred2 = map(np.expm1, [y_true2, y_pred2])
 
-	np.savez('../mdata/ydata-01-10-22-B%d'%nlayer, y_obs_train=y_true0, y_pred_train=y_pred0,
+	np.savez('mdata/ydata-04-10-22-B%d'%nlayer, y_obs_train=y_true0, y_pred_train=y_pred0,
 		  y_obs_dev=y_true1, y_pred_dev=y_pred1, y_obs_test=y_true2, y_pred_test=y_pred2)
