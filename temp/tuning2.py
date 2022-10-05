@@ -29,7 +29,7 @@ from tdt import test_idx, dev_idx, train_idx
 
 def nmodel(hp, time_input_shape, const_input_shape, nlayer):
     
-    opt = tf.keras.optimizers.Adam(learning_rate=0.05)
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
     
     # Create separate inputs for time series and constants
     time_input = Input(shape=time_input_shape)
