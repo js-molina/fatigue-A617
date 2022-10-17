@@ -8,7 +8,7 @@ from sklearn.model_selection import KFold
 
 from ..networks import vectorise_data, single_input_data
 from .helper import preprocess_multi_input, preprocess_single_input
-from .arch import load_known_lstm_model, s_lstm_shallow
+from .arch import load_known_lstm_model
 from .validation import cross_val_eval, cross_val_single, cross_val_evalf
 from .robust import robustness, determinism, determinism_1, determinism_dev
 
@@ -80,7 +80,7 @@ def run_xval_model_f(load_func = load_known_lstm_model, ep = 40, save_all = '', 
     end = time.time()
     print("Total time: {:.2f} minutes".format((end - start)/60))
 
-def run_sval_model(load_func = s_lstm_shallow, ep = 30, save = False):
+def run_sval_model(load_func, ep = 30, save = False):
     
     start = time.time()
     print("Starting timer...")

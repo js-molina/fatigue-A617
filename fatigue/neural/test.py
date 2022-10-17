@@ -19,7 +19,7 @@ from keras.wrappers.scikit_learn import KerasRegressor
 
 from ..networks import vectorise_data, single_input_data
 from .helper import preprocess_multi_input, preprocess_single_input, preprocess_multi_input_dev
-from .arch import load_known_lstm_model, s_lstm_shallow, s_lstmconv_deep
+from .arch import load_known_lstm_model
 from ..graph import chi_ratio
 from ..graph.models2 import graph_nn_prediction
 from temp.get_folds import test_idx, train_idx
@@ -254,7 +254,7 @@ def run_test_devmodel(save_path = None, load_func = load_known_lstm_model, epoch
 
 
 
-def run_stest_model(save_path = None, model_name = None, load_func = s_lstm_shallow, epochs = 40, rand_st = 31):
+def run_stest_model(save_path = None, model_name = None, load_func = load_known_lstm_model, epochs = 40, rand_st = 31):
 
     tf.keras.backend.clear_session()
     start = time.time()
