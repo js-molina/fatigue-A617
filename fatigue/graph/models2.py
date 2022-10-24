@@ -860,7 +860,7 @@ def graph_nn_2_fold(data, log = False, load = True, save = '', which = 'both'):
     
     plt.show()
     
-def get_meap(data, load = True, which = 'all', v2 = True):
+def get_meap(data, load = True, which = 'all', v2 = True, rnd = None):
     if load:
         d = np.load(data)
     else:
@@ -886,7 +886,12 @@ def get_meap(data, load = True, which = 'all', v2 = True):
             y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1), d['y_obs_test'].reshape(11,-1)), axis = 0)
             y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1), d['y_pred_test'].reshape(11,-1)), axis = 0)
     
-    return (abs(y_obs-y_pred)/y_obs).mean()*100
+    meap = (abs(y_obs-y_pred)/y_obs).mean()*100
+    
+    if rnd:
+        return round(meap, rnd)
+    
+    return meap
 
 def get_chi(data, load = True, which = 'all', v2 = True):
     if load:

@@ -62,6 +62,63 @@ def full1(time_input_shape, const_input_shape):
 
     return model
 
+def full2(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+
+    time_feats = layers.LSTM(23, kernel_regularizer=regularizers.l1_l2(5.5821080396922795e-11, 5.141602144043134e-10),
+                            recurrent_regularizer=regularizers.l1_l2(0.0006007735501043499, 1.8046527605619644e-09),
+                            bias_regularizer=regularizers.l1_l2(8.948202179226428e-09, 2.2387283138414205e-09))(time_mask)
+
+    temp_vector = layers.concatenate([time_feats, const_input])
+    temp_vector = layers.Dense(16, kernel_regularizer=regularizers.l1_l2(2.7039143901674834e-07, 5.397011136665242e-06),
+    bias_regularizer=regularizers.l1_l2(0.00022541687940247357, 8.90787183599473e-12), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(35, kernel_regularizer=regularizers.l1_l2(2.565107308782899e-07, 0.00011644777987385169),
+    bias_regularizer=regularizers.l1_l2(2.4161950218370976e-09, 2.013372977671679e-06), activation='relu')(temp_vector)
+    life_pred = layers.Dense(1)(temp_vector)
+
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+
+    return model
+
+def full3(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+
+    time_feats = layers.LSTM(17, kernel_regularizer=regularizers.l1_l2(6.506603700273672e-09, 4.456753854853446e-10),
+                            recurrent_regularizer=regularizers.l1_l2(0.03635765612125397, 3.4960050925292308e-06),
+                            bias_regularizer=regularizers.l1_l2(7.90921911297815e-11, 1.7867653190339894e-10))(time_mask)
+
+    temp_vector = layers.concatenate([time_feats, const_input])
+    temp_vector = layers.Dense(62, kernel_regularizer=regularizers.l1_l2(4.038190581923118e-08, 1.341125877019067e-08),
+    bias_regularizer=regularizers.l1_l2(4.6174911116914075e-11, 4.0496755254748606e-11), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(17, kernel_regularizer=regularizers.l1_l2(0.008097505196928978, 4.824677901638097e-08),
+    bias_regularizer=regularizers.l1_l2(4.176363432861763e-08, 6.01820538577158e-05), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(19, kernel_regularizer=regularizers.l1_l2(0.0030067265033721924, 0.0005435885977931321),
+    bias_regularizer=regularizers.l1_l2(1.8910617516354478e-10, 2.4889861005572556e-11), activation='relu')(temp_vector)
+    life_pred = layers.Dense(1)(temp_vector)
+
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+
+    return model
+
 def hyperx1(time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)
@@ -87,7 +144,7 @@ def hyperx1(time_input_shape, const_input_shape):
 
     return model
 
-def hyperx1_(time_input_shape, const_input_shape):
+def hyperx1(time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)
     
@@ -96,14 +153,13 @@ def hyperx1_(time_input_shape, const_input_shape):
 
     time_mask = layers.Masking(mask_value=-999)(time_input)
 
-    time_feats = layers.LSTM(62, kernel_regularizer=regularizers.l1_l2(1.4247136803646754e-08, 1.2262842574273236e-05),
-                            recurrent_regularizer=regularizers.l1_l2(1.487018619350522e-09, 2.7363665111579394e-08),
-                            bias_regularizer=regularizers.l1_l2(2.87908637902623e-11, 0.004924624226987362))(time_mask)
+    time_feats = layers.LSTM(47, kernel_regularizer=regularizers.l1_l2(4.949280878463469e-07, 1.6556256365873878e-11),
+                            recurrent_regularizer=regularizers.l1_l2(3.5966958300548413e-09, 1.28701600488057e-07),
+                            bias_regularizer=regularizers.l1_l2(4.7282316950614245e-11, 0.004698931239545345))(time_mask)
 
     temp_vector = layers.concatenate([time_feats, const_input])
-    temp_vector = layers.Dense(55, kernel_regularizer=regularizers.l1_l2(1.1948046108045673e-07, 8.909753490549122e-11),
-    bias_regularizer=regularizers.l1_l2(2.8103937579904148e-11, 2.713873830523239e-12), activation='relu')(temp_vector)
-
+    temp_vector = layers.Dense(40, kernel_regularizer=regularizers.l1_l2(4.466400241653901e-06, 0.06338685005903244),
+    bias_regularizer=regularizers.l1_l2(1.3193664216704093e-10, 5.77767968934495e-05), activation='relu')(temp_vector)
     life_pred = layers.Dense(1)(temp_vector)
 
     model = Model(inputs=[time_input, const_input], outputs=[life_pred])
@@ -111,6 +167,7 @@ def hyperx1_(time_input_shape, const_input_shape):
     model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
 
     return model
+
 
 def hyperx2(time_input_shape, const_input_shape):
     

@@ -11,7 +11,7 @@ from keras.preprocessing.sequence import pad_sequences
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler, QuantileTransformer, MaxAbsScaler, PowerTransformer, Normalizer
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import KFold, LeaveOneOut, train_test_split, cross_val_score
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 from scipy.signal import savgol_filter
 import time
 import datetime
