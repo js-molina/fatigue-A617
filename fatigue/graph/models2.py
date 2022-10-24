@@ -16,6 +16,7 @@ from ..models2 import get_nf
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 # path = r'D:\INDEX\Notes\Semester_15\MMAN4952\Thesis B\figs'
+path = r'D:\INDEX\Notes\Semester_16\MMAN4953\Thesis C\img'
 
 def graph_model(model, save_path = None):
         
@@ -691,6 +692,11 @@ def graph_nn_hist_only(data, bin_width = 5, load = True, save = '', which = 'bot
     
     if not ax:
         _, ax = plt.subplots(figsize=(4,4))
+    else:
+        fs = 12
+        ax.xaxis.label.set_size(fs)
+        ax.yaxis.label.set_size(fs)
+        ax.tick_params(axis='both', which='major', labelsize=11)
     
     
     ax.fill_between([0, 100], 5, color = 'k', alpha = 0.1)
@@ -700,7 +706,7 @@ def graph_nn_hist_only(data, bin_width = 5, load = True, save = '', which = 'bot
      
     bins = range(-100, 100+bin_width, bin_width)
     
-    ax.hist(np.clip(y_diff, -50, 49), bins = bins, color = '#595959', ec="black", alpha = 1, weights=np.ones(len(y_diff)) / len(y_diff))
+    ax.hist(np.clip(y_diff, -100, 99), bins = bins, color = '#595959', ec="black", alpha = 1, weights=np.ones(len(y_diff)) / len(y_diff))
     
     ax.set_xlim(-100, 100)
     ax.set_ylim(0, 0.5)
@@ -711,7 +717,7 @@ def graph_nn_hist_only(data, bin_width = 5, load = True, save = '', which = 'bot
     
     ax.grid(dashes = (1, 5), color = 'k', lw = 0.7)
     
-    ax.set_xlabel('Percentage Error (\%)')
+    ax.set_xlabel('Percentage Error [\%]')
     ax.set_ylabel('Frequency')
     
     ax.yaxis.set_major_formatter(PercentFormatter(1))
@@ -854,7 +860,7 @@ def graph_nn_2_fold(data, log = False, load = True, save = '', which = 'both'):
     
     plt.show()
     
-def get_meap(data, load = True, which = 'all', v2 = True):
+def get_meap(data, load = True, which = 'all', v2 = True, rnd = None):
     if load:
         d = np.load(data)
     else:
@@ -880,7 +886,12 @@ def get_meap(data, load = True, which = 'all', v2 = True):
             y_obs = np.concatenate((d['y_obs_train'].reshape(33,-1), d['y_obs_test'].reshape(11,-1)), axis = 0)
             y_pred = np.concatenate((d['y_pred_train'].reshape(33,-1), d['y_pred_test'].reshape(11,-1)), axis = 0)
     
-    return (abs(y_obs-y_pred)/y_obs).mean()*100
+    meap = (abs(y_obs-y_pred)/y_obs).mean()*100
+    
+    if rnd:
+        return round(meap, rnd)
+    
+    return meap
 
 def get_chi(data, load = True, which = 'all', v2 = True):
     if load:
@@ -1115,6 +1126,7 @@ def graph_nn_11_dev(data, log = False, load = True, save = '', which = 'all', ax
         msize = 14
         ax.xaxis.label.set_size(fs)
         ax.yaxis.label.set_size(fs)
+        ax.tick_params(axis='both', which='major', labelsize=12)
     
     colors = plt.cm.gist_rainbow(np.linspace(0,1,6)).tolist()
     
@@ -1453,6 +1465,10 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None, title 
     
     if not _plot:
         msize = 3
+        fs = 12
+        ax.xaxis.label.set_size(fs)
+        ax.yaxis.label.set_size(fs)
+        ax.tick_params(axis='both', which='major', labelsize=11)
     else:
         labels = ['%s -- %.1f'%(s, get_meap(data, load, s.lower())) + r'\%' for s in labels]
     
@@ -1461,15 +1477,15 @@ def graph_nn_22_dev(data, log = False, load = True, save = '', ax = None, title 
     colors = ['#8000ff', '#ff1ac6', '#00b300']
 
 
-    for i, L in enumerate(Labels):
-        l = L.lower()
+    for i in range(3):
+        l = Labels[i].lower()
         ax.plot(d[f'y_pred_{l}'], d[f'y_obs_{l}'], markers[i], markersize = msize+2, ls = 'None', \
             markerfacecolor = 'None', markeredgecolor = colors[i], markeredgewidth = 2, label = labels[i])
 
     ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
     
     if not _plot:
-        l = ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1, fontsize = 8)
+        l = ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1, fontsize = 10)
     else:
         l = ax.legend(loc='upper left', edgecolor = 'k', framealpha = 1)
         props = dict(boxstyle='round', facecolor= (0.9, 0.9, 0.9), lw = 1)

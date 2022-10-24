@@ -16,7 +16,7 @@ import time
 
 from ..networks import vectorise_data, single_input_data
 from .helper import preprocess_multi_input, preprocess_single_input, preprocess_multi_input_dev
-from .arch import load_known_lstm_model, s_lstm_shallow
+from .arch import load_known_lstm_model
 import temp.tdt as tdt
 from temp.get_folds import test_idx, train_idx
 
