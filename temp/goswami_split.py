@@ -45,9 +45,14 @@ E = [153e3, 144e3, 148.5e3]
 
 LF = []
 
-D_train = Data.iloc[train]
-D_dev = Data.iloc[dev]
-D_test = Data.iloc[test]
+# D_train = Data.loc[train]
+# D_dev = Data.loc[dev]
+# D_test = Data.loc[test]
+
+train_dev = np.concatenate((train, dev))
+
+D_train = Data.loc[train_dev]
+D_test = Data.loc[test]
 
 for i, t in enumerate(TEMPS):
     DATA = D_train[(Data.Temps == t)] if t != 'a' else D_train
@@ -217,10 +222,30 @@ ax.text(0.95, 0.05, r'\textit{Non-Conservative Region}', transform=ax.transAxes,
 path = r'D:\INDEX\Notes\Semester_15\MMAN4952\Thesis B\figs'
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
-plt.savefig(os.path.join(path, 'goswami_split.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'goswami_split.pdf'), bbox_inches = 'tight')
 
-np.savez('../mdata/gos850', y_pred = pred[0], y_obs = obs[0])
-np.savez('../mdata/gos950', y_pred = pred[1], y_obs = obs[1])
+np.savez('../mdata/gos850tt', y_pred_train = pred[0], y_obs_train = obs[0],
+                            y_pred_test = pred_test[0], y_obs_test = obs_test[0])
+np.savez('../mdata/gos950tt', y_pred_train = pred[1], y_obs_train = obs[1],
+                            y_pred_test = pred_test[1], y_obs_test = obs_test[1])
 
 plt.show()  
 
+# %%
+final_table = pd.read_csv(r'../mdata/final.csv')
+
+# final_table = Data.copy()
+
+all_obs = list(np.concatenate(np.concatenate((obs[:2], obs_test[:2]))))
+all_pred = np.concatenate(np.concatenate((pred[:2], pred_test[:2])))
+
+ord_pred = []
+
+for c in Data.Cycles:
+    i = all_obs.index(c)
+    print(all_obs[i], all_pred[i])
+    ord_pred.append(all_pred[i])
+
+final_table['goswami'] = ord_pred
+
+final_table.to_csv(r'../mdata/final.csv', index=False)

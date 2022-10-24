@@ -30,7 +30,7 @@ drop_strain = False
 save = ''
 
 cnats = ['full', 'lin', 'slim']
-cnat = cnats[1]
+cnat = cnats[0]
 
 rename = {'max_s' : r'$\sigma_{\max}$', 'min_s' : r'$\sigma_{\min}$',
               's_ratio' : r'$\sigma_{r}$', 'mean_s' : r'$\sigma_{m}$', 
@@ -127,11 +127,11 @@ if cnat == 'slim':
 if drop_strain:
     x = x.drop('strain', axis = 1)
 
-xx = pd.DataFrame()
-for i in [1, -1]:
-    arg = {x.columns[i] : x[x.columns[i]]}
-    xx = xx.assign(**arg)
-x = xx
+# xx = pd.DataFrame()
+# for i in [1, -1]:
+#     arg = {x.columns[i] : x[x.columns[i]]}
+#     xx = xx.assign(**arg)
+# x = xx
 
 y = np.log1p(y) 
 
@@ -193,7 +193,8 @@ model = ElasticNet(**model.best_params_)
 # model = ElasticNet(**params)
 # model = LinearRegression()
 
-model.fit(X_train, Y_train)
+model.fit(np.concatenate((X_train, X_dev)), np.concatenate((Y_train, Y_dev)))
+# model.fit(X_train, Y_train)
 
 pred0 = model.predict(X_train).reshape(-1, 1)
 Y_obs0, Y_pred0 = map(yScaler.inverse_transform, [Y_train, pred0])
@@ -246,102 +247,115 @@ print(get_meap(r_data, load = False, which = 'all'))
 
 #%%
 
-# max_coeff = np.abs(r.coef).max()
+max_coeff = np.abs(r.coef).max()
 
-# important_feats = r[np.abs(r.coef) >= max_coeff*0.1]
+important_feats = r[np.abs(r.coef) >= max_coeff*0.1]
 
-# r_vals = []
-# nx, ny = xScaler.transform(x_train), yScaler.transform(y_train)
-# mx, my = xScaler.transform(x_test), yScaler.transform(y_test)
-# for i in range(52):
+r_vals = []
+nx, ny = xScaler.transform(x_train), yScaler.transform(y_train)
+mx, my = xScaler.transform(x_test), yScaler.transform(y_test)
+for i in range(52):
 
-# # for feat in important_feats.index:
-# #     i = x.columns.to_list().index(feat)
-#     feat = x.columns[i]
+# for feat in important_feats.index:
+#     i = x.columns.to_list().index(feat)
+    feat = x.columns[i]
     
-#     r_val = sp.stats.pearsonr(nx[:,i], ny.reshape(-1))[0]
-#     # print(feat, r_val)
-# #     fig, ax = plt.subplots(figsize=(4,4))
-# #     ax.plot(nx[:,i], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
-# #     plt.show()
+    r_val = sp.stats.pearsonr(nx[:,i], ny.reshape(-1))[0]
+    # print(feat, r_val)
+#     fig, ax = plt.subplots(figsize=(4,4))
+#     ax.plot(nx[:,i], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
+#     plt.show()
     
-#     r_vals.append((i, abs(r_val), feat))
+    r_vals.append((i, abs(r_val), feat))
 
-# r_vals.sort(key = lambda x: x[1])
-# print([r[0] for r in r_vals if r[1] >= 0.65])
+r_vals.sort(key = lambda x: x[1])
+print([r[0] for r in r_vals if r[1] >= 0.6])
 
-# # np.random.seed(13)
+# np.random.seed(13)
 
-# rm = np.random.choice(list(range(52)), 9, replace = False)
+rm = np.random.choice(list(range(52)), 9, replace = False)
 
 # %%
 
-# fig, taxes = plt.subplots(9, 6, figsize=(12,18), sharey = True)
+fig, taxes = plt.subplots(9, 6, figsize=(12,18), sharey = True)
 
-# fig.add_subplot(111, frameon=False)
-# plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-# plt.ylabel("Measured $N_f$", fontsize=17)
-# # plt.xlabel("Pullying Mass (g)", fontsize=13)
+fig.add_subplot(111, frameon=False)
+plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+plt.ylabel("Measured $N_f$", fontsize=17)
+# plt.xlabel("Pullying Mass (g)", fontsize=13)
 
-# ax = [taxes[i][j] for i in range(9) for j in range(6)]
+ax = [taxes[i][j] for i in range(9) for j in range(6)]
 
-# props = dict(boxstyle='round', facecolor='#b3d9ff', alpha=1)
+props = dict(boxstyle='round', facecolor='#b3d9ff', alpha=1)
+# props = dict(boxstyle='round', facecolor='wheat', alpha=1)
 
-# for i, feat in enumerate(r.index):
-#     j = x.columns.to_list().index(feat)
-#     # ax[i].set_xlabel(frname(x.columns[j]), labelpad = -10)
-#     if i >= 48:
-#         i += 1
+for i, feat in enumerate(r.index):
+    j = x.columns.to_list().index(feat)
+    # ax[i].set_xlabel(frname(x.columns[j]), labelpad = -10)
+    if i >= 48:
+        i += 1
         
-#     if j in [r[0] for r in r_vals if r[1] >= 0.65]:
-#         ax[i].set_facecolor('#b3ffb3')
-#     elif i in [4, 13, 25, 27, 29, 35, 36, 38, 41, 42, 44]:
-#         ax[i].set_facecolor('#ffff99')
-#     else:
-#         ax[i].set_facecolor('#ffb3b3')
+    if j in [r[0] for r in r_vals if r[1] >= 0.65]:
+        ax[i].set_facecolor((51/255, 204/255, 51/255, 0.2))
+    # elif i in [6, 10, 12, 21, 22, 23, 30, 32, 34, 36, 47]:
+    #     ax[i].set_facecolor('#ffff99')
+    else:
+        ax[i].set_facecolor((1, 0, 0, 0.2))
     
     
-#     ax[i].set_xlabel(frname(feat), labelpad = -14, fontsize = 13)
-#     ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
-#     ax[i].plot(mx[:,j], my, 'x', markeredgecolor = '#00ccff', markerfacecolor = 'None', markeredgewidth = 2)
-#     ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
-#             ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props, fontsize = 13)
+    ax[i].set_xlabel(frname(feat), labelpad = -14, fontsize = 13)
+    ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = '#0000ff', markerfacecolor = 'None', markeredgewidth = 1.2, label = 'Train')
+    ax[i].plot(mx[:,j], my, 'x', markeredgecolor = '#ff33cc', markerfacecolor = 'None', markeredgewidth = 2, label = 'Test')
+    ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
+            ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props, fontsize = 13)
     
-# for i in [48, 53]:
-#     ax[i].axis('off')
+for i in [48, 53]:
+    ax[i].axis('off')
+    
+handles, labels = ax[0].get_legend_handles_labels()
+fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'none', \
+            framealpha = 0, bbox_to_anchor=(0.61, 0.908), fontsize=14)
 
-# # plt.savefig(os.path.join(r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures', 'linear_feats4.svg'), bbox_inches = 'tight')
-# plt.show()
-
+path = r'D:\INDEX\Notes\Semester_16\MMAN4953\Thesis C\img'
+# plt.savefig(os.path.join(path, 'lin_feats.pdf'), bbox_inches = 'tight')
+plt.show()
 
 #%%
 
-# fig, taxes = plt.subplots(2, 4, figsize=(8,4), sharey = True)
+fig, taxes = plt.subplots(2, 4, figsize=(8,4), sharey = True)
 
-# fig.add_subplot(111, frameon=False)
-# plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-# plt.ylabel("Measured $N_f$", fontsize=14, labelpad = -10)
-# # plt.xlabel("Pullying Mass (g)", fontsize=13)
+fig.add_subplot(111, frameon=False)
+plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+plt.ylabel("Measured $N_f$", fontsize=13, labelpad = -15)
+# plt.xlabel("Pullying Mass (g)", fontsize=13)
 
-# ax = [taxes[i][j] for i in range(2) for j in range(4)]
+ax = [taxes[i][j] for i in range(2) for j in range(4)]
 
-# for i, j in enumerate([14, 17, 28, 4, 22, 16, 50]):
-#     # if i >= 4:
-#     #     i += 1
-#     ax[i].set_facecolor('#b3ffb3')
-#     ax[i].set_xlabel(frname(x.columns[j]), labelpad = -11, fontsize = 12)
-#     ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
-#     ax[i].plot(mx[:,j], my, 'x', markeredgecolor = 'red', markerfacecolor = 'None')
-#     ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
-#             ny.reshape(-1))[0], transform=ax[i].transAxes, fontsize = 12, va='bottom', ha = 'center', bbox=props)
+for i, j in enumerate([r[0] for r in r_vals if r[1] >= 0.65]):
+    if i >= 4:
+        box = ax[i].get_position()
+        box.x0 = box.x0 + 0.1
+        box.x1 = box.x1 + 0.1
+        ax[i].set_position(box)
+        # i += 1
+    # ax[i].set_facecolor('#b3ffb3')
+    ax[i].set_xlabel(frname(x.columns[j]), labelpad = -11, fontsize = 12)
+    ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+    ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = '#0000ff', markerfacecolor = 'None', markeredgewidth = 1.2, label = 'Train')
+    ax[i].plot(mx[:,j], my, 'x', markeredgecolor = '#ff33cc', markerfacecolor = 'None', markeredgewidth = 2, label = 'Test')
+    ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
+            ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props, fontsize = 13)
 
-# for i in [7]:
-#     ax[i].axis('off')    
+for i in [7]:
+    ax[i].axis('off')    
 
-# # plt.savefig(os.path.join(r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures', 'lowNfeats.pdf'), bbox_inches = 'tight')
-# plt.show()
+handles, labels = ax[0].get_legend_handles_labels()
+fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'k', \
+            framealpha = 0, bbox_to_anchor=(0.67, 0.99), fontsize=14)
+
+plt.savefig(os.path.join(path, 'lin_feats_lowN.pdf'), bbox_inches = 'tight')
+plt.show()
 
 #%%
 
@@ -371,41 +385,41 @@ print(get_meap(r_data, load = False, which = 'all'))
 # plt.savefig(os.path.join(r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures', 'lfeats2.svg'), bbox_inches = 'tight')
 # plt.show()
 
-#%%
+# %%
 
-colors = ['#8000ff', '#ff1ac6', '#00b300']
+# colors = ['#8000ff', '#ff1ac6', '#00b300']
 
-X = [X_train, X_dev, X_test]
-Y = [Y_train, Y_dev, Y_test]
+# X = [X_train, X_dev, X_test]
+# Y = [Y_train, Y_dev, Y_test]
 
 
-x1 = np.concatenate([X_train[:,0], X_dev[:,0], X_test[:,0]])
-x2 = np.concatenate([X_train[:,1], X_dev[:,1], X_test[:,1]])
-y2 = np.concatenate([Y_train, Y_dev, Y_test])
+# x1 = np.concatenate([X_train[:,0], X_dev[:,0], X_test[:,0]])
+# x2 = np.concatenate([X_train[:,1], X_dev[:,1], X_test[:,1]])
+# y2 = np.concatenate([Y_train, Y_dev, Y_test])
 
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
+# fig = plt.figure()
+# ax = fig.add_subplot(projection='3d')
 
-xt = np.linspace(-4, 4, 30)
-yt = np.linspace(-4, 4, 30)
-Xt, Yt = np.meshgrid(xt, yt)
-Zt = model.predict(np.concatenate([Xt.reshape(-1,1), Yt.reshape(-1,1)], axis = 1)).reshape(30, 30)
+# xt = np.linspace(-4, 4, 30)
+# yt = np.linspace(-4, 4, 30)
+# Xt, Yt = np.meshgrid(xt, yt)
+# Zt = model.predict(np.concatenate([Xt.reshape(-1,1), Yt.reshape(-1,1)], axis = 1)).reshape(30, 30)
 
-for i, x in enumerate(x1):
+# for i, x in enumerate(x1):
     
-    z = model.predict(np.reshape((x, x2[i]), (1,-1)))
-    ax.plot3D((x, x), (x2[i], x2[i]), (y2[i][0], z[0]), 'r-')
+#     z = model.predict(np.reshape((x, x2[i]), (1,-1)))
+#     ax.plot3D((x, x), (x2[i], x2[i]), (y2[i][0], z[0]), 'r-')
 
-for i, col in enumerate(colors):
-    ax.scatter(X[i][:,0], X[i][:,1], Y[i], marker = 'o', s = 60, color = col, alpha= 1)
+# for i, col in enumerate(colors):
+#     ax.scatter(X[i][:,0], X[i][:,1], Y[i], marker = 'o', s = 60, color = col, alpha= 1)
 
-ax.plot_surface(Xt, Yt, Zt, color='steelblue', alpha = 0.3, edgecolor = 'None')
+# ax.plot_surface(Xt, Yt, Zt, color='steelblue', alpha = 0.3, edgecolor = 'None')
 
-ax.set_xlabel(rename['mean_s']+'[max]')
-ax.set_ylabel(rename['strain'])
-ax.set_zlabel('Fatigue Life')
+# ax.set_xlabel(rename['mean_s']+'[max]')
+# ax.set_ylabel(rename['strain'])
+# ax.set_zlabel('Fatigue Life')
 
-plt.show()
+# plt.show()
 
 #%%
 

@@ -230,7 +230,7 @@ graph_nn_22_dev(r_data, log = log, load = False)
 
 sv = ''
 
-graph_nn_12_dev(r_data, log = log, load = False, save = sv)
+# graph_nn_12_dev(r_data, log = log, load = False, save = 'rlr_bestN.pdf')
 
 print(get_meap(r_data, load = False, which = 'train'))
 print(get_meap(r_data, load = False, which = 'dev'))
@@ -246,6 +246,8 @@ print(get_meap(r_data, load = False, which = 'all'))
 
 # r_vals = []
 # nx, ny = xScaler.transform(x), yScaler.transform(y)
+# nx, ny = xScaler.transform(x_train), yScaler.transform(y_train)
+# mx, my = xScaler.transform(x_test), yScaler.transform(y_test)
 # for i in range(52):
 
 # # for feat in important_feats.index:
@@ -267,18 +269,19 @@ print(get_meap(r_data, load = False, which = 'all'))
 
 # rm = np.random.choice(list(range(52)), 9, replace = False)
 
-#%%
+# %%
 
 # fig, taxes = plt.subplots(9, 6, figsize=(12,18), sharey = True)
 
 # fig.add_subplot(111, frameon=False)
 # plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-# plt.ylabel("Measured $N_f$", fontsize=15)
+# plt.ylabel("Measured $N_f$", fontsize=17)
 # # plt.xlabel("Pullying Mass (g)", fontsize=13)
 
 # ax = [taxes[i][j] for i in range(9) for j in range(6)]
 
-# props = dict(boxstyle='round', facecolor='wheat', alpha=1)
+# props = dict(boxstyle='round', facecolor='#b3d9ff', alpha=1)
+# # props = dict(boxstyle='round', facecolor='wheat', alpha=1)
 
 # for i, feat in enumerate(r.index):
 #     j = x.columns.to_list().index(feat)
@@ -286,51 +289,60 @@ print(get_meap(r_data, load = False, which = 'all'))
 #     if i >= 48:
 #         i += 1
         
-#     if j in [48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]:
-#         ax[i].set_facecolor('#b3ffb3')
+#     if j in [r[0] for r in r_vals if r[1] >= 0.65]:
+#         ax[i].set_facecolor((51/255, 204/255, 51/255, 0.2))
+#     elif i in [6, 10, 12, 21, 22, 23, 30, 32, 34, 36, 47]:
+#         ax[i].set_facecolor('#ffff99')
 #     else:
-#         ax[i].set_facecolor('#ffb3b3')
+#         ax[i].set_facecolor((1, 0, 0, 0.2))
+    
     
 #     ax[i].set_xlabel(frname(feat), labelpad = -14, fontsize = 13)
 #     ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
+#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = '#0000ff', markerfacecolor = 'None', markeredgewidth = 1.2, label = 'Train')
+#     ax[i].plot(mx[:,j], my, 'x', markeredgecolor = '#ff33cc', markerfacecolor = 'None', markeredgewidth = 2, label = 'Test')
 #     ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
 #             ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props, fontsize = 13)
     
 # for i in [48, 53]:
 #     ax[i].axis('off')
+    
+# handles, labels = ax[0].get_legend_handles_labels()
+# fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'none', \
+#            framealpha = 0, bbox_to_anchor=(0.61, 0.908), fontsize=14)
 
-# plt.savefig(os.path.join(r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures', 'linear_feats3.pdf'), bbox_inches = 'tight')
+# path = r'D:\INDEX\Notes\Semester_16\MMAN4953\Thesis C\img'
+# # plt.savefig(os.path.join(path, 'lin_feats.pdf'), bbox_inches = 'tight')
 # plt.show()
-
 
 #%%
 
-# fig, taxes = plt.subplots(3, 6, figsize=(12,6), sharey = True)
+# fig, taxes = plt.subplots(4, 4, figsize=(8,8), sharey = True)
 
 # fig.add_subplot(111, frameon=False)
 # plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 # plt.ylabel("Measured $N_f$", fontsize=13, labelpad = -15)
 # # plt.xlabel("Pullying Mass (g)", fontsize=13)
 
-# ax = [taxes[i][j] for i in range(3) for j in range(6)]
+# ax = [taxes[i][j] for i in range(4) for j in range(4)]
 
-# props = dict(boxstyle='round', facecolor='wheat', alpha=1)
-
-# for i, j in enumerate([48, 30, 33, 34, 14, 36, 40, 39, 17, 28, 22, 16, 4, 50]):
+# for i, j in enumerate([r[0] for r in r_vals if r[1] >= 0.65]):
 #     if i >= 12:
-#         i += 2
-#     ax[i].set_xlabel(frname(x.columns[j]), labelpad = -11)
+#         i += 1
+#     # ax[i].set_facecolor('#b3ffb3')
+#     ax[i].set_xlabel(frname(x.columns[j]), labelpad = -11, fontsize = 12)
 #     ax[i].tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
-#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = 'black', markerfacecolor = 'None')
+#     ax[i].plot(nx[:,j], ny, 'o', markeredgecolor = '#0000ff', markerfacecolor = 'None', markeredgewidth = 1.2, label = 'Train')
+#     ax[i].plot(mx[:,j], my, 'x', markeredgecolor = '#ff33cc', markerfacecolor = 'None', markeredgewidth = 2, label = 'Test')
 #     ax[i].text(0.5, 0.05, '$\\rho = %.2f$'%sp.stats.pearsonr(nx[:,j],\
-#             ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props)
+#             ny.reshape(-1))[0], transform=ax[i].transAxes, va='bottom', ha = 'center', bbox=props, fontsize = 13)
 
-# for i in [12, 13, 16, 17]:
+# for i in [12, 15]:
 #     ax[i].axis('off')    
 
-# # plt.savefig(os.path.join(r'D:\INDEX\Notes\Semester_15\MMAN4952\Thesis B\figs', 'lfeats.pdf'), bbox_inches = 'tight')
+# handles, labels = ax[0].get_legend_handles_labels()
+# fig.legend(handles, labels, ncol = 2, facecolor = 'white', edgecolor = 'k', \
+#            framealpha = 0, bbox_to_anchor=(0.67, 0.95), fontsize=14)
+
+# plt.savefig(os.path.join(path, 'lin_feats2.pdf'), bbox_inches = 'tight')
 # plt.show()
-
-
-#

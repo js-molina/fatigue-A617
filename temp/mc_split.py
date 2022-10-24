@@ -38,10 +38,10 @@ def manson_coffin_grad(mp, ap, me, ae):
     # print(np.exp(ap), mp, np.exp(ae), me)
     return lambda x: np.exp(ap)*mp*2*(2*x)**(mp-1) + np.exp(ae)*me*2*(2*x)**(me-1)
 
-dev_test = np.concatenate((dev, test))
+train_dev = np.concatenate((train, dev))
 
-D_train = Data.iloc[train]
-D_test = Data.iloc[dev_test]
+D_train = Data.loc[train_dev]
+D_test = Data.loc[test]
 
 mcs = []; mcsd = []
 
@@ -74,7 +74,6 @@ for i, t in enumerate(TEMPS):
         plastic = total - elastic
         cycles = int(DATA[DATA.Samples == sample].Cycles)
     
-    
         if sample in D_train.Samples.tolist():
             elastic_strain.append(elastic)
             plastic_strain.append(plastic)
@@ -92,8 +91,8 @@ for i, t in enumerate(TEMPS):
     elastic_strain_test, plastic_strain_test, total_strain_test, cycles_to_failure_test = \
     map(np.array, [elastic_strain_test, plastic_strain_test, total_strain_test, cycles_to_failure_test])       
     
-    plog = np.polyfit(np.log(2*cycles_to_failure), np.log(plastic_strain), 1)
-    elog = np.polyfit(np.log(2*cycles_to_failure), np.log(elastic_strain), 1)
+    plog = np.polyfit(np.log(2*cycles_to_failure), np.log(plastic_strain/2), 1)
+    elog = np.polyfit(np.log(2*cycles_to_failure), np.log(elastic_strain/2), 1)
     
     print(r2_score(np.log(elastic_strain), np.poly1d(elog)(np.log(2*np.array(cycles_to_failure)))))
     
@@ -118,9 +117,9 @@ for i, t in enumerate(TEMPS):
 
     x = np.logspace(*np.log10(xlim))
 
-    ax[i].plot(2*xlim, p(xlim)/2, 'b-', lw = 1)
-    ax[i].plot(2*xlim, e(xlim)/2, 'r-', lw = 1)
-    ax[i].plot(2*x, mc(x)/2, 'g-', lw = 1)
+    ax[i].plot(2*xlim, p(xlim), 'b-', lw = 1)
+    ax[i].plot(2*xlim, e(xlim), 'r-', lw = 1)
+    ax[i].plot(2*x, mc(x), 'g-', lw = 1)
 
     if i == 2:
         ax[i].set_title('Hybrid')
@@ -142,8 +141,9 @@ for i, t in enumerate(TEMPS):
     ax[i].grid(ls = ':', color = 'gray', lw = 0.5, which = 'minor')
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
+path = r'D:\INDEX\Notes\Semester_16\MMAN4953\Thesis C\img'
 
-# plt.savefig(os.path.join(path, 'mctest.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'mc_all.pdf'), bbox_inches = 'tight')
 
 #%%
 
@@ -230,8 +230,8 @@ ax.set_xscale('log')
 ax.set_xlabel('Predicted $N_f$')
 ax.set_ylabel('Measured $N_f$')
 
-ax.plot([100, 20000], [100, 20000], lw = 2, color = 'k')
-ax.fill_between([100, 20000], 100, [100, 20000], color = 'k', alpha = 0.1)
+ax.plot([50, 20000], [50, 20000], lw = 2, color = 'k')
+ax.fill_between([50, 20000], 50, [50, 20000], color = 'k', alpha = 0.1)
 
 ax.plot([100, 1e5], [200, 2e5], lw = 1, ls = '--', color = 'gray')
 ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
@@ -249,8 +249,6 @@ ax.plot(op950t[:, 1], op950t[:, 0], 'rx', markersize = 7, ls = 'None', markerfac
 # ax.plot(pred, obs, 's', markersize = 7, ls = 'None', markerfacecolor = 'None', markeredgecolor = '#ff9900', \
 #     markeredgewidth = 2, label = r'Hybrid -- $%.1f$'%((abs(obs-pred)/obs).mean()*100) + '\%')
 
- 
-
 ax.tick_params(axis = 'both', direction='in', which = 'both')
 ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 
@@ -264,6 +262,28 @@ legend = ax.legend(framealpha = 1, edgecolor = 'k', loc = 2)
     # t.set_fontsize(9)
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
 
-plt.savefig(os.path.join(path, 'cmanson_split.pdf'), bbox_inches = 'tight')
+np.savez('../mdata/cm850tt', y_pred_train = op850[:, 1], y_obs_train = op850[:, 0],
+                            y_pred_test = op850t[:, 1], y_obs_test = op850t[:, 0])
+np.savez('../mdata/cm950tt', y_pred_train = op950[:, 1], y_obs_train = op950[:, 0],
+                            y_pred_test = op950t[:, 1], y_obs_test = op950t[:, 0])
+
+# plt.savefig(os.path.join(path, 'cmanson_split.pdf'), bbox_inches = 'tight')
 plt.show()  
 
+#%%
+final_table = pd.read_csv(r'../mdata/final.csv')
+
+all_obs = list(np.concatenate((op850[:, 0], op850t[:, 0], op950[:, 0], op950t[:, 0])).astype('int64'))
+all_pred = np.concatenate((op850[:, 1], op850t[:, 1], op950[:, 1], op950t[:, 1]))
+
+
+ord_pred = []
+
+for c in Data.Cycles:
+    i = all_obs.index(c)
+    print(all_obs[i], all_pred[i])
+    ord_pred.append(all_pred[i])
+
+final_table['coffin_manson'] = ord_pred
+
+final_table.to_csv(r'../mdata/final.csv')

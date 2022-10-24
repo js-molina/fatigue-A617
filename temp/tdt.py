@@ -26,7 +26,7 @@ train_idx = {}
 def f(x, S):
     return len(S[S <= x])/len(S)
 
-Data = fd_to_df(fatigue_data.data).sort_values(by=['Temps', 'Strains'])
+Data = fd_to_df(fatigue_data.data)
 
 cycles = [get_nf(sample, from_sample=True) for sample in Data.Samples]
 

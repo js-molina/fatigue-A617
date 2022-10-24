@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib, os, sys
 
-data = ['rlr', 'rnn', 'mc850', 'mc950']
+# data = ['rlr', 'rnn', 'mc850', 'mc950']
 data = ['rlr','rnn', 'gos850', 'gos950']
 
 ax = plt.gca()
@@ -26,10 +26,10 @@ ax.plot([100, 1e5], [200, 2e5], lw = 1, ls = '--', color = 'gray')
 ax.plot([200, 2e5], [100, 1e5], lw = 1, ls = '--', color = 'gray')
 
 mfc = ['#707070', '#707070', 'b', 'r']
-mfc = ['steelblue', 'salmon']
+# mfc = ['steelblue', 'salmon', 'None', 'None']
 mec = ['k', 'k', 'b', 'r']
-# model = 'C-M'
-model = 'Goswami'
+model = 'C-M'
+# model = 'Goswami'
 labels = ['RLR Model', 'RNN Model', r'\SI{850}{\celsius} -- ' + model, r'\SI{950}{\celsius} -- ' + model]
 markers=  ['o', 's', 'x', '+']
 
@@ -37,8 +37,8 @@ ms = 8
 ew = 1
 
 for i, d in enumerate(data):
-    if i >= 2:
-        continue
+    # if i >= 2:
+    #     continue
     _ = np.load(f'../mdata/{d}.npz')
     obs, pred = _['y_obs'], _['y_pred']
 
@@ -62,5 +62,5 @@ legend = ax.legend(framealpha = 1, edgecolor = 'k', loc = 0)
     
 
 path = r'D:\INDEX\TextBooks\Thesis\Engineering\Manuscript\Figures'
-plt.savefig(os.path.join(path, 'data_only.pdf'), bbox_inches = 'tight')
+# plt.savefig(os.path.join(path, 'c-manson.pdf'), bbox_inches = 'tight')
 plt.show()  

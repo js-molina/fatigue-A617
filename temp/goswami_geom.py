@@ -176,9 +176,6 @@ ax.plot(pred[2], obs[2], 's', markersize = 7, ls = 'None', markerfacecolor = 'No
     markeredgewidth = 2, label = r'Hybrid -- $%.2f$'%((abs(obs[2]-pred[2])/obs[2]).mean()*100) + '\%')
 
     
-    
-
-
 ax.tick_params(axis = 'both', direction='in', which = 'both')
 ax.grid(dashes = (1, 5), color = 'gray', lw = 0.7)
 ax.set_title(r'\textbf{Goswami}')

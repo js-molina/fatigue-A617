@@ -84,7 +84,7 @@ def plot_cum_prob(cTrain, cTest, save = None):
     
     plt.show()
 
-Data = fd_to_df(fatigue_data.data).sort_values(by=['Temps', 'Strains'])
+Data = fd_to_df(fatigue_data.data)
 
 cycles = [get_nf(sample, from_sample=True) for sample in Data.Samples]
 

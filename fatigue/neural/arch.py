@@ -119,6 +119,114 @@ def full3(time_input_shape, const_input_shape):
 
     return model
 
+def full4(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+
+    time_feats = layers.LSTM(17, kernel_regularizer=regularizers.l1_l2(2.3572139980387874e-05, 2.6431443984620273e-06),
+                            recurrent_regularizer=regularizers.l1_l2(1.4419646277019638e-06, 9.520319821376688e-08),
+                            bias_regularizer=regularizers.l1_l2(0.0007002489874139428, 1.4513824586614987e-09))(time_mask)
+
+    temp_vector = layers.concatenate([time_feats, const_input])
+    temp_vector = layers.Dense(25, kernel_regularizer=regularizers.l1_l2(0.001223213504999876, 1.405930838416225e-08),
+    bias_regularizer=regularizers.l1_l2(0.007402257528156042, 1.7650458872253694e-10), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(36, kernel_regularizer=regularizers.l1_l2(5.707010863886808e-09, 0.003591313259676099),
+    bias_regularizer=regularizers.l1_l2(4.3302756580487767e-07, 0.020788652822375298), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(20, kernel_regularizer=regularizers.l1_l2(1.1137705769215245e-05, 1.0169219244460237e-08),
+    bias_regularizer=regularizers.l1_l2(0.018638677895069122, 6.76680890140946e-12), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(18, kernel_regularizer=regularizers.l1_l2(6.735171353966507e-08, 5.235108457846138e-10),
+    bias_regularizer=regularizers.l1_l2(0.09332398325204849, 2.9484617698471993e-06), activation='relu')(temp_vector)
+    life_pred = layers.Dense(1)(temp_vector)
+
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+
+    return model
+
+def full5(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+
+    time_feats = layers.LSTM(19, kernel_regularizer=regularizers.l1_l2(0.0002493099891580641, 8.011779755179305e-06),
+                            recurrent_regularizer=regularizers.l1_l2(1.193791945297562e-06, 2.4199548533943016e-06),
+                            bias_regularizer=regularizers.l1_l2(6.492994998552604e-06, 2.3224731599685855e-12))(time_mask)
+
+    temp_vector = layers.concatenate([time_feats, const_input])
+    temp_vector = layers.Dense(18, kernel_regularizer=regularizers.l1_l2(0.015238162130117416, 0.0004443212819751352),
+    bias_regularizer=regularizers.l1_l2(0.0003060656017623842, 5.8543114391795825e-06), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(33, kernel_regularizer=regularizers.l1_l2(0.007231844589114189, 0.023452023044228554),
+    bias_regularizer=regularizers.l1_l2(1.3810793461743742e-05, 2.4455036520126816e-12), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(63, kernel_regularizer=regularizers.l1_l2(0.001984973205253482, 0.00016718055121600628),
+    bias_regularizer=regularizers.l1_l2(7.462029429916583e-07, 0.0029514615889638662), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(17, kernel_regularizer=regularizers.l1_l2(0.006460623815655708, 2.899957326008007e-05),
+    bias_regularizer=regularizers.l1_l2(1.002695214184779e-12, 3.4530878156857625e-11), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(56, kernel_regularizer=regularizers.l1_l2(5.906805600197629e-11, 1.345200689684134e-05),
+    bias_regularizer=regularizers.l1_l2(1.3130986298293124e-09, 0.00023134564980864525), activation='relu')(temp_vector)
+    life_pred = layers.Dense(1)(temp_vector)
+
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+
+    return model
+
+def full6(time_input_shape, const_input_shape):
+    
+    opt = tf.keras.optimizers.Adam(learning_rate=0.01)
+    
+    time_input = Input(shape=time_input_shape)
+    const_input = Input(shape=const_input_shape)
+
+    time_mask = layers.Masking(mask_value=-999)(time_input)
+
+    time_feats = layers.LSTM(21, kernel_regularizer=regularizers.l1_l2(0.01814764365553856, 0.010479182004928589),
+                            recurrent_regularizer=regularizers.l1_l2(9.177941073801321e-09, 0.0003698321816045791),
+                            bias_regularizer=regularizers.l1_l2(7.962378845149942e-07, 0.036143116652965546))(time_mask)
+
+    temp_vector = layers.concatenate([time_feats, const_input])
+    temp_vector = layers.Dense(44, kernel_regularizer=regularizers.l1_l2(2.234925959576639e-11, 4.3864936571935687e-08),
+    bias_regularizer=regularizers.l1_l2(0.05614336207509041, 2.9288686059780744e-11), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(21, kernel_regularizer=regularizers.l1_l2(1.7262782869842397e-10, 1.7852774814031136e-11),
+    bias_regularizer=regularizers.l1_l2(1.3191034895498888e-06, 1.0493265563127352e-06), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(45, kernel_regularizer=regularizers.l1_l2(3.545226334722429e-08, 1.7436183043173514e-05),
+    bias_regularizer=regularizers.l1_l2(0.02185833267867565, 2.0660644306502718e-09), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(33, kernel_regularizer=regularizers.l1_l2(2.0498632125054428e-08, 5.847542539072492e-08),
+    bias_regularizer=regularizers.l1_l2(4.1194005671874034e-12, 1.8670047452484795e-10), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(33, kernel_regularizer=regularizers.l1_l2(7.951764928293414e-06, 0.0002009494783123955),
+    bias_regularizer=regularizers.l1_l2(2.3452288999692428e-08, 1.3780240806227084e-06), activation='relu')(temp_vector)
+
+    temp_vector = layers.Dense(24, kernel_regularizer=regularizers.l1_l2(8.787301553070392e-09, 1.2986957065308502e-09),
+    bias_regularizer=regularizers.l1_l2(1.6280461354045705e-11, 4.55458559756039e-10), activation='relu')(temp_vector)
+    life_pred = layers.Dense(1)(temp_vector)
+
+    model = Model(inputs=[time_input, const_input], outputs=[life_pred])
+
+    model.compile(loss='huber_loss', optimizer=opt, metrics=metrics)
+
+    return model
+
 def hyperx1(time_input_shape, const_input_shape):
     
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)

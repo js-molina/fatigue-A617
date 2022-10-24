@@ -54,7 +54,7 @@ ax.set_xlim(0, 10000)
 # ax.plot(vals, merr2, lw = 0.7, color = 'xkcd:red', alpha = 0.5)
 
 ax.plot(vals, avg_err.merr0, lw = 1.5, color = 'blue', label = 'Train')
-# ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'xkcd:green', label = 'Development Data')
+ax.plot(vals, avg_err.merr1, lw = 1.5, color = 'xkcd:green', label = 'Dev')
 ax.plot(vals, avg_err.merr2, lw = 1.5, color = 'red', label = 'Test')
 
 # ax.plot(vals, np.mean((avg_err.merr0, avg_err.merr1, avg_err.merr2), axis = 0), lw = 1.5, color = 'k', label = 'All Data')

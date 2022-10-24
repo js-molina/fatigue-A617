@@ -414,7 +414,7 @@ for nlayer in range(1, 11):
 	model.fit((Xv_train, Xc_train), y_train, epochs=400, validation_data = ((Xv_dev, Xc_dev), y_dev),
 	callbacks = [stop_early_loss], verbose = 0, batch_size = 33)
 
-	hypermodel.save('models/best_%d.h5'%nlayer)
+	model.save('models/best_%d.h5'%nlayer)
 
 	y_true0 = scaler_y.inverse_transform(y_train).reshape(-1)
 	y_pred0 = scaler_y.inverse_transform(model.predict((Xv_train, Xc_train))).reshape(-1)
